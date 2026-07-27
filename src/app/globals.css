@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------
+   Söztek QR Menü — Marka teması
+   Siyah zemin + yeşil (ana aksiyon) + turuncu (vurgu / CTA)
+---------------------------------------------------------------- */
+@theme {
+  /* Zemin & yüzeyler */
+  --color-bg: #0a0a0b;
+  --color-surface: #121214;
+  --color-surface-2: #1a1a1e;
+  --color-border: #26262c;
+
+  /* Metin */
+  --color-fg: #f5f5f4;
+  --color-muted: #a1a1aa;
+  --color-faint: #71717a;
+
+  /* Marka — yeşil */
+  --color-green: #22c55e;
+  --color-green-dark: #16a34a;
+  --color-green-soft: #052e16;
+
+  /* Marka — turuncu */
+  --color-orange: #f97316;
+  --color-orange-dark: #ea580c;
+  --color-orange-soft: #2a1206;
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+/* İnce, marka renkli kaydırma çubuğu */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+/* Yardımcı: yeşil→turuncu marka gradyanı */
+.brand-gradient-text {
+  background: linear-gradient(90deg, var(--color-green), var(--color-orange));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.brand-glow {
+  box-shadow: 0 0 0 1px var(--color-border),
+    0 20px 60px -20px rgba(34, 197, 94, 0.25);
+}

@@ -1,0 +1,24 @@
+import { NextResponse, type NextRequest } from "next/server";
+
+/**
+ * Next.js 16: middleware yerine `proxy`.
+ * Hafif kontrol — sadece oturum cookie'sinin varlığına bakar; tam doğrulama
+ * dashboard layout'unda (getCurrentUser) yapılır.
+ */
+export function proxy(request: NextRequest) {
+  const hasSession = Boolean(request.cookies.get("session")?.value);
+  const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith("/dashboard") && !hasSession) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/giris";
+    url.searchParams.set("next", pathname);
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/dashboard/:path*"],
+};

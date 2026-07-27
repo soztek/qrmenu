@@ -1,0 +1,131 @@
+// Söztek QR Menü — veri şeması
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Paket kimlikleri — src/lib/plans.ts ile aynı.
+enum PlanId {
+  starter
+  pro
+  premium
+}
+
+/// Abonelik durumu.
+enum SubscriptionStatus {
+  trialing // ücretsiz deneme sürüyor
+  active // ödemesi yapılmış, aktif
+  past_due // ödeme başarısız
+  canceled // iptal edilmiş / süresi dolmuş
+}
+
+/// Kullanıcı rolü.
+enum Role {
+  owner // işletme sahibi (üye)
+  admin // platform süper admin (biz)
+}
+
+/// Hesap sahibi — işletmeye kayıt olan kişi.
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String?
+  role         Role      @default(owner)
+  business     Business?
+  sessions     Session[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+/// Oturum — httpOnly cookie'deki token bu satıra karşılık gelir.
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// Bir işletme (kafe/restoran) — kayıt sonrası oluşturulur.
+model Business {
+  id     String @id @default(cuid())
+  owner  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+
+  name        String
+  slug        String  @unique // herkese açık menü URL'i: /m/<slug>
+  description String?
+  phone       String?
+  address     String?
+  logoUrl     String?
+
+  // Abonelik / deneme durumu
+  plan               PlanId             @default(starter)
+  subscriptionStatus SubscriptionStatus @default(trialing)
+  trialEndsAt        DateTime // kayıt + 7 gün
+  currentPeriodEnd   DateTime? // aktif abonelikte dönem sonu
+
+  categories Category[]
+  menuItems  MenuItem[]
+  tables     RestaurantTable[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([subscriptionStatus])
+}
+
+/// Menü kategorisi (ör. Kahveler, Tatlılar).
+model Category {
+  id         String     @id @default(cuid())
+  business   Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String
+  name       String
+  sortOrder  Int        @default(0)
+  items      MenuItem[]
+  createdAt  DateTime   @default(now())
+
+  @@index([businessId])
+}
+
+/// Menü ürünü.
+model MenuItem {
+  id          String   @id @default(cuid())
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  String
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  photoUrl    String?
+  isAvailable Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([categoryId])
+}
+
+/// Masa (Premium: masa yönetimi) — masaya özel QR için qrToken.
+model RestaurantTable {
+  id         String   @id @default(cuid())
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String
+  label      String // ör. "Masa 5"
+  qrToken    String   @unique @default(cuid())
+  createdAt  DateTime @default(now())
+
+  @@index([businessId])
+}
