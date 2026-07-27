@@ -9,6 +9,9 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Migration'lar için DOĞRUDAN (unpooled) bağlantı tercih edilir; Neon'un
+    // pgbouncer'lı pooled bağlantısı migration'da sorun çıkarır. Yerelde
+    // DATABASE_URL_UNPOOLED tanımsızsa DATABASE_URL'e düşer.
+    url: process.env["DATABASE_URL_UNPOOLED"] ?? process.env["DATABASE_URL"],
   },
 });
