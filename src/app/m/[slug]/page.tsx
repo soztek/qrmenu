@@ -14,6 +14,7 @@ async function getMenu(slug: string) {
       description: true,
       logoUrl: true,
       coverUrl: true,
+      menuTheme: true,
       phone: true,
       address: true,
       mapsUrl: true,
@@ -106,6 +107,7 @@ export default async function PublicMenuPage({
       }}
       categories={categories}
       reviews={business.reviews}
+      theme={business.menuTheme}
     />
   );
 }

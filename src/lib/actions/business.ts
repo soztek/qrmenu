@@ -19,6 +19,7 @@ const schema = z.object({
   workingHours: z.string().trim().max(120).optional(),
   logoUrl: z.string().trim().optional(),
   coverUrl: z.string().trim().optional(),
+  menuTheme: z.enum(["dark", "corporate", "luxury", "organic"]).optional(),
 });
 
 const emptyToNull = (v?: string) => (v && v.length > 0 ? v : null);
@@ -42,6 +43,7 @@ export async function updateBusiness(
     workingHours: formData.get("workingHours") || undefined,
     logoUrl: formData.get("logoUrl") || undefined,
     coverUrl: formData.get("coverUrl") || undefined,
+    menuTheme: formData.get("menuTheme") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Geçersiz bilgiler" };
@@ -66,6 +68,7 @@ export async function updateBusiness(
       workingHours: emptyToNull(d.workingHours),
       logoUrl: emptyToNull(d.logoUrl),
       coverUrl: emptyToNull(d.coverUrl),
+      ...(d.menuTheme ? { menuTheme: d.menuTheme } : {}),
     },
   });
 

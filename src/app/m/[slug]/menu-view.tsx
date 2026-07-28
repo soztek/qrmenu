@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useActionState, useEffect, useRef } from "react";
 import { formatTL } from "@/lib/url";
 import { submitReview, type ReviewState } from "@/lib/actions/reviews";
+import { themeStyle } from "@/lib/themes";
 
 export interface MenuItemT {
   id: string;
@@ -44,7 +45,7 @@ function Stars({ n, className = "" }: { n: number; className?: string }) {
   return (
     <span className={`text-orange ${className}`}>
       {"★".repeat(n)}
-      <span className="text-white/25">{"★".repeat(5 - n)}</span>
+      <span className="text-faint/40">{"★".repeat(5 - n)}</span>
     </span>
   );
 }
@@ -53,10 +54,12 @@ export function MenuView({
   business,
   categories,
   reviews,
+  theme,
 }: {
   business: MenuBusinessT;
   categories: MenuCategoryT[];
   reviews: MenuReviewT[];
+  theme: string;
 }) {
   const [active, setActive] = useState<string | null>(null); // null = kategori grid
   const [query, setQuery] = useState("");
@@ -93,7 +96,10 @@ export function MenuView({
     business.workingHours;
 
   return (
-    <div className="mx-auto min-h-screen max-w-lg bg-bg pb-16">
+    <div
+      style={themeStyle(theme)}
+      className="mx-auto min-h-screen max-w-lg bg-bg pb-16 text-fg"
+    >
       {/* ── Hero ── */}
       <header className="relative">
         <div
@@ -119,7 +125,7 @@ export function MenuView({
                 className="h-18 w-18 rounded-2xl border-2 border-bg object-cover"
               />
             ) : (
-              <div className="grid h-16 w-16 place-items-center rounded-2xl border-2 border-bg bg-green text-2xl font-bold text-black">
+              <div className="grid h-16 w-16 place-items-center rounded-2xl border-2 border-bg bg-green text-2xl font-bold text-on-primary">
                 {business.name.charAt(0)}
               </div>
             )}
@@ -289,7 +295,7 @@ export function MenuView({
           <h2 className="text-lg font-bold">Yorumlar</h2>
           <button
             onClick={() => setReviewOpen((v) => !v)}
-            className="rounded-lg bg-green px-3 py-1.5 text-sm font-semibold text-black"
+            className="rounded-lg bg-green px-3 py-1.5 text-sm font-semibold text-on-primary"
           >
             Yorum yap
           </button>
@@ -374,7 +380,7 @@ function Chip({
     <button
       onClick={onClick}
       className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition ${
-        active ? "bg-green font-medium text-black" : "bg-surface-2 text-muted"
+        active ? "bg-green font-medium text-on-primary" : "bg-surface-2 text-muted"
       }`}
     >
       {children}
@@ -468,7 +474,7 @@ function ReviewForm({ slug, onDone }: { slug: string; onDone: () => void }) {
             key={n}
             type="button"
             onClick={() => setRating(n)}
-            className={`text-2xl ${n <= rating ? "text-orange" : "text-white/25"}`}
+            className={`text-2xl ${n <= rating ? "text-orange" : "text-faint/40"}`}
             aria-label={`${n} yıldız`}
           >
             ★
@@ -488,7 +494,7 @@ function ReviewForm({ slug, onDone }: { slug: string; onDone: () => void }) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-black transition hover:bg-green-dark disabled:opacity-60"
+          className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-on-primary transition hover:bg-green-dark disabled:opacity-60"
         >
           {pending ? "Gönderiliyor…" : "Gönder"}
         </button>

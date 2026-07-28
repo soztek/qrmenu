@@ -42,6 +42,7 @@ export default async function SettingsPage() {
             workingHours: b.workingHours,
             logoUrl: b.logoUrl,
             coverUrl: b.coverUrl,
+            menuTheme: b.menuTheme,
           }}
         />
       </div>

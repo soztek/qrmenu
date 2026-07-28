@@ -67,6 +67,7 @@ model Business {
   description String?
   logoUrl     String?
   coverUrl    String? // menü üstündeki kapak görseli
+  menuTheme   String  @default("dark") // herkese açık menü renk teması
 
   // İletişim / bilgi (menüdeki bilgi panelinde gösterilir)
   phone        String?

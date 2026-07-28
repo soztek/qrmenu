@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { updateBusiness, type BusinessState } from "@/lib/actions/business";
 import { PhotoUpload } from "@/components/photo-upload";
+import { MENU_THEMES } from "@/lib/themes";
 
 const inputCls =
   "w-full rounded-lg border border-border bg-surface-2 px-3.5 py-2.5 text-sm text-fg outline-none transition placeholder:text-faint focus:border-green focus:ring-2 focus:ring-green/20";
@@ -46,6 +47,7 @@ export interface BusinessData {
   workingHours: string | null;
   logoUrl: string | null;
   coverUrl: string | null;
+  menuTheme: string;
 }
 
 export function SettingsForm({ business }: { business: BusinessData }) {
@@ -53,6 +55,7 @@ export function SettingsForm({ business }: { business: BusinessData }) {
     updateBusiness,
     {},
   );
+  const [theme, setTheme] = useState(business.menuTheme || "dark");
   const [saved, setSaved] = useState(false);
   useEffect(() => {
     if (state.ok) {
@@ -84,6 +87,42 @@ export function SettingsForm({ business }: { business: BusinessData }) {
               initialUrl={business.coverUrl}
             />
           </div>
+        </div>
+      </section>
+
+      {/* Menü teması */}
+      <section className="rounded-2xl border border-border bg-surface p-6">
+        <h2 className="font-semibold">Menü teması</h2>
+        <p className="mt-1 text-sm text-muted">
+          Müşterilerin QR okutunca göreceği menünün renk teması.
+        </p>
+        <input type="hidden" name="menuTheme" value={theme} />
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {MENU_THEMES.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTheme(t.id)}
+              className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${
+                theme === t.id
+                  ? "border-green ring-2 ring-green/30"
+                  : "border-border hover:border-green/40"
+              }`}
+            >
+              <span className="flex shrink-0 overflow-hidden rounded-lg border border-border">
+                {t.swatch.map((c, i) => (
+                  <span key={i} style={{ background: c }} className="h-11 w-5" />
+                ))}
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-medium">
+                  {t.label}
+                  {theme === t.id && <span className="text-green"> ✓</span>}
+                </span>
+                <span className="block text-xs text-faint">{t.description}</span>
+              </span>
+            </button>
+          ))}
         </div>
       </section>
 

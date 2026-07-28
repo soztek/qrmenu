@@ -26,6 +26,9 @@
   --color-orange-dark: #ea580c;
   --color-orange-soft: #2a1206;
 
+  /* Ana renk üstündeki metin (buton yazısı) — tema ile değişir */
+  --color-on-primary: #0a0a0b;
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
