@@ -42,6 +42,7 @@ export default function Home() {
       <Nav />
       <main className="flex-1">
         <Hero />
+        <PhotoMarquee />
         <Features />
         <HowItWorks />
         <Pricing />
@@ -162,7 +163,7 @@ function PhoneMock() {
       <div className="brand-glow rounded-[2.2rem] border border-border bg-surface p-3">
         <div className="overflow-hidden rounded-[1.7rem] bg-bg">
           <div className="bg-gradient-to-br from-green-soft to-orange-soft px-5 pb-5 pt-6">
-            <div className="text-xs text-green">Köşe Kafe</div>
+            <div className="text-xs text-green">Söztek Cafe</div>
             <div className="text-lg font-bold">Menü</div>
             <div className="mt-3 flex gap-2 text-[11px]">
               <span className="rounded-full bg-green px-2.5 py-1 font-medium text-black">
@@ -175,20 +176,23 @@ function PhoneMock() {
           </div>
           <div className="space-y-3 p-4">
             {[
-              ["Latte", "₺75"],
-              ["Filtre Kahve", "₺60"],
-              ["Sufle", "₺95"],
-            ].map(([name, price]) => (
+              ["Latte", "₺75", "/landing/food-2.jpg", "Sıcak içecek"],
+              ["Filtre Kahve", "₺60", "/landing/food-1.jpg", "Sıcak içecek"],
+              ["Sufle", "₺95", "/landing/food-3.jpg", "Tatlı"],
+            ].map(([name, price, img, tag]) => (
               <div
                 key={name}
                 className="flex items-center gap-3 rounded-xl border border-border bg-surface p-2.5"
               >
-                <span className="grid h-11 w-11 place-items-center rounded-lg bg-surface-2 text-faint">
-                  <Icon path={ICONS.photo} className="h-5 w-5" />
-                </span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={img}
+                  alt=""
+                  className="h-11 w-11 shrink-0 rounded-lg object-cover"
+                />
                 <div className="flex-1">
                   <div className="text-sm font-medium">{name}</div>
-                  <div className="text-[11px] text-faint">Sıcak içecek</div>
+                  <div className="text-[11px] text-faint">{tag}</div>
                 </div>
                 <div className="text-sm font-semibold text-orange">{price}</div>
               </div>
@@ -197,6 +201,40 @@ function PhoneMock() {
         </div>
       </div>
     </div>
+  );
+}
+
+/* ── animasyonlu fotoğraf şeridi ──────────────────────────────── */
+function PhotoMarquee() {
+  const photos = [1, 2, 3, 4, 5, 6, 7, 8];
+  return (
+    <section className="overflow-hidden border-y border-border/60 bg-surface/30 py-8">
+      <div className="mb-5 text-center">
+        <span className="text-xs font-semibold uppercase tracking-wider text-green">
+          İştah açan menüler
+        </span>
+        <p className="mt-1 text-muted">
+          Fotoğraflı ürünlerle müşterinizin iştahını kabartın
+        </p>
+      </div>
+      {/* İki kopya yan yana → kesintisiz kayan bant */}
+      <div className="marquee-track flex w-max gap-4">
+        {[...photos, ...photos].map((n, i) => (
+          <div
+            key={i}
+            className="h-40 w-60 shrink-0 overflow-hidden rounded-2xl border border-border"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/landing/food-${n}.jpg`}
+              alt=""
+              loading="lazy"
+              className="h-full w-full object-cover transition duration-500 hover:scale-105"
+            />
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 

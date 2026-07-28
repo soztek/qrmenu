@@ -61,6 +61,27 @@ body {
     0 20px 60px -20px rgba(34, 197, 94, 0.25);
 }
 
+/* ── Landing: animasyonlu fotoğraf şeridi ── */
+.marquee-track {
+  animation: marquee-scroll 45s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
 /* ── Yazdırma (PDF menü) ── */
 @media print {
   .no-print {
