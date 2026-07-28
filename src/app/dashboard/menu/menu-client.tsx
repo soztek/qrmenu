@@ -356,6 +356,7 @@ function ItemForm({
     action,
     {},
   );
+  const nameRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (state.ok) onDone();
   }, [state, onDone]);
@@ -369,6 +370,7 @@ function ItemForm({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <input
+          ref={nameRef}
           name="name"
           defaultValue={item?.name}
           placeholder="Ürün adı"
@@ -393,7 +395,11 @@ function ItemForm({
         rows={2}
         className={inputCls}
       />
-      <PhotoUpload name="photoUrl" initialUrl={item?.photoUrl ?? null} />
+      <PhotoUpload
+        name="photoUrl"
+        initialUrl={item?.photoUrl ?? null}
+        getQuery={() => nameRef.current?.value ?? ""}
+      />
 
       {state.error && <p className="text-sm text-orange">{state.error}</p>}
 
