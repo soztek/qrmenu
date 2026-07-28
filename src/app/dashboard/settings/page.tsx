@@ -31,6 +31,7 @@ export default async function SettingsPage() {
       <div className="mt-6">
         <SettingsForm
           business={{
+            slug: b.slug,
             name: b.name,
             description: b.description,
             phone: b.phone,

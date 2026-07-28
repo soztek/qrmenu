@@ -4,10 +4,16 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { slugify } from "@/lib/slug";
 
 export type BusinessState = { error?: string; ok?: boolean };
 
+// /m/<slug> altında olduğu için üst düzey route'larla çakışmaz, yine de
+// karışıklık yaratmasın diye birkaç kelimeyi rezerve ediyoruz.
+const RESERVED_SLUGS = new Set(["admin", "api", "dashboard", "giris", "kayit", "m"]);
+
 const schema = z.object({
+  slug: z.string().trim().max(50).optional(),
   name: z.string().trim().min(2, "İşletme adı en az 2 karakter olmalı").max(80),
   description: z.string().trim().max(300).optional(),
   phone: z.string().trim().max(30).optional(),
@@ -32,6 +38,7 @@ export async function updateBusiness(
   if (!user?.business) return { error: "Yetkisiz" };
 
   const parsed = schema.safeParse({
+    slug: formData.get("slug") || undefined,
     name: formData.get("name"),
     description: formData.get("description") || undefined,
     phone: formData.get("phone") || undefined,
@@ -50,6 +57,28 @@ export async function updateBusiness(
   }
   const d = parsed.data;
 
+  // Menü adresi (slug) değiştiriliyorsa doğrula + benzersizlik.
+  let newSlug: string | undefined;
+  if (d.slug) {
+    const s = slugify(d.slug);
+    if (s.length < 2) {
+      return { error: "Menü adresi en az 2 karakter olmalı (harf/rakam)." };
+    }
+    if (RESERVED_SLUGS.has(s)) {
+      return { error: "Bu menü adresi ayrılmış, başka bir ad seç." };
+    }
+    if (s !== user.business.slug) {
+      const taken = await prisma.business.findFirst({
+        where: { slug: s, id: { not: user.business.id } },
+        select: { id: true },
+      });
+      if (taken) {
+        return { error: "Bu menü adresi kullanılıyor, başka bir ad dene." };
+      }
+      newSlug = s;
+    }
+  }
+
   // Instagram: tam URL değilse @'siz kullanıcı adına indir.
   let instagram = emptyToNull(d.instagram);
   if (instagram) instagram = instagram.replace(/^@/, "").trim();
@@ -57,6 +86,7 @@ export async function updateBusiness(
   await prisma.business.update({
     where: { id: user.business.id },
     data: {
+      ...(newSlug ? { slug: newSlug } : {}),
       name: d.name,
       description: emptyToNull(d.description),
       phone: emptyToNull(d.phone),
@@ -74,5 +104,6 @@ export async function updateBusiness(
 
   revalidatePath("/dashboard/settings");
   revalidatePath(`/m/${user.business.slug}`);
+  if (newSlug) revalidatePath(`/m/${newSlug}`);
   return { ok: true };
 }

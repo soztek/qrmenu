@@ -1,9 +1,25 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { updateBusiness, type BusinessState } from "@/lib/actions/business";
 import { PhotoUpload } from "@/components/photo-upload";
 import { MENU_THEMES } from "@/lib/themes";
+
+const TR: Record<string, string> = {
+  ç: "c", ğ: "g", ı: "i", ö: "o", ş: "s", ü: "u",
+};
+/** Menü adresi önizlemesi için hafif temizleme (sunucu asıl doğrulamayı yapar). */
+function cleanSlug(v: string): string {
+  return v
+    .split("")
+    .map((c) => TR[c] ?? c)
+    .join("")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 50);
+}
 
 const inputCls =
   "w-full rounded-lg border border-border bg-surface-2 px-3.5 py-2.5 text-sm text-fg outline-none transition placeholder:text-faint focus:border-green focus:ring-2 focus:ring-green/20";
@@ -48,6 +64,7 @@ export interface BusinessData {
   logoUrl: string | null;
   coverUrl: string | null;
   menuTheme: string;
+  slug: string;
 }
 
 export function SettingsForm({ business }: { business: BusinessData }) {
@@ -55,15 +72,18 @@ export function SettingsForm({ business }: { business: BusinessData }) {
     updateBusiness,
     {},
   );
+  const router = useRouter();
   const [theme, setTheme] = useState(business.menuTheme || "dark");
+  const [slug, setSlug] = useState(business.slug);
   const [saved, setSaved] = useState(false);
   useEffect(() => {
     if (state.ok) {
       setSaved(true);
+      router.refresh(); // slug normalize olduysa önizleme/link güncellensin
       const t = setTimeout(() => setSaved(false), 2500);
       return () => clearTimeout(t);
     }
-  }, [state]);
+  }, [state, router]);
 
   return (
     <form action={action} className="space-y-8">
@@ -72,6 +92,34 @@ export function SettingsForm({ business }: { business: BusinessData }) {
         <h2 className="font-semibold">Genel bilgiler</h2>
         <div className="mt-4 space-y-4">
           <Field label="İşletme adı" name="name" defaultValue={business.name} />
+
+          {/* Menü adresi (slug) */}
+          <div>
+            <span className="mb-1.5 block text-sm font-medium text-muted">
+              Menü adresi (kısa ad)
+            </span>
+            <div className="flex items-center overflow-hidden rounded-lg border border-border bg-surface-2 focus-within:border-green focus-within:ring-2 focus-within:ring-green/20">
+              <span className="whitespace-nowrap border-r border-border px-3 py-2.5 text-sm text-faint">
+                soztekqrmenu.com.tr/m/
+              </span>
+              <input
+                name="slug"
+                value={slug}
+                onChange={(e) => setSlug(cleanSlug(e.target.value))}
+                placeholder="soztek"
+                className="flex-1 bg-transparent px-3 py-2.5 text-sm text-fg outline-none placeholder:text-faint"
+              />
+            </div>
+            <span className="mt-1 block text-xs text-faint">
+              Menün şu adreste açılır:{" "}
+              <span className="font-mono text-green">
+                soztekqrmenu.com.tr/m/{slug || "…"}
+              </span>
+              . ⚠️ Değiştirirsen eski QR kodların ve linkler çalışmaz — QR'ı{" "}
+              <b>yeniden indir</b>.
+            </span>
+          </div>
+
           <Field
             label="Kısa açıklama"
             name="description"
