@@ -24,6 +24,7 @@ export default async function MenuPage() {
   const data: ClientCategory[] = categories.map((c) => ({
     id: c.id,
     name: c.name,
+    imageUrl: c.imageUrl,
     items: c.items.map((i) => ({
       id: i.id,
       name: i.name,

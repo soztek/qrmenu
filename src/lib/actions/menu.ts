@@ -50,6 +50,18 @@ export async function renameCategory(id: string, name: string): Promise<void> {
   refresh();
 }
 
+export async function setCategoryImage(
+  id: string,
+  imageUrl: string,
+): Promise<void> {
+  const businessId = await requireBusinessId();
+  await prisma.category.updateMany({
+    where: { id, businessId },
+    data: { imageUrl: imageUrl || null },
+  });
+  refresh();
+}
+
 export async function deleteCategory(id: string): Promise<void> {
   const businessId = await requireBusinessId();
   // Kategoriye bağlı ürün fotoğraflarını temizle.

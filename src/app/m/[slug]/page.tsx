@@ -1,8 +1,7 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
-import { formatTL } from "@/lib/url";
+import { MenuView } from "./menu-view";
 
 export const dynamic = "force-dynamic";
 
@@ -11,13 +10,23 @@ async function getMenu(slug: string) {
     where: { slug },
     select: {
       name: true,
+      slug: true,
       description: true,
       logoUrl: true,
+      coverUrl: true,
+      phone: true,
+      address: true,
+      mapsUrl: true,
+      instagram: true,
+      wifiName: true,
+      wifiPassword: true,
+      workingHours: true,
       categories: {
         orderBy: { sortOrder: "asc" },
         select: {
           id: true,
           name: true,
+          imageUrl: true,
           items: {
             where: { isAvailable: true },
             orderBy: { sortOrder: "asc" },
@@ -30,6 +39,12 @@ async function getMenu(slug: string) {
             },
           },
         },
+      },
+      reviews: {
+        where: { isApproved: true },
+        orderBy: { createdAt: "desc" },
+        take: 50,
+        select: { id: true, authorName: true, rating: true, comment: true },
       },
     },
   });
@@ -45,9 +60,7 @@ export async function generateMetadata({
     where: { slug },
     select: { name: true },
   });
-  return {
-    title: business ? `${business.name} — Menü` : "Menü",
-  };
+  return { title: business ? `${business.name} — Menü` : "Menü" };
 }
 
 export default async function PublicMenuPage({
@@ -59,98 +72,40 @@ export default async function PublicMenuPage({
   const business = await getMenu(slug);
   if (!business) notFound();
 
-  // Sadece ürünü olan kategoriler.
-  const categories = business.categories.filter((c) => c.items.length > 0);
+  // Sadece ürünü olan kategoriler; Decimal -> string.
+  const categories = business.categories
+    .filter((c) => c.items.length > 0)
+    .map((c) => ({
+      id: c.id,
+      name: c.name,
+      imageUrl: c.imageUrl,
+      items: c.items.map((i) => ({
+        id: i.id,
+        name: i.name,
+        description: i.description,
+        price: i.price.toString(),
+        photoUrl: i.photoUrl,
+      })),
+    }));
 
   return (
-    <div className="mx-auto min-h-screen max-w-lg bg-bg">
-      {/* Başlık */}
-      <header className="bg-gradient-to-br from-green-soft to-orange-soft px-5 pb-6 pt-8">
-        {business.logoUrl && (
-          <Image
-            src={business.logoUrl}
-            alt={business.name}
-            width={56}
-            height={56}
-            className="mb-3 h-14 w-14 rounded-xl object-cover"
-          />
-        )}
-        <h1 className="text-2xl font-extrabold tracking-tight">{business.name}</h1>
-        {business.description && (
-          <p className="mt-1.5 text-sm text-muted">{business.description}</p>
-        )}
-      </header>
-
-      {categories.length === 0 ? (
-        <div className="px-5 py-20 text-center text-muted">
-          Menü yakında burada olacak.
-        </div>
-      ) : (
-        <>
-          {/* Kategori sekmeleri */}
-          <nav className="sticky top-0 z-10 flex gap-2 overflow-x-auto border-b border-border bg-bg/90 px-5 py-3 backdrop-blur">
-            {categories.map((c) => (
-              <a
-                key={c.id}
-                href={`#kat-${c.id}`}
-                className="shrink-0 rounded-full bg-surface-2 px-3.5 py-1.5 text-sm text-muted transition hover:bg-green hover:text-black"
-              >
-                {c.name}
-              </a>
-            ))}
-          </nav>
-
-          {/* Kategori bölümleri */}
-          <div className="space-y-8 px-5 py-6">
-            {categories.map((c) => (
-              <section key={c.id} id={`kat-${c.id}`} className="scroll-mt-16">
-                <h2 className="mb-3 text-lg font-bold text-green">{c.name}</h2>
-                <div className="space-y-3">
-                  {c.items.map((item) => (
-                    <article
-                      key={item.id}
-                      className="flex gap-3 rounded-2xl border border-border bg-surface p-3"
-                    >
-                      {item.photoUrl ? (
-                        <Image
-                          src={item.photoUrl}
-                          alt={item.name}
-                          width={80}
-                          height={80}
-                          className="h-20 w-20 shrink-0 rounded-xl object-cover"
-                        />
-                      ) : (
-                        <div className="grid h-20 w-20 shrink-0 place-items-center rounded-xl bg-surface-2 text-2xl">
-                          🍽️
-                        </div>
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-semibold">{item.name}</h3>
-                          <span className="shrink-0 font-bold text-orange">
-                            {formatTL(item.price.toString())}
-                          </span>
-                        </div>
-                        {item.description && (
-                          <p className="mt-1 text-sm text-muted">
-                            {item.description}
-                          </p>
-                        )}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
-        </>
-      )}
-
-      <footer className="border-t border-border px-5 py-6 text-center text-xs text-faint">
-        <a href="/" className="hover:text-fg">
-          Söztek QR Menü ile hazırlandı
-        </a>
-      </footer>
-    </div>
+    <MenuView
+      business={{
+        name: business.name,
+        slug: business.slug,
+        description: business.description,
+        logoUrl: business.logoUrl,
+        coverUrl: business.coverUrl,
+        phone: business.phone,
+        address: business.address,
+        mapsUrl: business.mapsUrl,
+        instagram: business.instagram,
+        wifiName: business.wifiName,
+        wifiPassword: business.wifiPassword,
+        workingHours: business.workingHours,
+      }}
+      categories={categories}
+      reviews={business.reviews}
+    />
   );
 }

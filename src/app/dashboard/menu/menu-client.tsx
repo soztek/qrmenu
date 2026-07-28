@@ -12,7 +12,8 @@ import {
   type ActionState,
 } from "@/lib/actions/menu";
 import { formatTL } from "@/lib/url";
-import { PhotoUpload } from "./photo-upload";
+import { PhotoUpload } from "@/components/photo-upload";
+import { setCategoryImage } from "@/lib/actions/menu";
 
 export interface ClientItem {
   id: string;
@@ -25,6 +26,7 @@ export interface ClientItem {
 export interface ClientCategory {
   id: string;
   name: string;
+  imageUrl: string | null;
   items: ClientItem[];
 }
 
@@ -142,6 +144,17 @@ export function CategoryCard({ category }: { category: ClientCategory }) {
           </>
         )}
       </header>
+
+      {/* Kategori kapağı (menüde kart görseli) */}
+      <div className="border-b border-border px-4 py-3">
+        <PhotoUpload
+          label="Kategori kapağı (menüde kart görseli olarak görünür)"
+          initialUrl={category.imageUrl}
+          onChange={(url) =>
+            startTransition(() => setCategoryImage(category.id, url))
+          }
+        />
+      </div>
 
       {/* Ürünler */}
       <div className="divide-y divide-border">
@@ -322,7 +335,7 @@ function ItemForm({
         rows={2}
         className={inputCls}
       />
-      <PhotoUpload initialUrl={item?.photoUrl ?? null} />
+      <PhotoUpload name="photoUrl" initialUrl={item?.photoUrl ?? null} />
 
       {state.error && <p className="text-sm text-orange">{state.error}</p>}
 

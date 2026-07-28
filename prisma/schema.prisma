@@ -65,9 +65,17 @@ model Business {
   name        String
   slug        String  @unique // herkese açık menü URL'i: /m/<slug>
   description String?
-  phone       String?
-  address     String?
   logoUrl     String?
+  coverUrl    String? // menü üstündeki kapak görseli
+
+  // İletişim / bilgi (menüdeki bilgi panelinde gösterilir)
+  phone        String?
+  address      String?
+  mapsUrl      String? // Google Maps linki
+  instagram    String? // kullanıcı adı ya da tam URL
+  wifiName     String?
+  wifiPassword String?
+  workingHours String? // serbest metin, ör. "Her gün 09:00 - 23:00"
 
   // Abonelik / deneme durumu
   plan               PlanId             @default(starter)
@@ -78,6 +86,7 @@ model Business {
   categories Category[]
   menuItems  MenuItem[]
   tables     RestaurantTable[]
+  reviews    Review[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -91,11 +100,26 @@ model Category {
   business   Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
   businessId String
   name       String
+  imageUrl   String? // kategori kartı görseli
   sortOrder  Int        @default(0)
   items      MenuItem[]
   createdAt  DateTime   @default(now())
 
   @@index([businessId])
+}
+
+/// Müşteri yorumu — yalnızca işletme onaylayınca (isApproved) menüde görünür.
+model Review {
+  id         String   @id @default(cuid())
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String
+  authorName String
+  rating     Int // 1-5
+  comment    String
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([businessId, isApproved])
 }
 
 /// Menü ürünü.

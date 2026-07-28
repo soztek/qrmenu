@@ -21,10 +21,11 @@ interface NavItem {
 const NAV: NavItem[] = [
   { href: "/dashboard", label: "Genel bakış" },
   { href: "/dashboard/menu", label: "Menü" },
+  { href: "/dashboard/reviews", label: "Yorumlar" },
   { href: "/dashboard/qr", label: "QR Kod" },
   { href: "/dashboard/orders", label: "Siparişler", feature: "orders", soon: true },
   { href: "/dashboard/tables", label: "Masalar", feature: "tables", soon: true },
-  { href: "/dashboard/settings", label: "Ayarlar", soon: true },
+  { href: "/dashboard/settings", label: "Ayarlar" },
 ];
 
 function Brand({ short = false }: { short?: boolean }) {
