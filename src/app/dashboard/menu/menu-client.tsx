@@ -9,6 +9,7 @@ import {
   updateItem,
   deleteItem,
   toggleItemAvailability,
+  bulkCreateItems,
   type ActionState,
 } from "@/lib/actions/menu";
 import { formatTL } from "@/lib/url";
@@ -75,6 +76,7 @@ export function CategoryCard({ category }: { category: ClientCategory }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(category.name);
   const [adding, setAdding] = useState(false);
+  const [bulk, setBulk] = useState(false);
   const [pending, startTransition] = useTransition();
 
   return (
@@ -171,17 +173,24 @@ export function CategoryCard({ category }: { category: ClientCategory }) {
       {/* Ürün ekle */}
       <div className="border-t border-border p-4">
         {adding ? (
-          <AddItemForm
-            categoryId={category.id}
-            onDone={() => setAdding(false)}
-          />
+          <AddItemForm categoryId={category.id} onDone={() => setAdding(false)} />
+        ) : bulk ? (
+          <BulkAddForm categoryId={category.id} onDone={() => setBulk(false)} />
         ) : (
-          <button
-            onClick={() => setAdding(true)}
-            className="rounded-lg border border-dashed border-border px-4 py-2 text-sm text-muted transition hover:border-green/50 hover:text-fg"
-          >
-            + Ürün ekle
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setAdding(true)}
+              className="rounded-lg border border-dashed border-border px-4 py-2 text-sm text-muted transition hover:border-green/50 hover:text-fg"
+            >
+              + Ürün ekle
+            </button>
+            <button
+              onClick={() => setBulk(true)}
+              className="rounded-lg border border-dashed border-border px-4 py-2 text-sm text-muted transition hover:border-green/50 hover:text-fg"
+            >
+              Toplu ekle (liste yapıştır)
+            </button>
+          </div>
         )}
       </div>
     </section>
@@ -279,6 +288,55 @@ function AddItemForm({
   onDone: () => void;
 }) {
   return <ItemForm mode="create" categoryId={categoryId} onDone={onDone} />;
+}
+
+/* ── Toplu ürün ekle (liste yapıştır) ─────────────────────────── */
+function BulkAddForm({
+  categoryId,
+  onDone,
+}: {
+  categoryId: string;
+  onDone: () => void;
+}) {
+  const [state, action, pending] = useActionState<ActionState, FormData>(
+    bulkCreateItems,
+    {},
+  );
+  useEffect(() => {
+    if (state.ok) onDone();
+  }, [state, onDone]);
+
+  return (
+    <form action={action} className="space-y-3">
+      <input type="hidden" name="categoryId" value={categoryId} />
+      <p className="text-xs text-faint">
+        Her satıra bir ürün yaz:{" "}
+        <code className="text-muted">Ürün adı | açıklama | fiyat</code>
+        <br />
+        Açıklama opsiyonel: <code className="text-muted">Ürün adı | fiyat</code> de olur.
+      </p>
+      <textarea
+        name="text"
+        rows={7}
+        placeholder={"Sütlaç | Tarçınlı fırın sütlaç | 120\nBaklava | Fındıklı geleneksel baklava | 160\nTürk Kahvesi | 70"}
+        className={`${inputCls} font-mono`}
+        required
+      />
+      {state.error && <p className="text-sm text-orange">{state.error}</p>}
+      <div className="flex items-center gap-2">
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-black transition hover:bg-green-dark disabled:opacity-60"
+        >
+          {pending ? "Ekleniyor…" : "Toplu ekle"}
+        </button>
+        <button type="button" onClick={onDone} className="text-sm text-faint hover:text-fg">
+          İptal
+        </button>
+      </div>
+    </form>
+  );
 }
 
 /* ── Ortak ürün formu (ekle & düzenle) ────────────────────────── */

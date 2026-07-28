@@ -6,7 +6,96 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { deleteUpload } from "@/lib/storage";
 
-export type ActionState = { error?: string; ok?: boolean };
+export type ActionState = { error?: string; ok?: boolean; created?: number };
+
+/** "120", "₺120,50", "120 TL" → 120.5 / null. */
+function parsePrice(s: string): number | null {
+  const cleaned = s
+    .replace(/₺/g, "")
+    .replace(/tl/gi, "")
+    .replace(/\s/g, "")
+    .replace(",", ".");
+  const n = Number(cleaned);
+  return Number.isFinite(n) && n >= 0 && n <= 1_000_000 ? n : null;
+}
+
+/** Bir satırı ürüne çevirir. Biçim: "Ad | açıklama | fiyat" / "Ad | fiyat" / "Ad 120". */
+function parseItemLine(
+  line: string,
+): { name: string; description: string | null; price: number } | null {
+  const cells = line.split(/[|\t;]/).map((s) => s.trim());
+  while (cells.length && cells[cells.length - 1] === "") cells.pop();
+
+  if (cells.length >= 2) {
+    const price = parsePrice(cells[cells.length - 1]);
+    const name = cells[0];
+    if (price === null || !name) return null;
+    const description =
+      cells.length >= 3 ? cells.slice(1, -1).join(" ").trim() || null : null;
+    return {
+      name: name.slice(0, 80),
+      description: description ? description.slice(0, 300) : null,
+      price,
+    };
+  }
+
+  // Tek hücre: "Ürün adı 120" / "Ürün adı - 120"
+  const m = line.match(/^(.*?)[\s\-–—:]+([\d.,]+)\s*(?:₺|tl)?$/i);
+  if (m) {
+    const price = parsePrice(m[2]);
+    const name = m[1].trim();
+    if (price !== null && name) {
+      return { name: name.slice(0, 80), description: null, price };
+    }
+  }
+  return null;
+}
+
+/** Yapıştırılan listeden bir kategoriye toplu ürün ekler. */
+export async function bulkCreateItems(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const businessId = await requireBusinessId();
+  const categoryId = String(formData.get("categoryId") ?? "");
+  const text = String(formData.get("text") ?? "");
+
+  const category = await prisma.category.findFirst({
+    where: { id: categoryId, businessId },
+    select: { id: true },
+  });
+  if (!category) return { error: "Kategori bulunamadı" };
+
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .slice(0, 200);
+
+  const parsed = lines
+    .map(parseItemLine)
+    .filter((p): p is NonNullable<typeof p> => p !== null);
+
+  if (parsed.length === 0) {
+    return {
+      error: "Geçerli satır bulunamadı. Biçim: Ürün adı | açıklama | fiyat",
+    };
+  }
+
+  const count = await prisma.menuItem.count({ where: { categoryId, businessId } });
+  await prisma.menuItem.createMany({
+    data: parsed.map((p, i) => ({
+      businessId,
+      categoryId,
+      name: p.name,
+      description: p.description,
+      price: p.price,
+      sortOrder: count + i,
+    })),
+  });
+  refresh();
+  return { ok: true, created: parsed.length };
+}
 
 /** Oturumdaki işletmenin id'si; yoksa hata fırlatır. */
 async function requireBusinessId(): Promise<string> {
