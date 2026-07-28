@@ -10,6 +10,7 @@ import {
   type PlanId,
 } from "@/lib/plans";
 import { statusLabel, hasActiveAccess } from "@/lib/subscription";
+import { Logo } from "@/components/logo";
 
 interface NavItem {
   href: string;
@@ -29,19 +30,7 @@ const NAV: NavItem[] = [
 ];
 
 function Brand({ short = false }: { short?: boolean }) {
-  return (
-    <Link href="/dashboard" className="flex items-center gap-2.5">
-      <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-green to-orange text-black">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} className="h-4 w-4">
-          <path d="M4 4h6v6H4z M14 4h6v6h-6z M4 14h6v6H4z" />
-        </svg>
-      </span>
-      <span className="text-sm font-bold tracking-tight">
-        Söztek<span className="text-green"> QR</span>
-        {!short && " Menü"}
-      </span>
-    </Link>
-  );
+  return <Logo href="/dashboard" className={short ? "h-8" : "h-9"} />;
 }
 
 function LogoutButton({ compact = false }: { compact?: boolean }) {

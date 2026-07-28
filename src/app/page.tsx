@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PLANS, TRIAL_DAYS, formatPrice } from "@/lib/plans";
 import { COMPANY } from "@/lib/company";
+import { Logo } from "@/components/logo";
 
 /* ── küçük ikonlar (bağımlılık yok) ───────────────────────────── */
 function Icon({ path, className = "" }: { path: string; className?: string }) {
@@ -81,19 +82,6 @@ function Nav() {
         </div>
       </div>
     </header>
-  );
-}
-
-function Logo() {
-  return (
-    <Link href="/" className="flex items-center gap-2.5">
-      <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-green to-orange text-black">
-        <Icon path={ICONS.qr} className="h-4 w-4" />
-      </span>
-      <span className="text-[15px] font-bold tracking-tight">
-        Söztek<span className="text-green"> QR</span> Menü
-      </span>
-    </Link>
   );
 }
 
