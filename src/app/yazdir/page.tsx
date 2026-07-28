@@ -28,6 +28,12 @@ export default async function PrintMenuPage() {
   });
   const filled = categories.filter((c) => c.items.length > 0);
 
+  // Görsel başlık için ürün fotoğrafları.
+  const photos = filled
+    .flatMap((c) => c.items)
+    .map((i) => i.photoUrl)
+    .filter((p): p is string => Boolean(p));
+
   const url = menuUrl(business.slug);
   const qr = await QRCode.toDataURL(url, {
     width: 300,
@@ -55,7 +61,34 @@ export default async function PrintMenuPage() {
 
       {/* Yazdırılacak sayfa */}
       <div className="print-sheet mx-auto my-6 max-w-2xl bg-white px-10 py-12 shadow-sm">
+        {/* Görsel başlık: kapak varsa kapak, yoksa ürün fotoğraflarından kolaj */}
+        {business.coverUrl ? (
+          <div className="mb-6 overflow-hidden rounded-xl">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={business.coverUrl}
+              alt=""
+              className="h-44 w-full object-cover"
+            />
+          </div>
+        ) : photos.length >= 2 ? (
+          <div className="mb-6 grid grid-cols-4 gap-1 overflow-hidden rounded-xl">
+            {photos.slice(0, 4).map((p, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img key={i} src={p} alt="" className="h-24 w-full object-cover" />
+            ))}
+          </div>
+        ) : null}
+
         <header className="border-b-2 border-neutral-900 pb-5 text-center">
+          {business.logoUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={business.logoUrl}
+              alt=""
+              className="mx-auto mb-3 h-16 w-16 rounded-full object-cover"
+            />
+          )}
           <h1 className="text-3xl font-extrabold tracking-tight">{business.name}</h1>
           {business.description && (
             <p className="mt-1 text-sm text-neutral-500">{business.description}</p>
@@ -78,21 +111,34 @@ export default async function PrintMenuPage() {
                 </h2>
                 <div className="space-y-2.5">
                   {c.items.map((item) => (
-                    <div key={item.id} className="break-inside-avoid">
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-medium text-neutral-900">
-                          {item.name}
-                        </span>
-                        <span className="flex-1 border-b border-dotted border-neutral-300" />
-                        <span className="font-semibold text-neutral-900">
-                          {formatTL(item.price.toString())}
-                        </span>
-                      </div>
-                      {item.description && (
-                        <p className="mt-0.5 text-sm text-neutral-500">
-                          {item.description}
-                        </p>
+                    <div
+                      key={item.id}
+                      className="flex break-inside-avoid items-start gap-3"
+                    >
+                      {item.photoUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.photoUrl}
+                          alt=""
+                          className="h-14 w-14 shrink-0 rounded-md object-cover"
+                        />
                       )}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-medium text-neutral-900">
+                            {item.name}
+                          </span>
+                          <span className="flex-1 border-b border-dotted border-neutral-300" />
+                          <span className="font-semibold text-neutral-900">
+                            {formatTL(item.price.toString())}
+                          </span>
+                        </div>
+                        {item.description && (
+                          <p className="mt-0.5 text-sm text-neutral-500">
+                            {item.description}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
