@@ -167,7 +167,7 @@ function PhoneMock() {
             <div className="text-lg font-bold">Menü</div>
             <div className="mt-3 flex gap-2 text-[11px]">
               <span className="rounded-full bg-green px-2.5 py-1 font-medium text-black">
-                Kahveler
+                Popüler
               </span>
               <span className="rounded-full bg-surface-2 px-2.5 py-1 text-muted">
                 Tatlılar
@@ -176,9 +176,9 @@ function PhoneMock() {
           </div>
           <div className="space-y-3 p-4">
             {[
-              ["Latte", "₺75", "/landing/food-2.jpg", "Sıcak içecek"],
-              ["Filtre Kahve", "₺60", "/landing/food-1.jpg", "Sıcak içecek"],
-              ["Sufle", "₺95", "/landing/food-3.jpg", "Tatlı"],
+              ["Cheeseburger", "₺180", "/landing/food-4.jpg", "Ana yemek"],
+              ["Türk Çayı", "₺30", "/landing/food-5.jpg", "Sıcak içecek"],
+              ["Çikolatalı Kek", "₺90", "/landing/food-1.jpg", "Tatlı"],
             ].map(([name, price, img, tag]) => (
               <div
                 key={name}
@@ -206,7 +206,7 @@ function PhoneMock() {
 
 /* ── animasyonlu fotoğraf şeridi ──────────────────────────────── */
 function PhotoMarquee() {
-  const photos = [1, 2, 3, 4, 5, 6, 7, 8];
+  const photos = [1, 2, 3, 4, 5];
   return (
     <section className="overflow-hidden border-y border-border/60 bg-surface/30 py-8">
       <div className="mb-5 text-center">

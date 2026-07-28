@@ -55,6 +55,7 @@ export interface BusinessData {
   name: string;
   description: string | null;
   phone: string | null;
+  whatsapp: string | null;
   address: string | null;
   mapsUrl: string | null;
   instagram: string | null;
@@ -182,6 +183,13 @@ export function SettingsForm({ business }: { business: BusinessData }) {
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <Field label="Telefon" name="phone" defaultValue={business.phone} placeholder="0 (5xx) xxx xx xx" />
+          <Field
+            label="WhatsApp numarası"
+            name="whatsapp"
+            defaultValue={business.whatsapp}
+            placeholder="0 (5xx) xxx xx xx"
+            hint="Menüde yeşil WhatsApp butonu olarak görünür (tıkla-yaz)."
+          />
           <Field
             label="Instagram"
             name="instagram"

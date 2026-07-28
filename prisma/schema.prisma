@@ -71,6 +71,7 @@ model Business {
 
   // İletişim / bilgi (menüdeki bilgi panelinde gösterilir)
   phone        String?
+  whatsapp     String? // WhatsApp numarası (menüde tıkla-yaz butonu)
   address      String?
   mapsUrl      String? // Google Maps linki
   instagram    String? // kullanıcı adı ya da tam URL

@@ -35,6 +35,7 @@ export default async function SettingsPage() {
             name: b.name,
             description: b.description,
             phone: b.phone,
+            whatsapp: b.whatsapp,
             address: b.address,
             mapsUrl: b.mapsUrl,
             instagram: b.instagram,
