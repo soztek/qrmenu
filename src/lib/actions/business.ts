@@ -25,7 +25,9 @@ const schema = z.object({
   workingHours: z.string().trim().max(120).optional(),
   logoUrl: z.string().trim().optional(),
   coverUrl: z.string().trim().optional(),
-  menuTheme: z.enum(["dark", "corporate", "luxury", "organic"]).optional(),
+  menuTheme: z
+    .enum(["dark", "corporate", "luxury", "organic", "warm", "tropical", "berry"])
+    .optional(),
 });
 
 const emptyToNull = (v?: string) => (v && v.length > 0 ? v : null);
