@@ -164,9 +164,9 @@ function PhoneMock() {
           </div>
           <div className="space-y-3 p-4">
             {[
-              ["Cheeseburger", "₺180", "/landing/food-4.jpg", "Ana yemek"],
-              ["Türk Çayı", "₺30", "/landing/food-5.jpg", "Sıcak içecek"],
-              ["Çikolatalı Kek", "₺90", "/landing/food-1.jpg", "Tatlı"],
+              ["Cheeseburger", "₺180", "/landing/food-burger.png", "Ana yemek"],
+              ["Türk Kahvesi", "₺40", "/landing/food-coffee.png", "Sıcak içecek"],
+              ["Frambuazlı Pasta", "₺120", "/landing/food-cake.png", "Tatlı"],
             ].map(([name, price, img, tag]) => (
               <div
                 key={name}
@@ -194,7 +194,13 @@ function PhoneMock() {
 
 /* ── animasyonlu fotoğraf şeridi ──────────────────────────────── */
 function PhotoMarquee() {
-  const photos = [1, 2, 3, 4, 5];
+  const photos = [
+    "food-burger.png",
+    "food-cake.png",
+    "food-salad.webp",
+    "food-coffee.png",
+    "food-latte.png",
+  ];
   return (
     <section className="overflow-hidden border-y border-border/60 bg-surface/30 py-8">
       <div className="mb-5 text-center">
@@ -214,7 +220,7 @@ function PhotoMarquee() {
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`/landing/food-${n}.jpg`}
+              src={`/landing/${n}`}
               alt=""
               loading="lazy"
               className="h-full w-full object-cover transition duration-500 hover:scale-105"
