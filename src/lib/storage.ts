@@ -22,8 +22,17 @@ const EXT_BY_TYPE: Record<string, string> = {
   "image/gif": "gif",
 };
 
-function useBlob(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+/**
+ * Vercel Blob token'ını bulur. Standart ad `BLOB_READ_WRITE_TOKEN`; ancak Blob
+ * mağazası bir ön ekle oluşturulduysa ad `<prefix>_READ_WRITE_TOKEN` olabilir
+ * (ör. qrmenu_READ_WRITE_TOKEN). İkisini de destekle.
+ */
+function blobToken(): string | undefined {
+  if (process.env.BLOB_READ_WRITE_TOKEN) return process.env.BLOB_READ_WRITE_TOKEN;
+  const key = Object.keys(process.env).find((k) =>
+    k.endsWith("_READ_WRITE_TOKEN"),
+  );
+  return key ? process.env[key] : undefined;
 }
 
 export async function saveUpload(file: File): Promise<string> {
@@ -37,10 +46,12 @@ export async function saveUpload(file: File): Promise<string> {
 
   const key = `uploads/${randomBytes(12).toString("hex")}.${ext}`;
 
-  if (useBlob()) {
+  const token = blobToken();
+  if (token) {
     const blob = await put(key, file, {
       access: "public",
       contentType: file.type,
+      token,
     });
     return blob.url; // tam https URL
   }
@@ -64,7 +75,7 @@ export async function deleteUpload(url: string | null | undefined): Promise<void
   if (!url) return;
   try {
     if (url.startsWith("http")) {
-      await del(url);
+      await del(url, { token: blobToken() });
     } else if (url.startsWith("/uploads/")) {
       await unlink(path.join(process.cwd(), "public", url));
     }
