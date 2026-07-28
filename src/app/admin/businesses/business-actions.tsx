@@ -1,0 +1,92 @@
+"use client";
+
+import { useTransition } from "react";
+import { extendAccess, setPlan, setStatus } from "@/lib/actions/admin";
+import { PLANS, type PlanId } from "@/lib/plans";
+
+const STATUSES: { value: string; label: string }[] = [
+  { value: "trialing", label: "Denemede" },
+  { value: "active", label: "Aktif" },
+  { value: "past_due", label: "Ödeme bekliyor" },
+  { value: "canceled", label: "İptal" },
+];
+
+const selectCls =
+  "rounded-lg border border-border bg-surface-2 px-2 py-1 text-xs text-fg outline-none focus:border-green";
+
+export function BusinessActions({
+  businessId,
+  plan,
+  status,
+}: {
+  businessId: string;
+  plan: PlanId;
+  status: string;
+}) {
+  const [pending, startTransition] = useTransition();
+
+  return (
+    <div className={`flex flex-wrap items-center gap-1.5 ${pending ? "opacity-50" : ""}`}>
+      {/* Süre uzat */}
+      <span className="text-[11px] text-faint">Uzat:</span>
+      {[7, 30, 90].map((d) => (
+        <button
+          key={d}
+          onClick={() => startTransition(() => extendAccess(businessId, d))}
+          disabled={pending}
+          className="rounded-md border border-border px-2 py-1 text-xs text-muted transition hover:border-green hover:text-green"
+        >
+          +{d}g
+        </button>
+      ))}
+      <button
+        onClick={() => {
+          const v = prompt("Kaç gün uzatılsın? (eksi değer kısaltır)");
+          if (v === null) return;
+          const days = parseInt(v, 10);
+          if (Number.isFinite(days)) startTransition(() => extendAccess(businessId, days));
+        }}
+        disabled={pending}
+        className="rounded-md border border-border px-2 py-1 text-xs text-muted transition hover:border-green hover:text-green"
+      >
+        özel
+      </button>
+
+      {/* Paket */}
+      <select
+        value={plan}
+        disabled={pending}
+        onChange={(e) =>
+          startTransition(() => setPlan(businessId, e.target.value as PlanId))
+        }
+        className={selectCls}
+        title="Paket değiştir"
+      >
+        {PLANS.map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.name}
+          </option>
+        ))}
+      </select>
+
+      {/* Durum */}
+      <select
+        value={status}
+        disabled={pending}
+        onChange={(e) =>
+          startTransition(() =>
+            setStatus(businessId, e.target.value as Parameters<typeof setStatus>[1]),
+          )
+        }
+        className={selectCls}
+        title="Durum değiştir"
+      >
+        {STATUSES.map((s) => (
+          <option key={s.value} value={s.value}>
+            {s.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}

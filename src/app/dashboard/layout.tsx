@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { isAdmin } from "@/lib/admin";
 import { logoutAction } from "@/lib/actions/auth";
 import {
   getPlan,
@@ -120,7 +121,7 @@ export default async function DashboardLayout({
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/giris");
-  if (!user.business) redirect("/kayit");
+  if (!user.business) redirect(isAdmin(user) ? "/admin" : "/kayit");
 
   const business = user.business;
   const plan = getPlan(business.plan);

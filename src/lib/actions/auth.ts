@@ -11,6 +11,7 @@ import {
 } from "@/lib/auth";
 import { uniqueBusinessSlug } from "@/lib/slug";
 import { TRIAL_DAYS } from "@/lib/plans";
+import { isAdminEmail } from "@/lib/admin";
 
 export type AuthState = { error?: string };
 
@@ -45,28 +46,39 @@ export async function registerAction(
   }
 
   const passwordHash = await hashPassword(password);
-  const slug = await uniqueBusinessSlug(businessName);
-  const trialEndsAt = new Date(Date.now() + TRIAL_DAYS * 86_400_000);
+  const admin = isAdminEmail(email);
 
-  const user = await prisma.user.create({
-    data: {
-      email,
-      passwordHash,
-      name,
-      business: {
-        create: {
-          name: businessName,
-          slug,
-          plan: plan ?? "starter",
-          subscriptionStatus: "trialing",
-          trialEndsAt,
+  let userId: string;
+  if (admin) {
+    // Platform admini — işletme oluşturulmaz.
+    const user = await prisma.user.create({
+      data: { email, passwordHash, name, role: "admin" },
+    });
+    userId = user.id;
+  } else {
+    const slug = await uniqueBusinessSlug(businessName);
+    const trialEndsAt = new Date(Date.now() + TRIAL_DAYS * 86_400_000);
+    const user = await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        name,
+        business: {
+          create: {
+            name: businessName,
+            slug,
+            plan: plan ?? "starter",
+            subscriptionStatus: "trialing",
+            trialEndsAt,
+          },
         },
       },
-    },
-  });
+    });
+    userId = user.id;
+  }
 
-  await createSession(user.id);
-  redirect("/dashboard");
+  await createSession(userId);
+  redirect(admin ? "/admin" : "/dashboard");
 }
 
 /** E-posta/şifre ile giriş. */
@@ -86,7 +98,7 @@ export async function loginAction(
   }
 
   await createSession(user.id);
-  redirect("/dashboard");
+  redirect(isAdminEmail(user.email) || user.role === "admin" ? "/admin" : "/dashboard");
 }
 
 /** Çıkış yap. */

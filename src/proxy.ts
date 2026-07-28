@@ -9,7 +9,9 @@ export function proxy(request: NextRequest) {
   const hasSession = Boolean(request.cookies.get("session")?.value);
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/dashboard") && !hasSession) {
+  const isProtected =
+    pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
+  if (isProtected && !hasSession) {
     const url = request.nextUrl.clone();
     url.pathname = "/giris";
     url.searchParams.set("next", pathname);
@@ -20,5 +22,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/admin/:path*"],
 };

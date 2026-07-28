@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PLANS, TRIAL_DAYS, formatPrice } from "@/lib/plans";
+import { COMPANY } from "@/lib/company";
 
 /* ── küçük ikonlar (bağımlılık yok) ───────────────────────────── */
 function Icon({ path, className = "" }: { path: string; className?: string }) {
@@ -61,6 +62,7 @@ function Nav() {
           <a href="#ozellikler" className="transition hover:text-fg">Özellikler</a>
           <a href="#nasil" className="transition hover:text-fg">Nasıl çalışır</a>
           <a href="#paketler" className="transition hover:text-fg">Paketler</a>
+          <a href="#iletisim" className="transition hover:text-fg">İletişim</a>
         </nav>
         <div className="flex items-center gap-3">
           <Link
@@ -408,13 +410,73 @@ function FinalCta() {
 /* ── footer ───────────────────────────────────────────────────── */
 function Footer() {
   return (
-    <footer className="border-t border-border/60 py-10">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 text-sm text-faint md:flex-row">
-        <Logo />
-        <p>© {new Date().getFullYear()} Söztek QR Menü. Tüm hakları saklıdır.</p>
-        <div className="flex gap-5">
-          <Link href="/giris" className="transition hover:text-fg">Giriş</Link>
-          <Link href="/kayit" className="transition hover:text-fg">Kayıt ol</Link>
+    <footer id="iletisim" className="border-t border-border/60 pt-14 pb-8">
+      <div className="mx-auto max-w-6xl px-5">
+        <div className="grid gap-10 md:grid-cols-3">
+          {/* Marka */}
+          <div>
+            <Logo />
+            <p className="mt-3 max-w-xs text-sm text-muted">
+              İşletmeniz için dijital QR menü, sipariş ve masa yönetimi. Dakikalar
+              içinde kurun.
+            </p>
+            <div className="mt-4 flex gap-4 text-sm">
+              <Link href="/giris" className="text-muted transition hover:text-fg">Giriş</Link>
+              <Link href="/kayit" className="text-muted transition hover:text-fg">Kayıt ol</Link>
+              <a href="#paketler" className="text-muted transition hover:text-fg">Paketler</a>
+            </div>
+          </div>
+
+          {/* İletişim */}
+          <div>
+            <h3 className="text-sm font-semibold text-fg">İletişim</h3>
+            <ul className="mt-3 space-y-2 text-sm text-muted">
+              <li>
+                <a href={`tel:${COMPANY.phoneRaw}`} className="transition hover:text-green">
+                  Tel/Faks: {COMPANY.phone}
+                </a>
+              </li>
+              <li>
+                <a href={`tel:${COMPANY.gsmRaw}`} className="transition hover:text-green">
+                  GSM: {COMPANY.gsm}
+                </a>
+              </li>
+              <li>
+                <a href={`mailto:${COMPANY.email}`} className="transition hover:text-green">
+                  {COMPANY.email}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={COMPANY.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition hover:text-green"
+                >
+                  {COMPANY.website}
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Firma / yasal */}
+          <div>
+            <h3 className="text-sm font-semibold text-fg">Firma</h3>
+            <div className="mt-3 space-y-1.5 text-sm text-muted">
+              <p className="font-medium text-fg/90">{COMPANY.legalName}</p>
+              <p>{COMPANY.address}</p>
+              <p>
+                Vergi Dairesi: {COMPANY.taxOffice} · VKN: {COMPANY.taxNumber}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10 flex flex-col items-center justify-between gap-2 border-t border-border/60 pt-6 text-xs text-faint md:flex-row">
+          <p>
+            © {new Date().getFullYear()} {COMPANY.shortName}. Tüm hakları saklıdır.
+          </p>
+          <p className="italic">“{COMPANY.slogan}”</p>
         </div>
       </div>
     </footer>
