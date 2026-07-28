@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import QRCode from "qrcode";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { formatTL } from "@/lib/url";
+import { formatTL, menuUrl } from "@/lib/url";
 import { PrintButton } from "./print-button";
 
 export const metadata: Metadata = { title: "Yazdırılabilir menü" };
@@ -26,6 +27,13 @@ export default async function PrintMenuPage() {
     },
   });
   const filled = categories.filter((c) => c.items.length > 0);
+
+  const url = menuUrl(business.slug);
+  const qr = await QRCode.toDataURL(url, {
+    width: 300,
+    margin: 1,
+    color: { dark: "#111111", light: "#ffffff" },
+  });
 
   return (
     <div className="min-h-screen bg-neutral-100 text-neutral-900">
@@ -93,7 +101,17 @@ export default async function PrintMenuPage() {
           </div>
         )}
 
-        <footer className="mt-10 border-t border-neutral-200 pt-4 text-center text-[11px] text-neutral-400">
+        {/* QR — dijital menüye geçiş */}
+        <div className="mt-10 flex break-inside-avoid flex-col items-center border-t border-neutral-200 pt-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={qr} alt="Menü QR kodu" width={104} height={104} />
+          <p className="mt-2 text-sm font-semibold text-neutral-800">
+            📱 Fotoğraflı dijital menü için okutun
+          </p>
+          <p className="text-xs text-neutral-400">{url}</p>
+        </div>
+
+        <footer className="mt-6 text-center text-[11px] text-neutral-400">
           {business.name} · Söztek QR Menü ile hazırlandı
         </footer>
       </div>
