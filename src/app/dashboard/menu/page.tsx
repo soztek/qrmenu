@@ -55,6 +55,13 @@ export default async function MenuPage() {
             Menüyü önizle ↗
           </Link>
           <Link
+            href="/yazdir"
+            target="_blank"
+            className="rounded-lg border border-border px-4 py-2 text-sm text-fg transition hover:border-green/50"
+          >
+            Yazdırılabilir PDF
+          </Link>
+          <Link
             href="/dashboard/qr"
             className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-black transition hover:bg-green-dark"
           >

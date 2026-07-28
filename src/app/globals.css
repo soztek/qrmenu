@@ -60,3 +60,23 @@ body {
   box-shadow: 0 0 0 1px var(--color-border),
     0 20px 60px -20px rgba(34, 197, 94, 0.25);
 }
+
+/* ── Yazdırma (PDF menü) ── */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  .print-sheet {
+    margin: 0 !important;
+    max-width: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  @page {
+    margin: 14mm;
+  }
+}
