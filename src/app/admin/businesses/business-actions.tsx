@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { extendAccess, setPlan, setStatus } from "@/lib/actions/admin";
 import { PLANS, type PlanId } from "@/lib/plans";
 
@@ -24,6 +25,14 @@ export function BusinessActions({
   status: string;
 }) {
   const [pending, startTransition] = useTransition();
+  const router = useRouter();
+
+  // Aksiyonu çalıştır ve ardından tabloyu tazele (revalidatePath + client refresh).
+  const run = (fn: () => Promise<void>) =>
+    startTransition(async () => {
+      await fn();
+      router.refresh();
+    });
 
   return (
     <div className={`flex flex-wrap items-center gap-1.5 ${pending ? "opacity-50" : ""}`}>
@@ -32,7 +41,7 @@ export function BusinessActions({
       {[7, 30, 90].map((d) => (
         <button
           key={d}
-          onClick={() => startTransition(() => extendAccess(businessId, d))}
+          onClick={() => run(() => extendAccess(businessId, d))}
           disabled={pending}
           className="rounded-md border border-border px-2 py-1 text-xs text-muted transition hover:border-green hover:text-green"
         >
@@ -44,7 +53,7 @@ export function BusinessActions({
           const v = prompt("Kaç gün uzatılsın? (eksi değer kısaltır)");
           if (v === null) return;
           const days = parseInt(v, 10);
-          if (Number.isFinite(days)) startTransition(() => extendAccess(businessId, days));
+          if (Number.isFinite(days)) run(() => extendAccess(businessId, days));
         }}
         disabled={pending}
         className="rounded-md border border-border px-2 py-1 text-xs text-muted transition hover:border-green hover:text-green"
@@ -56,9 +65,7 @@ export function BusinessActions({
       <select
         value={plan}
         disabled={pending}
-        onChange={(e) =>
-          startTransition(() => setPlan(businessId, e.target.value as PlanId))
-        }
+        onChange={(e) => run(() => setPlan(businessId, e.target.value as PlanId))}
         className={selectCls}
         title="Paket değiştir"
       >
@@ -74,7 +81,7 @@ export function BusinessActions({
         value={status}
         disabled={pending}
         onChange={(e) =>
-          startTransition(() =>
+          run(() =>
             setStatus(businessId, e.target.value as Parameters<typeof setStatus>[1]),
           )
         }

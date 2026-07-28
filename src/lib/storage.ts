@@ -45,7 +45,14 @@ export async function saveUpload(file: File): Promise<string> {
     return blob.url; // tam https URL
   }
 
-  // Yerel disk
+  // Vercel'de dosya sistemi salt-okunur; Blob token'ı yoksa net hata ver.
+  if (process.env.VERCEL) {
+    throw new Error(
+      "Fotoğraf depolama yapılandırılmamış (BLOB_READ_WRITE_TOKEN yok). Lütfen yönetici ile iletişime geçin.",
+    );
+  }
+
+  // Yerel disk (yalnızca geliştirme)
   await mkdir(UPLOAD_DIR, { recursive: true });
   const buffer = Buffer.from(await file.arrayBuffer());
   await writeFile(path.join(process.cwd(), "public", key), buffer);
