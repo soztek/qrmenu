@@ -7,6 +7,7 @@ import {
   CategoryCard,
   type ClientCategory,
 } from "./menu-client";
+import { ImportMenu } from "./import-menu";
 
 export const metadata: Metadata = { title: "Menü" };
 
@@ -78,8 +79,13 @@ export default async function MenuPage() {
         </div>
       </div>
 
+      {/* Excel / CSV içe aktar */}
+      <div className="mt-6">
+        <ImportMenu />
+      </div>
+
       {/* Kategori ekle */}
-      <div className="mt-6 rounded-2xl border border-border bg-surface p-4">
+      <div className="mt-4 rounded-2xl border border-border bg-surface p-4">
         <AddCategoryForm />
       </div>
 

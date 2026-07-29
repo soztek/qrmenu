@@ -98,6 +98,96 @@ export async function bulkCreateItems(
   return { ok: true, created: parsed.length };
 }
 
+export type ImportRow = {
+  category: string;
+  name: string;
+  description: string | null;
+  price: number;
+};
+export type ImportResult = {
+  error?: string;
+  ok?: boolean;
+  created?: number;
+  categories?: number;
+};
+
+/** Kategori adını eşleştirme anahtarı (Türkçe küçük harf, boşluk sadeleştirme). */
+function catKey(name: string): string {
+  return name.trim().replace(/\s+/g, " ").toLocaleLowerCase("tr");
+}
+
+/**
+ * Excel/CSV'den gelen satırları kategorileriyle birlikte içe aktarır.
+ * Eksik kategoriler otomatik oluşturulur, ürünler doğru kategoriye dağıtılır.
+ */
+export async function importMenuRows(rows: ImportRow[]): Promise<ImportResult> {
+  const businessId = await requireBusinessId();
+
+  const clean = (Array.isArray(rows) ? rows : [])
+    .map((r) => ({
+      category: String(r?.category ?? "").trim().slice(0, 60) || "Diğer",
+      name: String(r?.name ?? "").trim().slice(0, 80),
+      description: r?.description
+        ? String(r.description).trim().slice(0, 300) || null
+        : null,
+      price: typeof r?.price === "number" ? r.price : NaN,
+    }))
+    .filter((r) => r.name && Number.isFinite(r.price) && r.price >= 0 && r.price <= 1_000_000)
+    .slice(0, 1000);
+
+  if (clean.length === 0) {
+    return { error: "İçe aktarılacak geçerli satır bulunamadı." };
+  }
+
+  // Mevcut kategoriler → anahtar/id eşlemesi
+  const existing = await prisma.category.findMany({
+    where: { businessId },
+    select: { id: true, name: true },
+  });
+  const byKey = new Map(existing.map((c) => [catKey(c.name), c.id]));
+  let catOrder = existing.length;
+  let createdCats = 0;
+
+  // Eksik kategorileri ilk görülme sırasına göre oluştur
+  for (const r of clean) {
+    const key = catKey(r.category);
+    if (!byKey.has(key)) {
+      const c = await prisma.category.create({
+        data: { businessId, name: r.category, sortOrder: catOrder++ },
+      });
+      byKey.set(key, c.id);
+      createdCats++;
+    }
+  }
+
+  // Her kategori için sıra numarası mevcut ürün sayısından devam etsin
+  const grouped = await prisma.menuItem.groupBy({
+    by: ["categoryId"],
+    where: { businessId },
+    _count: true,
+  });
+  const nextOrder = new Map<string, number>();
+  for (const g of grouped) nextOrder.set(g.categoryId, g._count);
+
+  const data = clean.map((r) => {
+    const categoryId = byKey.get(catKey(r.category))!;
+    const so = nextOrder.get(categoryId) ?? 0;
+    nextOrder.set(categoryId, so + 1);
+    return {
+      businessId,
+      categoryId,
+      name: r.name,
+      description: r.description,
+      price: r.price,
+      sortOrder: so,
+    };
+  });
+
+  await prisma.menuItem.createMany({ data });
+  refresh();
+  return { ok: true, created: data.length, categories: createdCats };
+}
+
 /** Oturumdaki işletmenin id'si; yoksa hata fırlatır. */
 async function requireBusinessId(): Promise<string> {
   const user = await getCurrentUser();
