@@ -217,10 +217,10 @@ function PhotoMarquee() {
     <section className="overflow-hidden border-y border-border/60 bg-surface/30 py-8">
       <div className="mb-5 text-center">
         <span className="text-xs font-semibold uppercase tracking-wider text-green">
-          İştah açan menüler
+          Referanslar
         </span>
-        <p className="mt-1 text-muted">
-          Fotoğraflı ürünlerle müşterinizin iştahını kabartın
+        <p className="mt-1 text-lg font-semibold text-fg">
+          Müşteri Referans Deneyimlerinden Bazıları
         </p>
       </div>
       {/* İki kopya yan yana → kesintisiz kayan bant */}
