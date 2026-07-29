@@ -7,7 +7,7 @@ import Link from "next/link";
  */
 export function Logo({
   href = "/",
-  className = "h-9",
+  className = "h-12",
 }: {
   href?: string | null;
   className?: string;
