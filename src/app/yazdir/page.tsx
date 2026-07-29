@@ -120,8 +120,8 @@ export default async function PrintMenuPage({
         ) : (
           <div className="mt-8 space-y-8">
             {filled.map((c) => (
-              <section key={c.id} className="break-inside-avoid">
-                <h2 className="mb-3 text-lg font-bold uppercase tracking-wide text-neutral-800">
+              <section key={c.id}>
+                <h2 className="mb-3 break-after-avoid text-lg font-bold uppercase tracking-wide text-neutral-800">
                   {c.name}
                 </h2>
                 <div className="space-y-2.5">
