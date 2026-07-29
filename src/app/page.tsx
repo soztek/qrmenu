@@ -226,9 +226,11 @@ function PhotoMarquee() {
       {/* İki kopya yan yana → kesintisiz kayan bant */}
       <div className="marquee-track flex w-max gap-4">
         {[...photos, ...photos].map((n, i) => (
-          <div
+          <a
             key={i}
-            className="h-40 w-60 shrink-0 overflow-hidden rounded-2xl border border-border"
+            href="#paketler"
+            aria-label="Paketleri gör"
+            className="block h-40 w-60 shrink-0 overflow-hidden rounded-2xl border border-border"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -237,7 +239,7 @@ function PhotoMarquee() {
               loading="lazy"
               className="h-full w-full object-cover transition duration-500 hover:scale-105"
             />
-          </div>
+          </a>
         ))}
       </div>
     </section>
