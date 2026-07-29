@@ -6,6 +6,7 @@ import { useActionState, useEffect, useRef } from "react";
 import { formatTL, waLink } from "@/lib/url";
 import { submitReview, type ReviewState } from "@/lib/actions/reviews";
 import { themeStyle } from "@/lib/themes";
+import { allergen, meatLabel } from "@/lib/compliance";
 
 export interface MenuItemT {
   id: string;
@@ -13,6 +14,14 @@ export interface MenuItemT {
   description: string | null;
   price: string;
   photoUrl: string | null;
+  calories: number | null;
+  protein: string | null;
+  fat: string | null;
+  carbs: string | null;
+  allergens: string[];
+  meatType: string | null;
+  containsAlcohol: boolean;
+  containsPork: boolean;
 }
 export interface MenuCategoryT {
   id: string;
@@ -457,9 +466,70 @@ function ProductList({
             {item.description && (
               <p className="mt-1 text-sm text-muted">{item.description}</p>
             )}
+            <ComplianceTags item={item} />
           </div>
         </article>
       ))}
+    </div>
+  );
+}
+
+/* Ürün kartındaki yasal uyumluluk etiketleri (kalori, alerjen, et türü…) */
+function ComplianceTags({ item }: { item: MenuItemT }) {
+  const meat = meatLabel(item.meatType);
+  const macros = [
+    item.protein && `Protein ${item.protein}g`,
+    item.fat && `Yağ ${item.fat}g`,
+    item.carbs && `Karb ${item.carbs}g`,
+  ].filter(Boolean);
+  const hasAny =
+    item.calories != null ||
+    Boolean(meat) ||
+    item.containsAlcohol ||
+    item.containsPork ||
+    item.allergens.length > 0 ||
+    macros.length > 0;
+  if (!hasAny) return null;
+
+  return (
+    <div className="mt-1.5">
+      <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+        {item.calories != null && (
+          <span className="rounded-full bg-surface-2 px-2 py-0.5 font-medium text-fg">
+            🔥 {item.calories} kcal
+          </span>
+        )}
+        {meat && (
+          <span className="rounded-full bg-surface-2 px-2 py-0.5 text-muted">
+            🥩 {meat}
+          </span>
+        )}
+        {item.containsAlcohol && (
+          <span className="rounded-full bg-orange-soft px-2 py-0.5 text-orange">
+            🍷 Alkol
+          </span>
+        )}
+        {item.containsPork && (
+          <span className="rounded-full bg-orange-soft px-2 py-0.5 text-orange">
+            🐷 Domuz
+          </span>
+        )}
+        {item.allergens.map((k) => {
+          const a = allergen(k);
+          if (!a) return null;
+          return (
+            <span
+              key={k}
+              className="rounded-full bg-surface-2 px-2 py-0.5 text-muted"
+            >
+              {a.icon} {a.label}
+            </span>
+          );
+        })}
+      </div>
+      {macros.length > 0 && (
+        <div className="mt-1 text-[11px] text-faint">{macros.join(" · ")}</div>
+      )}
     </div>
   );
 }

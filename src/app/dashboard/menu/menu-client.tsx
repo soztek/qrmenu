@@ -15,6 +15,7 @@ import {
 import { formatTL } from "@/lib/url";
 import { PhotoUpload } from "@/components/photo-upload";
 import { setCategoryImage } from "@/lib/actions/menu";
+import { ALLERGENS, MEAT_TYPES } from "@/lib/compliance";
 
 export interface ClientItem {
   id: string;
@@ -23,6 +24,14 @@ export interface ClientItem {
   price: string;
   photoUrl: string | null;
   isAvailable: boolean;
+  calories: number | null;
+  protein: string | null;
+  fat: string | null;
+  carbs: string | null;
+  allergens: string[];
+  meatType: string | null;
+  containsAlcohol: boolean;
+  containsPork: boolean;
 }
 export interface ClientCategory {
   id: string;
@@ -400,6 +409,65 @@ function ItemForm({
         initialUrl={item?.photoUrl ?? null}
         getQuery={() => nameRef.current?.value ?? ""}
       />
+
+      {/* Yasal uyumluluk (opsiyonel) */}
+      <details className="rounded-lg border border-border bg-surface-2/40 p-3">
+        <summary className="cursor-pointer text-sm font-medium text-muted">
+          İçerik & besin değerleri{" "}
+          <span className="text-xs text-faint">(opsiyonel · mevzuata uyumluluk)</span>
+        </summary>
+        <div className="mt-3 space-y-3">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <input name="calories" type="number" min="0" defaultValue={item?.calories ?? ""} placeholder="Kalori (kcal)" className={inputCls} />
+            <input name="protein" type="number" step="0.1" min="0" defaultValue={item?.protein ?? ""} placeholder="Protein (g)" className={inputCls} />
+            <input name="fat" type="number" step="0.1" min="0" defaultValue={item?.fat ?? ""} placeholder="Yağ (g)" className={inputCls} />
+            <input name="carbs" type="number" step="0.1" min="0" defaultValue={item?.carbs ?? ""} placeholder="Karb. (g)" className={inputCls} />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs text-faint">Et türü (varsa)</label>
+            <select name="meatType" defaultValue={item?.meatType ?? ""} className={inputCls}>
+              <option value="">— yok / belirtme —</option>
+              {MEAT_TYPES.map((m) => (
+                <option key={m.key} value={m.key}>{m.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs text-faint">Alerjenler</label>
+            <div className="flex flex-wrap gap-1.5">
+              {ALLERGENS.map((a) => (
+                <label
+                  key={a.key}
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-xs text-muted"
+                >
+                  <input
+                    type="checkbox"
+                    name="allergens"
+                    value={a.key}
+                    defaultChecked={item?.allergens?.includes(a.key)}
+                    className="accent-green"
+                  />
+                  <span>{a.icon}</span>
+                  {a.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-4 text-sm">
+            <label className="inline-flex cursor-pointer items-center gap-2">
+              <input type="checkbox" name="containsAlcohol" defaultChecked={item?.containsAlcohol} className="accent-orange" />
+              Alkol içerir
+            </label>
+            <label className="inline-flex cursor-pointer items-center gap-2">
+              <input type="checkbox" name="containsPork" defaultChecked={item?.containsPork} className="accent-orange" />
+              Domuz türevi içerir
+            </label>
+          </div>
+        </div>
+      </details>
 
       {state.error && <p className="text-sm text-orange">{state.error}</p>}
 

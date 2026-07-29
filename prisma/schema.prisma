@@ -137,8 +137,19 @@ model MenuItem {
   photoUrl    String?
   isAvailable Boolean  @default(true)
   sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  // Yasal uyumluluk / şeffaf menü (hepsi opsiyonel)
+  calories        Int? // porsiyon başına kcal
+  protein         Decimal? @db.Decimal(5, 1) // g
+  fat             Decimal? @db.Decimal(5, 1) // g
+  carbs           Decimal? @db.Decimal(5, 1) // g
+  allergens       String[] @default([]) // alerjen anahtarları (gluten, sut, ...)
+  meatType        String? // dana, kuzu, kanatli, balik, karisik
+  containsAlcohol Boolean  @default(false)
+  containsPork    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([businessId])
   @@index([categoryId])

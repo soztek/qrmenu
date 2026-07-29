@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { deleteUpload } from "@/lib/storage";
+import { isAllergenKey, isMeatKey } from "@/lib/compliance";
 
 export type ActionState = { error?: string; ok?: boolean; created?: number };
 
@@ -167,6 +168,30 @@ export async function deleteCategory(id: string): Promise<void> {
 
 /* ── Ürünler ──────────────────────────────────────────────────── */
 
+function numOrNull(v: FormDataEntryValue | null): number | null {
+  const s = String(v ?? "").trim().replace(",", ".");
+  if (!s) return null;
+  const n = Number(s);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
+/** Yasal uyumluluk alanlarını FormData'dan çıkarır (hepsi opsiyonel). */
+function parseCompliance(formData: FormData) {
+  const cal = numOrNull(formData.get("calories"));
+  const meatRaw = String(formData.get("meatType") ?? "");
+  const isOn = (v: FormDataEntryValue | null) => v === "on" || v === "true";
+  return {
+    calories: cal === null ? null : Math.round(cal),
+    protein: numOrNull(formData.get("protein")),
+    fat: numOrNull(formData.get("fat")),
+    carbs: numOrNull(formData.get("carbs")),
+    allergens: formData.getAll("allergens").map(String).filter(isAllergenKey),
+    meatType: isMeatKey(meatRaw) ? meatRaw : null,
+    containsAlcohol: isOn(formData.get("containsAlcohol")),
+    containsPork: isOn(formData.get("containsPork")),
+  };
+}
+
 const itemSchema = z.object({
   categoryId: z.string().min(1),
   name: z.string().trim().min(1, "Ürün adı gerekli").max(80),
@@ -212,6 +237,7 @@ export async function createItem(
       price,
       photoUrl: photoUrl || null,
       sortOrder: count,
+      ...parseCompliance(formData),
     },
   });
   refresh();
@@ -250,6 +276,7 @@ export async function updateItem(
       description: description || null,
       price,
       photoUrl: photoUrl || null,
+      ...parseCompliance(formData),
     },
   });
 

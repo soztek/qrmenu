@@ -32,6 +32,14 @@ export default async function MenuPage() {
       price: i.price.toString(),
       photoUrl: i.photoUrl,
       isAvailable: i.isAvailable,
+      calories: i.calories,
+      protein: i.protein?.toString() ?? null,
+      fat: i.fat?.toString() ?? null,
+      carbs: i.carbs?.toString() ?? null,
+      allergens: i.allergens,
+      meatType: i.meatType,
+      containsAlcohol: i.containsAlcohol,
+      containsPork: i.containsPork,
     })),
   }));
 

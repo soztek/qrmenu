@@ -46,6 +46,7 @@ export default function Home() {
         <PhotoMarquee />
         <Features />
         <HowItWorks />
+        <Compliance />
         <Pricing />
         <FinalCta />
       </main>
@@ -355,6 +356,49 @@ function HowItWorks() {
             </div>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── yasal uyumluluk ──────────────────────────────────────────── */
+const COMPLIANCE = [
+  ["🔥", "Kalori & besin değerleri", "Porsiyon başına kcal, protein, yağ ve karbonhidrat girin."],
+  ["⚠️", "14 alerjen bildirimi", "Gluten, süt, yumurta, kuruyemiş… ürün bazında işaretleyin."],
+  ["🥩", "Et türü belirtme", "“Köfte/kebap” yerine dana, kuzu, kanatlı olarak gösterin."],
+  ["🚫", "Hassas içerik işareti", "Alkol veya domuz türevi içeriği açıkça belirtin."],
+  ["₺", "Fiyat = kasa tutarı", "Menü fiyatı kasadakiyle aynı; anlık güncelleme, gizli ücret yok."],
+  ["🖨️", "Fiziki (basılı) menü", "Talep edene sunmak için tek tıkla yazdırılabilir PDF menü."],
+];
+
+function Compliance() {
+  return (
+    <section className="border-t border-border/60 py-20">
+      <div className="mx-auto max-w-6xl px-5">
+        <SectionHead
+          eyebrow="Yasal Uyumluluk"
+          title="Mevzuata hazır QR menü"
+          subtitle="Türkiye'de menülerde kalori, alerjen ve içerik şeffaflığına yönelik düzenlemeler yürürlüğe giriyor. Söztek QR Menü bu gerekliliklere hazır."
+        />
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {COMPLIANCE.map(([icon, title, desc]) => (
+            <div
+              key={title}
+              className="rounded-2xl border border-border bg-surface p-6"
+            >
+              <div className="text-2xl">{icon}</div>
+              <h3 className="mt-3 font-semibold">{title}</h3>
+              <p className="mt-2 text-sm text-muted">{desc}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mx-auto mt-8 max-w-3xl text-center text-xs text-faint">
+          * Tarım ve Orman Bakanlığı (şeffaf menü / kalori) ve Ticaret Bakanlığı
+          (fiyat etiketi) düzenlemeleri kapsamında; ulusal zincirlerde 2026, tek
+          şubeli / KOBİ işletmelerde 2027'ye kadar kademeli geçiş öngörüldüğü
+          duyurulmuştur. Güncel ve size özel yükümlülükler için resmi kaynakları
+          ve mali müşavirinizi kontrol edin.
+        </p>
       </div>
     </section>
   );
