@@ -43,7 +43,7 @@ export default async function AdminBusinesses() {
       trialEndsAt: true,
       currentPeriodEnd: true,
       createdAt: true,
-      owner: { select: { email: true, name: true } },
+      owner: { select: { id: true, email: true, name: true } },
       _count: { select: { categories: true, menuItems: true } },
     },
   });
@@ -124,6 +124,7 @@ export default async function AdminBusinesses() {
                     businessId={b.id}
                     plan={b.plan}
                     status={b.subscriptionStatus}
+                    ownerId={b.owner?.id ?? null}
                   />
                 </td>
               </tr>

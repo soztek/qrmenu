@@ -2,7 +2,12 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { extendAccess, setPlan, setStatus } from "@/lib/actions/admin";
+import {
+  extendAccess,
+  setPlan,
+  setStatus,
+  resetUserPassword,
+} from "@/lib/actions/admin";
 import { PLANS, type PlanId } from "@/lib/plans";
 
 const STATUSES: { value: string; label: string }[] = [
@@ -19,10 +24,12 @@ export function BusinessActions({
   businessId,
   plan,
   status,
+  ownerId,
 }: {
   businessId: string;
   plan: PlanId;
   status: string;
+  ownerId: string | null;
 }) {
   const [pending, startTransition] = useTransition();
   const router = useRouter();
@@ -94,6 +101,32 @@ export function BusinessActions({
           </option>
         ))}
       </select>
+
+      {/* Şifre sıfırla */}
+      {ownerId && (
+        <button
+          onClick={() => {
+            const pw = prompt(
+              "Bu işletme için yeni şifre belirle (en az 6 karakter):",
+            );
+            if (pw === null) return;
+            if (pw.length < 6) {
+              alert("Şifre en az 6 karakter olmalı.");
+              return;
+            }
+            startTransition(async () => {
+              await resetUserPassword(ownerId, pw);
+              alert(
+                `Şifre sıfırlandı ✓\n\nYeni şifre: ${pw}\n\nBu şifreyi işletme sahibine iletin.`,
+              );
+            });
+          }}
+          disabled={pending}
+          className="rounded-md border border-border px-2 py-1 text-xs text-muted transition hover:border-orange hover:text-orange"
+        >
+          Şifre sıfırla
+        </button>
+      )}
     </div>
   );
 }

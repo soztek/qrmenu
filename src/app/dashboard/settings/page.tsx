@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/auth";
 import { SettingsForm } from "./settings-form";
+import { PasswordChange } from "./password-change";
 
 export const metadata: Metadata = { title: "Ayarlar" };
 
@@ -47,6 +48,7 @@ export default async function SettingsPage() {
             menuTheme: b.menuTheme,
           }}
         />
+        <PasswordChange />
       </div>
     </div>
   );

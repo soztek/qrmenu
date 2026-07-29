@@ -13,7 +13,40 @@ import { uniqueBusinessSlug } from "@/lib/slug";
 import { TRIAL_DAYS } from "@/lib/plans";
 import { isAdminEmail } from "@/lib/admin";
 
-export type AuthState = { error?: string };
+export type AuthState = { error?: string; ok?: boolean };
+
+const changeSchema = z.object({
+  current: z.string().min(1, "Mevcut şifreyi girin"),
+  next: z.string().min(6, "Yeni şifre en az 6 karakter olmalı"),
+});
+
+/** Girişli kullanıcının şifresini değiştirir. */
+export async function changePasswordAction(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const { getCurrentUser } = await import("@/lib/auth");
+  const user = await getCurrentUser();
+  if (!user) return { error: "Yetkisiz" };
+
+  const parsed = changeSchema.safeParse({
+    current: formData.get("current"),
+    next: formData.get("next"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Geçersiz bilgiler" };
+  }
+
+  const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+  if (!dbUser || !(await verifyPassword(parsed.data.current, dbUser.passwordHash))) {
+    return { error: "Mevcut şifre hatalı" };
+  }
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash: await hashPassword(parsed.data.next) },
+  });
+  return { ok: true };
+}
 
 const registerSchema = z.object({
   name: z.string().trim().min(1, "Adınızı girin"),

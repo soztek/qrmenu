@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, hashPassword } from "@/lib/auth";
 import { isAdmin } from "@/lib/admin";
 import type { PlanId } from "@/lib/plans";
 import type { SubscriptionStatus } from "@/generated/prisma/enums";
@@ -62,6 +62,19 @@ export async function setPlan(businessId: string, plan: PlanId): Promise<void> {
   await assertAdmin();
   await prisma.business.update({ where: { id: businessId }, data: { plan } });
   refresh();
+}
+
+/** Bir işletme sahibinin şifresini sıfırlar (admin müşteriye yeni şifreyi iletir). */
+export async function resetUserPassword(
+  userId: string,
+  newPassword: string,
+): Promise<void> {
+  await assertAdmin();
+  if (!userId || newPassword.length < 6) return;
+  await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash: await hashPassword(newPassword) },
+  });
 }
 
 /** İşletmenin abonelik durumunu değiştirir. */
