@@ -14,10 +14,10 @@ export function Logo({
 }) {
   const img = (
     <Image
-      src="/logo.png"
+      src="/logo.jpg"
       alt="Söztek QR Menü"
-      width={627}
-      height={316}
+      width={1767}
+      height={890}
       priority
       className={`${className} w-auto rounded-lg`}
     />
