@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import type { Metadata } from "next";
 import QRCode from "qrcode";
 import { getCurrentUser } from "@/lib/auth";
+import { isAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/db";
 import { formatTL, menuUrl } from "@/lib/url";
 import { PrintButton } from "./print-button";
@@ -10,11 +11,25 @@ import { PrintButton } from "./print-button";
 export const metadata: Metadata = { title: "Yazdırılabilir menü" };
 export const dynamic = "force-dynamic";
 
-export default async function PrintMenuPage() {
+export default async function PrintMenuPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ b?: string }>;
+}) {
   const user = await getCurrentUser();
   if (!user) redirect("/giris");
-  if (!user.business) redirect("/dashboard");
-  const business = user.business;
+
+  // Admin ?b=<işletmeId> ile herhangi bir işletmenin menüsünü görebilir.
+  const { b } = await searchParams;
+  let business;
+  const viewingOther = Boolean(b) && isAdmin(user);
+  if (viewingOther) {
+    business = await prisma.business.findUnique({ where: { id: b } });
+    if (!business) notFound();
+  } else {
+    if (!user.business) redirect("/dashboard");
+    business = user.business;
+  }
 
   const categories = await prisma.category.findMany({
     where: { businessId: business.id },
@@ -46,10 +61,10 @@ export default async function PrintMenuPage() {
       {/* Araç çubuğu — baskıda gizli */}
       <div className="no-print sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-neutral-300 bg-white px-5 py-3">
         <Link
-          href="/dashboard/menu"
+          href={viewingOther ? "/admin/businesses" : "/dashboard/menu"}
           className="text-sm text-neutral-500 hover:text-neutral-900"
         >
-          ← Menüye dön
+          {viewingOther ? "← İşletmelere dön" : "← Menüye dön"}
         </Link>
         <div className="flex items-center gap-3">
           <span className="hidden text-xs text-neutral-500 sm:block">

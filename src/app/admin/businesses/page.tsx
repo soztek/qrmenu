@@ -75,6 +75,24 @@ export default async function AdminBusinesses() {
                 <td className="px-4 py-3">
                   <div className="font-medium">{b.name}</div>
                   <div className="text-xs text-faint">/m/{b.slug}</div>
+                  <div className="mt-1.5 flex flex-wrap gap-2 text-xs">
+                    <a
+                      href={`/m/${b.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green hover:underline"
+                    >
+                      Menü ↗
+                    </a>
+                    <a
+                      href={`/yazdir?b=${b.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green hover:underline"
+                    >
+                      PDF menü ↗
+                    </a>
+                  </div>
                 </td>
                 <td className="px-4 py-3 text-muted">
                   <div>{b.owner?.email ?? "—"}</div>
