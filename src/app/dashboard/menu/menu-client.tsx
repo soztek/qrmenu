@@ -375,9 +375,39 @@ function ItemForm({
   const [sug, setSug] = useState<Nutrition | null>(() =>
     lookupNutrition(item?.name ?? ""),
   );
+  const [aiEstimated, setAiEstimated] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [nameLen, setNameLen] = useState((item?.name ?? "").trim().length);
   useEffect(() => {
     if (state.ok) onDone();
   }, [state, onDone]);
+
+  // Tabloda yoksa yapay zeka ile tahmini besin değeri iste.
+  const estimateWithAi = async () => {
+    const name = nameRef.current?.value.trim() ?? "";
+    if (name.length < 2) return;
+    setAiLoading(true);
+    setAiError(null);
+    try {
+      const res = await fetch("/api/estimate-nutrition", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.nutrition) {
+        setAiError(data.error ?? "Tahmin alınamadı.");
+        return;
+      }
+      setSug(data.nutrition as Nutrition);
+      setAiEstimated(true);
+    } catch {
+      setAiError("Bağlantı hatası, tekrar deneyin.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   // Öneriyi besin alanlarına uygula (elle düzeltilebilir).
   const applySuggestion = () => {
@@ -403,7 +433,12 @@ function ItemForm({
           defaultValue={item?.name}
           placeholder="Ürün adı"
           className={inputCls}
-          onChange={(e) => setSug(lookupNutrition(e.target.value))}
+          onChange={(e) => {
+            setSug(lookupNutrition(e.target.value));
+            setNameLen(e.target.value.trim().length);
+            setAiEstimated(false);
+            setAiError(null);
+          }}
           required
         />
         <input
@@ -417,10 +452,10 @@ function ItemForm({
           required
         />
       </div>
-      {sug && (
+      {sug ? (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-green/40 bg-green/10 px-3 py-2 text-xs">
           <span className="text-fg">
-            💡 Tahmini besin (1 porsiyon):{" "}
+            {aiEstimated ? "🤖 Yapay zeka tahmini" : "💡 Tahmini besin"} (1 porsiyon):{" "}
             <b className="text-green">≈ {sug.calories} kcal</b>{" "}
             <span className="text-muted">
               · P {sug.protein} · Y {sug.fat} · K {sug.carbs} g
@@ -434,6 +469,20 @@ function ItemForm({
             Uygula
           </button>
         </div>
+      ) : (
+        nameLen >= 2 && (
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <button
+              type="button"
+              onClick={estimateWithAi}
+              disabled={aiLoading}
+              className="rounded-lg border border-border px-3 py-1.5 text-muted transition hover:border-green/50 hover:text-fg disabled:opacity-60"
+            >
+              {aiLoading ? "Tahmin ediliyor…" : "🤖 Yapay zeka ile kalori tahmini"}
+            </button>
+            {aiError && <span className="text-orange">{aiError}</span>}
+          </div>
+        )
       )}
       <textarea
         name="description"
