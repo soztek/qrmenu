@@ -78,7 +78,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ nutrition });
   } catch (err) {
-    // Geçici teşhis: gerçek hata mesajını yüzeye çıkar (sorun çözülünce sadeleştirilecek).
     const detail =
       err instanceof Anthropic.APIError
         ? `${err.status ?? ""} ${err.message}`
@@ -87,7 +86,7 @@ export async function POST(req: Request) {
           : String(err);
     console.error("AI estimate error:", detail);
     return NextResponse.json(
-      { error: `Yapay zeka hatası: ${detail}`.slice(0, 300) },
+      { error: "Yapay zeka tahmini şu an yapılamadı, tekrar deneyin." },
       { status: 502 },
     );
   }
