@@ -37,3 +37,18 @@ export async function recordVisit(kind: VisitKind): Promise<void> {
     update: { count: { increment: 1 } },
   });
 }
+
+/** Bir işletmenin menüsü için bugünün ziyaret sayacını +1 artırır. */
+export async function recordMenuVisit(slug: string): Promise<void> {
+  const biz = await prisma.business.findUnique({
+    where: { slug },
+    select: { id: true },
+  });
+  if (!biz) return;
+  const day = istanbulToday();
+  await prisma.menuVisit.upsert({
+    where: { day_businessId: { day, businessId: biz.id } },
+    create: { day, businessId: biz.id, count: 1 },
+    update: { count: { increment: 1 } },
+  });
+}

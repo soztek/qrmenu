@@ -89,6 +89,7 @@ model Business {
   menuItems  MenuItem[]
   tables     RestaurantTable[]
   reviews    Review[]
+  menuVisits MenuVisit[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -162,6 +163,17 @@ model PageVisit {
   count Int      @default(0)
 
   @@id([day, kind])
+}
+
+/// İşletme bazlı günlük menü ziyareti (hangi menü kaç kez açıldı).
+model MenuVisit {
+  day        DateTime @db.Date
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String
+  count      Int      @default(0)
+
+  @@id([day, businessId])
+  @@index([businessId])
 }
 
 /// Masa (Premium: masa yönetimi) — masaya özel QR için qrToken.

@@ -66,6 +66,28 @@ export default async function AdminHome() {
   const total14 = series.reduce((s, x) => s + x.total, 0);
   const maxDay = Math.max(1, ...series.map((x) => x.total));
 
+  // Menü ziyaretleri — işletme bazlı (son 14 gün)
+  const todayKey = days[days.length - 1].toISOString().slice(0, 10);
+  const menuRows = await prisma.menuVisit.findMany({
+    where: { day: { gte: days[0] } },
+    include: { business: { select: { name: true, slug: true } } },
+  });
+  const bizMap = new Map<
+    string,
+    { name: string; slug: string; today: number; total: number }
+  >();
+  for (const r of menuRows) {
+    const cur =
+      bizMap.get(r.businessId) ??
+      { name: r.business.name, slug: r.business.slug, today: 0, total: 0 };
+    cur.total += r.count;
+    if (r.day.toISOString().slice(0, 10) === todayKey) cur.today += r.count;
+    bizMap.set(r.businessId, cur);
+  }
+  const bizVisits = [...bizMap.values()]
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 20);
+
   return (
     <div>
       <h1 className="text-2xl font-extrabold tracking-tight">Genel bakış</h1>
@@ -127,8 +149,57 @@ export default async function AdminHome() {
           </div>
           <p className="mt-3 text-xs text-faint">
             Landing + menü sayfa görüntülenmeleri. Aynı ziyaretçi aynı oturumda
-            tekrar sayılmaz. (Menülerin işletme bazında dağılımı ayrıca eklenebilir.)
+            tekrar sayılmaz.
           </p>
+        </div>
+      </div>
+
+      {/* Menü ziyaretleri — işletme bazlı */}
+      <div className="mt-8">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-semibold">Menü ziyaretleri (işletme bazlı)</h2>
+          <span className="text-xs text-faint">
+            Son 14 gün · en çok görüntülenen ilk 20
+          </span>
+        </div>
+        <div className="mt-3 overflow-x-auto rounded-2xl border border-border">
+          <table className="w-full min-w-[520px] text-sm">
+            <thead className="bg-surface text-left text-xs uppercase tracking-wide text-faint">
+              <tr>
+                <th className="px-4 py-3">İşletme</th>
+                <th className="px-4 py-3 text-right">Bugün</th>
+                <th className="px-4 py-3 text-right">Son 14 gün</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {bizVisits.map((b) => (
+                <tr key={b.slug} className="bg-surface/40">
+                  <td className="px-4 py-3">
+                    <div className="font-medium">{b.name}</div>
+                    <a
+                      href={`/m/${b.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-green hover:underline"
+                    >
+                      /m/{b.slug} ↗
+                    </a>
+                  </td>
+                  <td className="px-4 py-3 text-right font-medium text-green">
+                    {b.today}
+                  </td>
+                  <td className="px-4 py-3 text-right font-medium">{b.total}</td>
+                </tr>
+              ))}
+              {bizVisits.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="px-4 py-8 text-center text-faint">
+                    Henüz menü ziyareti kaydı yok.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 

@@ -109,7 +109,7 @@ export default async function PublicMenuPage({
 
   return (
     <>
-      <VisitTracker kind="menu" />
+      <VisitTracker kind="menu" slug={business.slug} />
       <MenuView
       business={{
         name: business.name,
