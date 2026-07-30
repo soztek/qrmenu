@@ -16,6 +16,7 @@ import { formatTL } from "@/lib/url";
 import { PhotoUpload } from "@/components/photo-upload";
 import { setCategoryImage } from "@/lib/actions/menu";
 import { ALLERGENS, MEAT_TYPES } from "@/lib/compliance";
+import { lookupNutrition, type Nutrition } from "@/lib/nutrition";
 
 export interface ClientItem {
   id: string;
@@ -366,9 +367,27 @@ function ItemForm({
     {},
   );
   const nameRef = useRef<HTMLInputElement>(null);
+  const calRef = useRef<HTMLInputElement>(null);
+  const proRef = useRef<HTMLInputElement>(null);
+  const fatRef = useRef<HTMLInputElement>(null);
+  const carbRef = useRef<HTMLInputElement>(null);
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+  const [sug, setSug] = useState<Nutrition | null>(() =>
+    lookupNutrition(item?.name ?? ""),
+  );
   useEffect(() => {
     if (state.ok) onDone();
   }, [state, onDone]);
+
+  // Öneriyi besin alanlarına uygula (elle düzeltilebilir).
+  const applySuggestion = () => {
+    if (!sug) return;
+    if (calRef.current) calRef.current.value = String(sug.calories);
+    if (proRef.current) proRef.current.value = String(sug.protein);
+    if (fatRef.current) fatRef.current.value = String(sug.fat);
+    if (carbRef.current) carbRef.current.value = String(sug.carbs);
+    if (detailsRef.current) detailsRef.current.open = true;
+  };
 
   return (
     <form action={formAction} className="space-y-3">
@@ -384,6 +403,7 @@ function ItemForm({
           defaultValue={item?.name}
           placeholder="Ürün adı"
           className={inputCls}
+          onChange={(e) => setSug(lookupNutrition(e.target.value))}
           required
         />
         <input
@@ -397,6 +417,24 @@ function ItemForm({
           required
         />
       </div>
+      {sug && (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-green/40 bg-green/10 px-3 py-2 text-xs">
+          <span className="text-fg">
+            💡 Tahmini besin (1 porsiyon):{" "}
+            <b className="text-green">≈ {sug.calories} kcal</b>{" "}
+            <span className="text-muted">
+              · P {sug.protein} · Y {sug.fat} · K {sug.carbs} g
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={applySuggestion}
+            className="ml-auto rounded-md bg-green px-2.5 py-1 font-semibold text-black transition hover:bg-green-dark"
+          >
+            Uygula
+          </button>
+        </div>
+      )}
       <textarea
         name="description"
         defaultValue={item?.description ?? ""}
@@ -411,17 +449,26 @@ function ItemForm({
       />
 
       {/* Yasal uyumluluk (opsiyonel) */}
-      <details className="rounded-lg border border-border bg-surface-2/40 p-3">
+      <details
+        ref={detailsRef}
+        className="rounded-lg border border-border bg-surface-2/40 p-3"
+      >
         <summary className="cursor-pointer text-sm font-medium text-muted">
           İçerik & besin değerleri{" "}
           <span className="text-xs text-faint">(opsiyonel · mevzuata uyumluluk)</span>
         </summary>
         <div className="mt-3 space-y-3">
+          {sug && (
+            <p className="text-xs text-faint">
+              İpucu: yukarıdaki <b className="text-green">Uygula</b> ile tahmini
+              değerleri doldurabilirsin; değerler yaklaşıktır, düzenleyebilirsin.
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <input name="calories" type="number" min="0" defaultValue={item?.calories ?? ""} placeholder="Kalori (kcal)" className={inputCls} />
-            <input name="protein" type="number" step="0.1" min="0" defaultValue={item?.protein ?? ""} placeholder="Protein (g)" className={inputCls} />
-            <input name="fat" type="number" step="0.1" min="0" defaultValue={item?.fat ?? ""} placeholder="Yağ (g)" className={inputCls} />
-            <input name="carbs" type="number" step="0.1" min="0" defaultValue={item?.carbs ?? ""} placeholder="Karb. (g)" className={inputCls} />
+            <input ref={calRef} name="calories" type="number" min="0" defaultValue={item?.calories ?? ""} placeholder="Kalori (kcal)" className={inputCls} />
+            <input ref={proRef} name="protein" type="number" step="0.1" min="0" defaultValue={item?.protein ?? ""} placeholder="Protein (g)" className={inputCls} />
+            <input ref={fatRef} name="fat" type="number" step="0.1" min="0" defaultValue={item?.fat ?? ""} placeholder="Yağ (g)" className={inputCls} />
+            <input ref={carbRef} name="carbs" type="number" step="0.1" min="0" defaultValue={item?.carbs ?? ""} placeholder="Karb. (g)" className={inputCls} />
           </div>
 
           <div>
