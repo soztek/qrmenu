@@ -3,8 +3,11 @@ import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/auth";
 import { getPlan } from "@/lib/plans";
 import { trialDaysLeft, statusLabel } from "@/lib/subscription";
+import { prisma } from "@/lib/db";
+import { lastNDays } from "@/lib/visits";
 
 export const metadata: Metadata = { title: "Genel bakış" };
+export const dynamic = "force-dynamic";
 
 export default async function DashboardHome() {
   const user = await getCurrentUser();
@@ -14,6 +17,25 @@ export default async function DashboardHome() {
   const business = user.business;
   const plan = getPlan(business.plan);
   const menuUrl = `/m/${business.slug}`;
+
+  // Menü görüntülenmeleri — son 30 gün
+  const days = lastNDays(30);
+  const visitRows = await prisma.menuVisit.findMany({
+    where: { businessId: business.id, day: { gte: days[0] } },
+  });
+  const byDay = new Map<string, number>();
+  for (const r of visitRows) {
+    const k = r.day.toISOString().slice(0, 10);
+    byDay.set(k, (byDay.get(k) ?? 0) + r.count);
+  }
+  const key = (d: Date) => d.toISOString().slice(0, 10);
+  const todayViews = byDay.get(key(days[days.length - 1])) ?? 0;
+  const views7 = days
+    .slice(-7)
+    .reduce((s, d) => s + (byDay.get(key(d)) ?? 0), 0);
+  const views30 = [...byDay.values()].reduce((s, x) => s + x, 0);
+  const chart = days.slice(-14).map((d) => ({ date: d, count: byDay.get(key(d)) ?? 0 }));
+  const maxC = Math.max(1, ...chart.map((x) => x.count));
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -36,6 +58,55 @@ export default async function DashboardHome() {
             </span>
           }
         />
+      </div>
+
+      {/* Menü görüntülenmeleri */}
+      <div className="mt-8">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-semibold">Menü görüntülenmeleri</h2>
+          <Link
+            href={menuUrl}
+            target="_blank"
+            className="text-sm font-medium text-green hover:underline"
+          >
+            Menüyü aç ↗
+          </Link>
+        </div>
+        <div className="mt-3 grid gap-4 sm:grid-cols-3">
+          <Stat label="Bugün" value={todayViews} />
+          <Stat label="Son 7 gün" value={views7} />
+          <Stat label="Son 30 gün" value={views30} />
+        </div>
+        <div className="mt-4 rounded-2xl border border-border bg-surface p-5">
+          <div className="text-xs uppercase tracking-wide text-faint">
+            Son 14 gün
+          </div>
+          <div className="mt-3 flex h-28 items-end gap-1.5">
+            {chart.map((x) => (
+              <div
+                key={key(x.date)}
+                className="flex flex-1 flex-col items-center gap-1"
+                title={`${x.date.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", timeZone: "UTC" })}: ${x.count}`}
+              >
+                <div
+                  className="w-full rounded-t bg-green"
+                  style={{ height: `${(x.count / maxC) * 88}px`, minHeight: x.count > 0 ? "3px" : "0" }}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 flex justify-between text-[10px] text-faint">
+            <span>
+              {chart[0]?.date.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", timeZone: "UTC" })}
+            </span>
+            <span>bugün</span>
+          </div>
+          {views30 === 0 && (
+            <p className="mt-3 text-xs text-faint">
+              Henüz görüntülenme yok. QR kodunu paylaştıkça buraya yansıyacak.
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Sonraki adımlar */}
