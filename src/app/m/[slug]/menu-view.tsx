@@ -109,7 +109,7 @@ export function MenuView({
   return (
     <div
       style={themeStyle(theme)}
-      className="mx-auto min-h-screen max-w-lg overflow-x-hidden bg-bg pb-16 text-fg"
+      className="mx-auto min-h-screen w-full min-w-0 max-w-lg overflow-x-hidden bg-bg pb-16 text-fg"
     >
       {/* ── Hero ── */}
       <header className="relative">
