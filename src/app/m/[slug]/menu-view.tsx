@@ -141,7 +141,7 @@ export function MenuView({
               </div>
             )}
           </div>
-          <h1 className="mt-3 text-2xl font-extrabold tracking-tight break-words">
+          <h1 className="mt-3 text-2xl font-extrabold tracking-tight [overflow-wrap:anywhere]">
             {business.name}
           </h1>
           {business.description && (
@@ -457,7 +457,7 @@ function ProductList({
           )}
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
-              <h3 className="min-w-0 flex-1 font-semibold break-words">
+              <h3 className="min-w-0 flex-1 font-semibold [overflow-wrap:anywhere]">
                 {item.name}
               </h3>
               <span className="shrink-0 font-bold text-orange">
