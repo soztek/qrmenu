@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { MenuView } from "./menu-view";
+import { VisitTracker } from "@/components/visit-tracker";
 
 export const dynamic = "force-dynamic";
 
@@ -107,7 +108,9 @@ export default async function PublicMenuPage({
     }));
 
   return (
-    <MenuView
+    <>
+      <VisitTracker kind="menu" />
+      <MenuView
       business={{
         name: business.name,
         slug: business.slug,
@@ -126,6 +129,7 @@ export default async function PublicMenuPage({
       categories={categories}
       reviews={business.reviews}
       theme={business.menuTheme}
-    />
+      />
+    </>
   );
 }

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { getPlan } from "@/lib/plans";
 import { statusLabel } from "@/lib/subscription";
+import { lastNDays } from "@/lib/visits";
 
 export const metadata: Metadata = { title: "Admin — Genel bakış" };
 export const dynamic = "force-dynamic";
@@ -44,6 +45,27 @@ export default async function AdminHome() {
       }),
     ]);
 
+  // Ziyaretler — son 14 gün
+  const days = lastNDays(14);
+  const visitRows = await prisma.pageVisit.findMany({
+    where: { day: { gte: days[0] } },
+  });
+  const byDay = new Map<string, { landing: number; menu: number }>();
+  for (const r of visitRows) {
+    const k = r.day.toISOString().slice(0, 10);
+    const cur = byDay.get(k) ?? { landing: 0, menu: 0 };
+    if (r.kind === "menu") cur.menu += r.count;
+    else cur.landing += r.count;
+    byDay.set(k, cur);
+  }
+  const series = days.map((d) => {
+    const v = byDay.get(d.toISOString().slice(0, 10)) ?? { landing: 0, menu: 0 };
+    return { date: d, ...v, total: v.landing + v.menu };
+  });
+  const todayVisits = series[series.length - 1]?.total ?? 0;
+  const total14 = series.reduce((s, x) => s + x.total, 0);
+  const maxDay = Math.max(1, ...series.map((x) => x.total));
+
   return (
     <div>
       <h1 className="text-2xl font-extrabold tracking-tight">Genel bakış</h1>
@@ -56,6 +78,58 @@ export default async function AdminHome() {
         <StatCard label="Aktif abonelik" value={active} tone="green" />
         <StatCard label="Pasif / iptal" value={pastDueOrCanceled} tone="orange" />
         <StatCard label="Son 7 gün kayıt" value={lastWeek} />
+      </div>
+
+      {/* Site ziyaretleri */}
+      <div className="mt-8">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-semibold">Site ziyaretleri</h2>
+          <span className="text-xs text-faint">
+            Son 14 gün · saat dilimi: İstanbul
+          </span>
+        </div>
+        <div className="mt-3 grid gap-4 sm:grid-cols-3">
+          <StatCard label="Bugün ziyaret" value={todayVisits} tone="green" />
+          <StatCard label="Son 14 gün toplam" value={total14} />
+          <StatCard label="Günlük ortalama" value={Math.round(total14 / 14)} />
+        </div>
+        <div className="mt-4 rounded-2xl border border-border bg-surface p-4">
+          <div className="space-y-1.5">
+            {series
+              .slice()
+              .reverse()
+              .map((x, i) => (
+                <div
+                  key={x.date.toISOString()}
+                  className="flex items-center gap-3 text-sm"
+                >
+                  <span
+                    className={`w-24 shrink-0 ${i === 0 ? "font-semibold text-fg" : "text-faint"}`}
+                  >
+                    {x.date.toLocaleDateString("tr-TR", {
+                      day: "2-digit",
+                      month: "short",
+                      timeZone: "UTC",
+                    })}
+                    {i === 0 && " (bugün)"}
+                  </span>
+                  <div className="h-4 flex-1 overflow-hidden rounded bg-surface-2">
+                    <div
+                      className="h-full rounded bg-green"
+                      style={{ width: `${(x.total / maxDay) * 100}%` }}
+                    />
+                  </div>
+                  <span className="w-10 shrink-0 text-right font-medium">
+                    {x.total}
+                  </span>
+                </div>
+              ))}
+          </div>
+          <p className="mt-3 text-xs text-faint">
+            Landing + menü sayfa görüntülenmeleri. Aynı ziyaretçi aynı oturumda
+            tekrar sayılmaz. (Menülerin işletme bazında dağılımı ayrıca eklenebilir.)
+          </p>
+        </div>
       </div>
 
       {/* Son kayıtlar */}

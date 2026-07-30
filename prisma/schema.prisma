@@ -155,6 +155,15 @@ model MenuItem {
   @@index([categoryId])
 }
 
+/// Günlük ziyaret sayacı (herkese açık sayfalar). kind: "landing" | "menu".
+model PageVisit {
+  day   DateTime @db.Date
+  kind  String
+  count Int      @default(0)
+
+  @@id([day, kind])
+}
+
 /// Masa (Premium: masa yönetimi) — masaya özel QR için qrToken.
 model RestaurantTable {
   id         String   @id @default(cuid())

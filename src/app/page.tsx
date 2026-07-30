@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PLANS, TRIAL_DAYS, formatPrice } from "@/lib/plans";
 import { COMPANY } from "@/lib/company";
 import { Logo } from "@/components/logo";
+import { VisitTracker } from "@/components/visit-tracker";
 
 /* ── küçük ikonlar (bağımlılık yok) ───────────────────────────── */
 function Icon({ path, className = "" }: { path: string; className?: string }) {
@@ -40,6 +41,7 @@ const ICONS = {
 export default function Home() {
   return (
     <>
+      <VisitTracker kind="landing" />
       <Nav />
       <main className="flex-1">
         <Hero />
