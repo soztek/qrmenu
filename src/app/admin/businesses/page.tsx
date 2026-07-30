@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getPlan } from "@/lib/plans";
 import { statusLabel } from "@/lib/subscription";
 import { BusinessActions } from "./business-actions";
+import { BusinessFilter } from "./business-filter";
 
 export const metadata: Metadata = { title: "Admin — İşletmeler" };
 export const dynamic = "force-dynamic";
@@ -31,25 +32,8 @@ function accessEnd(b: {
   });
 }
 
-export default async function AdminBusinesses({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string }>;
-}) {
-  const { q } = await searchParams;
-  const query = (q ?? "").trim();
-
+export default async function AdminBusinesses() {
   const businesses = await prisma.business.findMany({
-    where: query
-      ? {
-          OR: [
-            { name: { contains: query, mode: "insensitive" } },
-            { slug: { contains: query, mode: "insensitive" } },
-            { owner: { email: { contains: query, mode: "insensitive" } } },
-            { owner: { name: { contains: query, mode: "insensitive" } } },
-          ],
-        }
-      : undefined,
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -69,42 +53,12 @@ export default async function AdminBusinesses({
     <div>
       <h1 className="text-2xl font-extrabold tracking-tight">İşletmeler</h1>
       <p className="mt-1 text-muted">
-        {query ? (
-          <>
-            &ldquo;{query}&rdquo; için {businesses.length} sonuç.
-          </>
-        ) : (
-          <>
-            Toplam {businesses.length} işletme. Süreyi uzatabilir, paket ve
-            durumu değiştirebilir, işletmeyi silebilirsin.
-          </>
-        )}
+        Toplam {businesses.length} işletme. Süreyi uzatabilir, paket ve durumu
+        değiştirebilir, işletmeyi silebilirsin.
       </p>
 
-      {/* Arama */}
-      <form method="get" className="mt-4 flex flex-wrap items-center gap-2">
-        <input
-          type="search"
-          name="q"
-          defaultValue={query}
-          placeholder="İşletme adı, /m slug veya e-posta ara…"
-          className="w-full max-w-sm rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm text-fg outline-none placeholder:text-faint focus:border-green focus:ring-2 focus:ring-green/20"
-        />
-        <button
-          type="submit"
-          className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-black transition hover:bg-green-dark"
-        >
-          Ara
-        </button>
-        {query && (
-          <a
-            href="/admin/businesses"
-            className="rounded-lg border border-border px-4 py-2 text-sm text-muted transition hover:border-green/50 hover:text-fg"
-          >
-            Temizle
-          </a>
-        )}
-      </form>
+      {/* Arama — yazdıkça anlık filtreler (en az 3 harf) */}
+      <BusinessFilter total={businesses.length} />
 
       <div className="mt-5 overflow-x-auto rounded-2xl border border-border">
         <table className="w-full min-w-[980px] text-sm">
@@ -121,7 +75,11 @@ export default async function AdminBusinesses({
           </thead>
           <tbody className="divide-y divide-border">
             {businesses.map((b) => (
-              <tr key={b.id} className="bg-surface/40 align-top">
+              <tr
+                key={b.id}
+                data-search={`${b.name} ${b.slug} ${b.owner?.email ?? ""} ${b.owner?.name ?? ""}`.toLocaleLowerCase("tr")}
+                className="bg-surface/40 align-top"
+              >
                 <td className="px-4 py-3">
                   <div className="font-medium">{b.name}</div>
                   <div className="text-xs text-faint">/m/{b.slug}</div>
@@ -187,6 +145,12 @@ export default async function AdminBusinesses({
                 </td>
               </tr>
             )}
+            {/* Aramada eşleşme yoksa BusinessFilter tarafından gösterilir */}
+            <tr id="no-results-row" style={{ display: "none" }}>
+              <td colSpan={7} className="px-4 py-10 text-center text-faint">
+                Aramanla eşleşen işletme yok.
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
