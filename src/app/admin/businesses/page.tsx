@@ -31,8 +31,25 @@ function accessEnd(b: {
   });
 }
 
-export default async function AdminBusinesses() {
+export default async function AdminBusinesses({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+  const query = (q ?? "").trim();
+
   const businesses = await prisma.business.findMany({
+    where: query
+      ? {
+          OR: [
+            { name: { contains: query, mode: "insensitive" } },
+            { slug: { contains: query, mode: "insensitive" } },
+            { owner: { email: { contains: query, mode: "insensitive" } } },
+            { owner: { name: { contains: query, mode: "insensitive" } } },
+          ],
+        }
+      : undefined,
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -52,11 +69,44 @@ export default async function AdminBusinesses() {
     <div>
       <h1 className="text-2xl font-extrabold tracking-tight">İşletmeler</h1>
       <p className="mt-1 text-muted">
-        Toplam {businesses.length} işletme. Süreyi uzatabilir, paket ve durumu
-        değiştirebilirsin.
+        {query ? (
+          <>
+            &ldquo;{query}&rdquo; için {businesses.length} sonuç.
+          </>
+        ) : (
+          <>
+            Toplam {businesses.length} işletme. Süreyi uzatabilir, paket ve
+            durumu değiştirebilir, işletmeyi silebilirsin.
+          </>
+        )}
       </p>
 
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-border">
+      {/* Arama */}
+      <form method="get" className="mt-4 flex flex-wrap items-center gap-2">
+        <input
+          type="search"
+          name="q"
+          defaultValue={query}
+          placeholder="İşletme adı, /m slug veya e-posta ara…"
+          className="w-full max-w-sm rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm text-fg outline-none placeholder:text-faint focus:border-green focus:ring-2 focus:ring-green/20"
+        />
+        <button
+          type="submit"
+          className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-black transition hover:bg-green-dark"
+        >
+          Ara
+        </button>
+        {query && (
+          <a
+            href="/admin/businesses"
+            className="rounded-lg border border-border px-4 py-2 text-sm text-muted transition hover:border-green/50 hover:text-fg"
+          >
+            Temizle
+          </a>
+        )}
+      </form>
+
+      <div className="mt-5 overflow-x-auto rounded-2xl border border-border">
         <table className="w-full min-w-[980px] text-sm">
           <thead className="bg-surface text-left text-xs uppercase tracking-wide text-faint">
             <tr>
@@ -122,6 +172,7 @@ export default async function AdminBusinesses() {
                 <td className="px-4 py-3">
                   <BusinessActions
                     businessId={b.id}
+                    businessName={b.name}
                     plan={b.plan}
                     status={b.subscriptionStatus}
                     ownerId={b.owner?.id ?? null}

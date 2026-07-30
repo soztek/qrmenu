@@ -7,6 +7,7 @@ import {
   setPlan,
   setStatus,
   resetUserPassword,
+  deleteBusiness,
 } from "@/lib/actions/admin";
 import { PLANS, type PlanId } from "@/lib/plans";
 
@@ -22,11 +23,13 @@ const selectCls =
 
 export function BusinessActions({
   businessId,
+  businessName,
   plan,
   status,
   ownerId,
 }: {
   businessId: string;
+  businessName: string;
   plan: PlanId;
   status: string;
   ownerId: string | null;
@@ -127,6 +130,25 @@ export function BusinessActions({
           Şifre sıfırla
         </button>
       )}
+
+      {/* Sil (kalıcı) */}
+      <button
+        onClick={() => {
+          const typed = prompt(
+            `⚠️ KALICI SİLME\n\n"${businessName}" işletmesini, tüm menüsünü, fotoğraflarını ve sahip hesabını kalıcı olarak siler. Bu işlem GERİ ALINAMAZ.\n\nOnaylamak için işletme adını birebir yazın:`,
+          );
+          if (typed === null) return;
+          if (typed.trim() !== businessName) {
+            alert("Ad eşleşmedi, silme iptal edildi.");
+            return;
+          }
+          run(() => deleteBusiness(businessId));
+        }}
+        disabled={pending}
+        className="rounded-md border border-orange/60 px-2 py-1 text-xs font-medium text-orange transition hover:bg-orange hover:text-black"
+      >
+        Sil
+      </button>
     </div>
   );
 }

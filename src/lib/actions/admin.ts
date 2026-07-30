@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getCurrentUser, hashPassword } from "@/lib/auth";
 import { isAdmin } from "@/lib/admin";
+import { deleteUpload } from "@/lib/storage";
 import type { PlanId } from "@/lib/plans";
 import type { SubscriptionStatus } from "@/generated/prisma/enums";
 
@@ -75,6 +76,43 @@ export async function resetUserPassword(
     where: { id: userId },
     data: { passwordHash: await hashPassword(newPassword) },
   });
+}
+
+/**
+ * Bir işletmeyi kalıcı olarak siler: menü (kategori/ürün/yorum/masa cascade),
+ * yüklenen görseller (Blob) ve sahip hesabı. Geri alınamaz.
+ */
+export async function deleteBusiness(businessId: string): Promise<void> {
+  await assertAdmin();
+  if (!businessId) return;
+
+  const b = await prisma.business.findUnique({
+    where: { id: businessId },
+    select: {
+      userId: true,
+      logoUrl: true,
+      coverUrl: true,
+      categories: { select: { imageUrl: true } },
+      menuItems: { select: { photoUrl: true } },
+    },
+  });
+  if (!b) return;
+
+  // Yüklenen görseller cascade edilmez; önce Blob'tan temizle.
+  const urls = [
+    b.logoUrl,
+    b.coverUrl,
+    ...b.categories.map((c) => c.imageUrl),
+    ...b.menuItems.map((m) => m.photoUrl),
+  ];
+  await Promise.all(urls.map((u) => deleteUpload(u)));
+
+  // İşletmeyi sil (menü verileri cascade). Ardından sahip hesabını (oturumlar cascade).
+  await prisma.business.delete({ where: { id: businessId } });
+  if (b.userId) {
+    await prisma.user.delete({ where: { id: b.userId } }).catch(() => {});
+  }
+  refresh();
 }
 
 /** İşletmenin abonelik durumunu değiştirir. */
