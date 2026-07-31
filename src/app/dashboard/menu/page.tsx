@@ -71,7 +71,8 @@ export default async function MenuPage() {
             Yazdırılabilir PDF
           </Link>
           <Link
-            href="/dashboard/ekran"
+            href="/ekran"
+            target="_blank"
             className="rounded-lg border border-border px-4 py-2 text-sm text-fg transition hover:border-green/50"
           >
             Dijital ekran videosu

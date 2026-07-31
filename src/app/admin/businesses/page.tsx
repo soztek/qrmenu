@@ -100,6 +100,14 @@ export default async function AdminBusinesses() {
                     >
                       PDF menü ↗
                     </a>
+                    <a
+                      href={`/ekran?b=${b.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green hover:underline"
+                    >
+                      Ekran videosu ↗
+                    </a>
                   </div>
                 </td>
                 <td className="px-4 py-3 text-muted">
