@@ -114,16 +114,24 @@ export function MenuView({
       {/* ── Hero ── */}
       <header className="relative">
         {business.coverUrl ? (
-          // Yüklenen kapak tam görünsün (kırpma yok, doğal oran).
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={business.coverUrl}
-            alt=""
-            className="block w-full bg-surface-2"
-          />
+          // 16:9 kalıp: fotoğraf hangi oranda olursa olsun tam görünür (kırpma yok);
+          // boşluklar aynı fotoğrafın bulanık kopyasıyla dolar.
+          <div className="relative aspect-video w-full overflow-hidden bg-surface-2">
+            <div
+              className="absolute inset-0 scale-110 bg-cover bg-center blur-2xl"
+              style={{ backgroundImage: `url(${business.coverUrl})` }}
+              aria-hidden
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={business.coverUrl}
+              alt=""
+              className="absolute inset-0 h-full w-full object-contain"
+            />
+          </div>
         ) : (
           <div
-            className="h-40 w-full"
+            className="aspect-video w-full"
             style={{
               background:
                 "linear-gradient(135deg, var(--color-green-soft), var(--color-orange-soft))",

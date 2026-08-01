@@ -78,9 +78,13 @@ export default async function PrintMenuPage({
       <div className="print-sheet mx-auto my-6 max-w-2xl bg-white px-10 py-12 shadow-sm">
         {/* Görsel başlık: kapak varsa kapak, yoksa ürün fotoğraflarından kolaj */}
         {business.coverUrl ? (
-          <div className="mb-6 overflow-hidden rounded-xl">
+          <div className="mb-6 aspect-video w-full overflow-hidden rounded-xl bg-neutral-100">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={business.coverUrl} alt="" className="block h-auto w-full" />
+            <img
+              src={business.coverUrl}
+              alt=""
+              className="h-full w-full object-contain"
+            />
           </div>
         ) : photos.length >= 2 ? (
           <div className="mb-6 grid grid-cols-4 gap-1 overflow-hidden rounded-xl">
