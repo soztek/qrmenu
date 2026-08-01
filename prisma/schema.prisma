@@ -169,7 +169,9 @@ model PageVisit {
 /// PayTR ödeme kaydı — tek seferlik abonelik satın alımı.
 model Payment {
   id          String    @id @default(cuid())
-  merchantOid String    @unique // PayTR sipariş no (alfanümerik)
+  merchantOid String    @unique // sipariş no / conversationId (alfanümerik)
+  provider    String    @default("paytr") // paytr | iyzico
+  providerRef String? // iyzico checkout token vb.
   business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
   businessId  String
   plan        PlanId
@@ -181,6 +183,7 @@ model Payment {
   paidAt      DateTime?
 
   @@index([businessId])
+  @@index([providerRef])
 }
 
 /// İşletme bazlı günlük menü ziyareti (hangi menü kaç kez açıldı).

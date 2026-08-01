@@ -6,9 +6,15 @@ import { logoutAction } from "@/lib/actions/auth";
 import {
   getPlan,
   planHasFeature,
+  PLANS,
   type Feature,
   type PlanId,
 } from "@/lib/plans";
+
+/** Bir özelliğin açıldığı en düşük paketin adı (ör. orders → "Pro"). */
+function featurePlanName(feature: Feature): string | null {
+  return PLANS.find((p) => p.features.includes(feature))?.name ?? null;
+}
 import { statusLabel, hasActiveAccess } from "@/lib/subscription";
 import { Logo } from "@/components/logo";
 
@@ -59,7 +65,6 @@ function NavLinks({
   plan: PlanId;
   orientation: "vertical" | "horizontal";
 }) {
-  const planName = getPlan(plan).name;
   const wrap =
     orientation === "vertical"
       ? "space-y-1"
@@ -70,6 +75,7 @@ function NavLinks({
       {NAV.map((item) => {
         const locked = item.feature ? !planHasFeature(plan, item.feature) : false;
         const disabled = item.soon || locked;
+        const reqPlan = item.feature ? featurePlanName(item.feature) : null;
         const base =
           orientation === "vertical"
             ? "flex items-center justify-between rounded-lg px-3 py-2 text-sm transition"
@@ -80,12 +86,12 @@ function NavLinks({
             <span
               key={item.href}
               className={`${base} cursor-not-allowed whitespace-nowrap text-faint`}
-              title={locked ? `${planName} paketinde yok` : "Yakında"}
+              title={reqPlan ? `${reqPlan} paketi ile açılır` : undefined}
             >
               {item.label}
-              {orientation === "vertical" && (
-                <span className="rounded bg-surface-2 px-1.5 py-0.5 text-[10px] text-faint">
-                  {locked ? "kilitli" : "yakında"}
+              {orientation === "vertical" && reqPlan && (
+                <span className="rounded-full bg-green/15 px-2 py-0.5 text-[10px] font-semibold text-green">
+                  {reqPlan}
                 </span>
               )}
             </span>

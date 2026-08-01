@@ -101,7 +101,7 @@ export default async function AbonelikPage() {
       </div>
 
       <p className="mt-6 text-xs text-faint">
-        Ödemeler PayTR güvenli altyapısı ile alınır. Tek seferlik ödeme yaparsın;
+        Ödemeler PayTR / iyzico güvenli altyapısı ile alınır. Tek seferlik ödeme yaparsın;
         süre bitmeden hatırlatma göndeririz. Kartın bizde saklanmaz.
       </p>
     </div>
