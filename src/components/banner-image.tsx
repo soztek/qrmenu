@@ -4,8 +4,9 @@ import { useState } from "react";
 
 /**
  * İşletme üst banner'ı — sabit 3:1 oran, object-cover.
- * Mobilde ekran yüksekliğinin en fazla ~%25'i. Görsel yüklenene kadar
- * skeleton (nabız) gösterir; UI kaymaz.
+ * Mobilde ekran yüksekliğinin en fazla ~%25'i. Görsel yüklenene kadar arkada
+ * skeleton (nabız) gösterir; UI kaymaz. Resim opaklıkla gizlenmez (önbellekten
+ * gelen görsellerde onLoad tetiklenmese bile resim görünür kalır).
  */
 export function BannerImage({ src }: { src: string }) {
   const [loaded, setLoaded] = useState(false);
@@ -22,9 +23,8 @@ export function BannerImage({ src }: { src: string }) {
         src={src}
         alt=""
         onLoad={() => setLoaded(true)}
-        className={`h-full w-full object-cover transition-opacity duration-300 ${
-          loaded ? "opacity-100" : "opacity-0"
-        }`}
+        onError={() => setLoaded(true)}
+        className="relative h-full w-full object-cover"
       />
     </div>
   );
