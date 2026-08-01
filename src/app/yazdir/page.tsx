@@ -80,11 +80,7 @@ export default async function PrintMenuPage({
         {business.coverUrl ? (
           <div className="mb-6 overflow-hidden rounded-xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={business.coverUrl}
-              alt=""
-              className="h-44 w-full object-cover"
-            />
+            <img src={business.coverUrl} alt="" className="block h-auto w-full" />
           </div>
         ) : photos.length >= 2 ? (
           <div className="mb-6 grid grid-cols-4 gap-1 overflow-hidden rounded-xl">

@@ -113,17 +113,23 @@ export function MenuView({
     >
       {/* ── Hero ── */}
       <header className="relative">
-        <div
-          className="h-40 w-full bg-surface-2 bg-cover bg-center"
-          style={
-            business.coverUrl
-              ? { backgroundImage: `url(${business.coverUrl})` }
-              : {
-                  background:
-                    "linear-gradient(135deg, var(--color-green-soft), var(--color-orange-soft))",
-                }
-          }
-        />
+        {business.coverUrl ? (
+          // Yüklenen kapak tam görünsün (kırpma yok, doğal oran).
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={business.coverUrl}
+            alt=""
+            className="block w-full bg-surface-2"
+          />
+        ) : (
+          <div
+            className="h-40 w-full"
+            style={{
+              background:
+                "linear-gradient(135deg, var(--color-green-soft), var(--color-orange-soft))",
+            }}
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/50 to-transparent" />
         <div className="relative -mt-12 px-5">
           <div className="flex items-end gap-3">
@@ -275,7 +281,7 @@ export function MenuView({
                   className="overflow-hidden rounded-2xl border border-border bg-surface text-left transition hover:border-green/50"
                 >
                   <div
-                    className="h-24 w-full bg-surface-2 bg-cover bg-center"
+                    className="aspect-[4/3] w-full bg-surface-2 bg-cover bg-center"
                     style={
                       c.imageUrl
                         ? { backgroundImage: `url(${c.imageUrl})` }
