@@ -90,6 +90,7 @@ model Business {
   tables     RestaurantTable[]
   reviews    Review[]
   menuVisits MenuVisit[]
+  payments   Payment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -163,6 +164,23 @@ model PageVisit {
   count Int      @default(0)
 
   @@id([day, kind])
+}
+
+/// PayTR ödeme kaydı — tek seferlik abonelik satın alımı.
+model Payment {
+  id          String    @id @default(cuid())
+  merchantOid String    @unique // PayTR sipariş no (alfanümerik)
+  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId  String
+  plan        PlanId
+  period      String // "monthly" | "yearly"
+  days        Int // erişime eklenecek gün
+  amount      Int // kuruş (₺199 -> 19900)
+  status      String    @default("pending") // pending | success | failed
+  createdAt   DateTime  @default(now())
+  paidAt      DateTime?
+
+  @@index([businessId])
 }
 
 /// İşletme bazlı günlük menü ziyareti (hangi menü kaç kez açıldı).

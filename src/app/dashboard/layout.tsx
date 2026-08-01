@@ -26,6 +26,7 @@ const NAV: NavItem[] = [
   { href: "/dashboard/qr", label: "QR Kod" },
   { href: "/dashboard/orders", label: "Siparişler", feature: "orders", soon: true },
   { href: "/dashboard/tables", label: "Masalar", feature: "tables", soon: true },
+  { href: "/dashboard/abonelik", label: "Abonelik" },
   { href: "/dashboard/settings", label: "Ayarlar" },
 ];
 
