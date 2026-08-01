@@ -543,7 +543,8 @@ function ReviewForm({ slug, onDone }: { slug: string; onDone: () => void }) {
     submitReview,
     {},
   );
-  const [rating, setRating] = useState(5);
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -568,18 +569,32 @@ function ReviewForm({ slug, onDone }: { slug: string; onDone: () => void }) {
     <form ref={formRef} action={action} className="space-y-3 rounded-2xl border border-border bg-surface p-4">
       <input type="hidden" name="slug" value={slug} />
       <input type="hidden" name="rating" value={rating} />
-      <div className="flex items-center gap-1">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            type="button"
-            onClick={() => setRating(n)}
-            className={`text-2xl ${n <= rating ? "text-orange" : "text-faint/40"}`}
-            aria-label={`${n} yıldız`}
-          >
-            ★
-          </button>
-        ))}
+      <div>
+        <label className="mb-1 block text-xs text-faint">
+          Puanınız (yıldıza dokunun)
+        </label>
+        <div className="flex items-center gap-1">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => setRating(n)}
+              onMouseEnter={() => setHover(n)}
+              onMouseLeave={() => setHover(0)}
+              className={`p-1 text-3xl leading-none transition ${
+                n <= (hover || rating) ? "text-orange" : "text-faint/40"
+              }`}
+              aria-label={`${n} yıldız`}
+            >
+              ★
+            </button>
+          ))}
+          {rating > 0 && (
+            <span className="ml-2 text-sm font-medium text-muted">
+              {rating}/5
+            </span>
+          )}
+        </div>
       </div>
       <input name="authorName" placeholder="Adın" className={inputCls} required />
       <textarea
@@ -593,7 +608,8 @@ function ReviewForm({ slug, onDone }: { slug: string; onDone: () => void }) {
       <div className="flex items-center gap-2">
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || rating === 0}
+          title={rating === 0 ? "Önce puan verin" : undefined}
           className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-on-primary transition hover:bg-green-dark disabled:opacity-60"
         >
           {pending ? "Gönderiliyor…" : "Gönder"}
