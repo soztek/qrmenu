@@ -127,15 +127,14 @@ export function SettingsForm({ business }: { business: BusinessData }) {
             defaultValue={business.description}
             placeholder="Ör. Ardahan'ın en taze lezzetleri"
           />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <PhotoUpload name="logoUrl" label="Logo" initialUrl={business.logoUrl} />
-            <PhotoUpload
-              name="coverUrl"
-              label="Kapak görseli (menü üstü)"
-              aspect="wide"
-              initialUrl={business.coverUrl}
-            />
-          </div>
+          <PhotoUpload name="logoUrl" label="Logo" initialUrl={business.logoUrl} />
+          <PhotoUpload
+            name="coverUrl"
+            label="Üst banner (3:1)"
+            cropTo={3}
+            initialUrl={business.coverUrl}
+            hint="En iyi sonuç için geniş (yatay) bir görsel yükleyin; otomatik 3:1 (1200×400) olarak kırpılır. Menünün ve PDF'in en üstünde tam genişlikte görünür."
+          />
         </div>
       </section>
 

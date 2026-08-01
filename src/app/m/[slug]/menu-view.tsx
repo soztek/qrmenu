@@ -7,6 +7,7 @@ import { formatTL, waLink } from "@/lib/url";
 import { submitReview, type ReviewState } from "@/lib/actions/reviews";
 import { themeStyle } from "@/lib/themes";
 import { allergen, meatLabel } from "@/lib/compliance";
+import { BannerImage } from "@/components/banner-image";
 
 export interface MenuItemT {
   id: string;
@@ -114,19 +115,13 @@ export function MenuView({
       {/* ── Hero ── */}
       <header className="relative">
         {business.coverUrl ? (
-          // Sabit 16:9 çerçeve — fotoğraf sığacak şekilde küçültülüp yerleştirilir (kırpma yok).
-          <div className="aspect-video w-full overflow-hidden bg-surface-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={business.coverUrl}
-              alt=""
-              className="h-full w-full object-contain"
-            />
-          </div>
+          <BannerImage src={business.coverUrl} />
         ) : (
           <div
-            className="aspect-video w-full"
+            className="w-full"
             style={{
+              aspectRatio: "3 / 1",
+              maxHeight: "25vh",
               background:
                 "linear-gradient(135deg, var(--color-green-soft), var(--color-orange-soft))",
             }}

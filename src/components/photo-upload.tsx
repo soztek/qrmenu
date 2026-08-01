@@ -10,6 +10,52 @@ interface Candidate {
 }
 
 /**
+ * Seçilen görseli verilen orana (ör. 3 = 3:1) ortadan kırpıp yeniden boyutlar.
+ * Çıktı: JPEG blob (varsayılan 1200px genişlik). Banner standardı için kullanılır.
+ */
+async function cropImageToAspect(
+  file: File,
+  aspect: number,
+  outW = 1200,
+): Promise<Blob> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const im = new window.Image();
+      im.onload = () => resolve(im);
+      im.onerror = reject;
+      im.src = url;
+    });
+    const outH = Math.round(outW / aspect);
+    const srcAspect = img.width / img.height;
+    let sx = 0,
+      sy = 0,
+      sw = img.width,
+      sh = img.height;
+    if (srcAspect > aspect) {
+      // fazla geniş → yanlardan kırp
+      sw = img.height * aspect;
+      sx = (img.width - sw) / 2;
+    } else {
+      // fazla uzun → üst/alttan kırp
+      sh = img.width / aspect;
+      sy = (img.height - sh) / 2;
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
+    return await new Promise<Blob>((resolve) =>
+      canvas.toBlob((b) => resolve(b ?? file), "image/jpeg", 0.9),
+    );
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+/**
  * Görsel yükleme bileşeni. Seçilen dosyayı /api/upload'a gönderir.
  * - `name` verilirse dönen URL gizli input'a yazılır (form için).
  * - `onChange` verilirse yeni URL callback ile bildirilir.
@@ -20,6 +66,8 @@ export function PhotoUpload({
   initialUrl = null,
   label,
   aspect = "square",
+  cropTo,
+  hint,
   onChange,
   getQuery,
 }: {
@@ -27,6 +75,9 @@ export function PhotoUpload({
   initialUrl?: string | null;
   label?: string;
   aspect?: "square" | "wide";
+  /** Verilirse yüklemeden önce görsel bu orana kırpılır (ör. 3 = 3:1 banner). */
+  cropTo?: number;
+  hint?: string;
   onChange?: (url: string) => void;
   getQuery?: () => string;
 }) {
@@ -40,6 +91,7 @@ export function PhotoUpload({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const wide = aspect === "wide";
+  const bannerMode = typeof cropTo === "number";
 
   function update(next: string) {
     setUrl(next);
@@ -53,7 +105,12 @@ export function PhotoUpload({
     setError("");
     try {
       const fd = new FormData();
-      fd.append("file", file);
+      if (cropTo) {
+        const cropped = await cropImageToAspect(file, cropTo);
+        fd.append("file", cropped, "banner.jpg");
+      } else {
+        fd.append("file", file);
+      }
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       const data = await res.json();
       if (!res.ok) setError(data.error ?? "Yükleme başarısız");
@@ -115,24 +172,39 @@ export function PhotoUpload({
       {label && (
         <span className="mb-1.5 block text-sm font-medium text-muted">{label}</span>
       )}
-      <div className="flex items-center gap-3">
-        {name && <input type="hidden" name={name} value={url} />}
+      {name && <input type="hidden" name={name} value={url} />}
 
-        {url ? (
-          <Image
-            src={url}
-            alt={label ?? "Görsel"}
-            width={wide ? 96 : 56}
-            height={56}
-            className={`${wide ? "w-24" : "w-14"} h-14 rounded-lg object-cover`}
-          />
-        ) : (
-          <div
-            className={`${wide ? "w-24" : "w-14"} grid h-14 place-items-center rounded-lg bg-surface-2 text-xl`}
-          >
-            🖼️
-          </div>
-        )}
+      {/* Banner (3:1) modu: tam genişlik önizleme */}
+      {bannerMode && (
+        <div className="mb-2 aspect-[3/1] w-full overflow-hidden rounded-lg border border-border bg-surface-2">
+          {url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={url} alt={label ?? "Banner"} className="h-full w-full object-cover" />
+          ) : (
+            <div className="grid h-full place-items-center text-sm text-faint">
+              🖼️ 3:1 banner (1200×400)
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="flex items-center gap-3">
+        {!bannerMode &&
+          (url ? (
+            <Image
+              src={url}
+              alt={label ?? "Görsel"}
+              width={wide ? 96 : 56}
+              height={56}
+              className={`${wide ? "w-24" : "w-14"} h-14 rounded-lg object-cover`}
+            />
+          ) : (
+            <div
+              className={`${wide ? "w-24" : "w-14"} grid h-14 place-items-center rounded-lg bg-surface-2 text-xl`}
+            >
+              🖼️
+            </div>
+          ))}
 
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <label className="cursor-pointer rounded-lg border border-border px-3 py-1.5 text-muted transition hover:border-green/50 hover:text-fg">
@@ -170,6 +242,7 @@ export function PhotoUpload({
         </div>
       </div>
 
+      {hint && <p className="mt-1.5 text-xs text-faint">{hint}</p>}
       {error && <p className="mt-1.5 text-xs text-orange">{error}</p>}
 
       {/* Aday görseller */}
