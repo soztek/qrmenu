@@ -562,23 +562,6 @@ function Footer() {
                 Vergi Dairesi: {COMPANY.taxOffice} · VKN: {COMPANY.taxNumber}
               </p>
             </div>
-            <div className="mt-4 flex flex-col gap-1.5 text-sm">
-              <Link href="/hakkimizda" className="text-muted transition hover:text-green">
-                Hakkımızda
-              </Link>
-              <Link href="/gizlilik" className="text-muted transition hover:text-green">
-                Gizlilik Sözleşmesi
-              </Link>
-              <Link
-                href="/mesafeli-satis-sozlesmesi"
-                className="text-muted transition hover:text-green"
-              >
-                Mesafeli Satış Sözleşmesi
-              </Link>
-              <Link href="/teslimat-iade" className="text-muted transition hover:text-green">
-                Teslimat ve İade Şartları
-              </Link>
-            </div>
           </div>
         </div>
 
@@ -589,6 +572,25 @@ function Footer() {
           </span>
           <PaymentLogos />
         </div>
+
+        {/* Yasal sayfalar */}
+        <nav className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 border-t border-border/60 pt-6 text-sm">
+          <Link href="/hakkimizda" className="text-muted transition hover:text-green">
+            Hakkımızda
+          </Link>
+          <Link href="/gizlilik" className="text-muted transition hover:text-green">
+            Gizlilik Sözleşmesi
+          </Link>
+          <Link
+            href="/mesafeli-satis-sozlesmesi"
+            className="text-muted transition hover:text-green"
+          >
+            Mesafeli Satış Sözleşmesi
+          </Link>
+          <Link href="/teslimat-iade" className="text-muted transition hover:text-green">
+            Teslimat ve İade Şartları
+          </Link>
+        </nav>
 
         <div className="mt-6 flex flex-col items-center justify-between gap-2 text-xs text-faint md:flex-row">
           <p>
