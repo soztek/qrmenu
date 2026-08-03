@@ -92,6 +92,13 @@ model Business {
   menuVisits MenuVisit[]
   payments   Payment[]
 
+  // Sosyal medya asistanı (Instagram vb.)
+  socialAccounts  SocialAccount[]
+  socialPosts     SocialPost[]
+  socialSchedule  SocialSchedule?
+  socialSettings  SocialSettings?
+  socialTemplates SocialTemplate[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -150,6 +157,8 @@ model MenuItem {
   containsAlcohol Boolean  @default(false)
   containsPork    Boolean  @default(false)
 
+  socialPosts SocialPost[] // bu üründen üretilen sosyal medya gönderileri
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -205,6 +214,168 @@ model RestaurantTable {
   label      String // ör. "Masa 5"
   qrToken    String   @unique @default(cuid())
   createdAt  DateTime @default(now())
+
+  @@index([businessId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// AI Sosyal Medya Asistanı — çok kiracılı (her işletme kendi verisi).
+// v1: yalnızca Instagram aktif; mimari diğer platformlara açık.
+// ─────────────────────────────────────────────────────────────
+
+/// Sosyal medya platformları — v1'de yalnızca instagram aktif.
+enum SocialPlatform {
+  instagram
+  facebook
+  tiktok
+  google_business
+}
+
+/// Bağlı hesap durumu.
+enum SocialAccountStatus {
+  active
+  expired
+  revoked
+}
+
+/// Gönderi durumu (onay akışı). v1: otomatik paylaşım yok, önce onay.
+enum SocialPostStatus {
+  draft
+  pending_approval
+  approved
+  scheduled
+  publishing
+  published
+  failed
+  rejected
+}
+
+/// İçerik türü.
+enum SocialPostType {
+  product
+  restaurant
+  menu
+  campaign
+  qr_menu
+  educational
+  customer_acquisition
+  special_day
+  auto
+}
+
+/// Bir işletmenin bağladığı sosyal medya hesabı (OAuth).
+/// Access token AES-GCM ile şifreli saklanır; asla frontend'e gönderilmez.
+model SocialAccount {
+  id         String              @id @default(cuid())
+  business   Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String
+  platform   SocialPlatform      @default(instagram)
+  status     SocialAccountStatus @default(active)
+
+  providerUserId    String // IG business account id
+  username          String?
+  displayName       String?
+  profilePictureUrl String?
+  pageId            String? // IG yayını için bağlı Facebook sayfası id'si
+
+  accessTokenEnc String // şifrelenmiş uzun ömürlü token
+  tokenExpiresAt DateTime?
+
+  posts     SocialPost[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([businessId, platform])
+  @@index([businessId])
+}
+
+/// AI ile üretilen / paylaşılan sosyal medya gönderisi.
+model SocialPost {
+  id         String           @id @default(cuid())
+  business   Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String
+  account    SocialAccount?   @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  accountId  String?
+  platform   SocialPlatform   @default(instagram)
+  type       SocialPostType   @default(product)
+  status     SocialPostStatus @default(draft)
+
+  // Kaynak ürün (menü verisinden üretim) — silinirse gönderi kalır.
+  menuItem   MenuItem? @relation(fields: [menuItemId], references: [id], onDelete: SetNull)
+  menuItemId String?
+
+  // İçerik
+  title    String?
+  body     String?  @db.Text
+  cta      String?
+  caption  String?  @db.Text // IG'ye gidecek nihai açıklama (birleşik)
+  hashtags String[] @default([])
+
+  // Görsel
+  imageUrl       String? // nihai kompoze edilmiş görsel (1080x1350 / 1080x1080)
+  sourceImageUrl String? // kullanılan ürün/restoran fotoğrafı
+  imageConcept   String? @db.Text // görsel yoksa AI görsel konsepti
+  format         String  @default("portrait") // portrait | square
+
+  // Zamanlama / yayın
+  scheduledAt    DateTime?
+  publishedAt    DateTime?
+  externalPostId String? // IG media id
+  permalink      String?
+  errorMessage   String?   @db.Text
+  retryCount     Int       @default(0)
+
+  aiModel   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId, status])
+  @@index([scheduledAt])
+  @@index([accountId])
+  @@index([menuItemId])
+}
+
+/// Otomatik içerik takvimi ayarı (işletme başına tek kayıt).
+model SocialSchedule {
+  id         String   @id @default(cuid())
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String   @unique
+
+  enabled      Boolean  @default(false)
+  postsPerWeek Int      @default(3)
+  types        String[] @default([]) // seçili içerik türleri
+  plan         Json? // gün → tür / saat eşlemesi
+  timezone     String   @default("Europe/Istanbul")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// İşletme başına sosyal medya ayarları / marka tonu.
+model SocialSettings {
+  id         String   @id @default(cuid())
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String   @unique
+
+  brandTone       String?
+  defaultHashtags String[] @default([])
+  includeQrLink   Boolean  @default(true)
+  includeLogo     Boolean  @default(true)
+  autoPublish     Boolean  @default(false) // v1: kapalı — her zaman onay istenir
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Görsel / açıklama şablonu. businessId null → platform varsayılanı.
+model SocialTemplate {
+  id         String    @id @default(cuid())
+  business   Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String?
+  name       String
+  kind       String // "image" | "caption"
+  config     Json
+  createdAt  DateTime  @default(now())
 
   @@index([businessId])
 }
