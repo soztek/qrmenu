@@ -7,7 +7,7 @@ import { Logo } from "@/components/logo";
 import { VisitTracker } from "@/components/visit-tracker";
 import { PaymentLogos } from "@/components/payment-logos";
 import { LangProvider, useLang } from "@/components/lang-provider";
-import { LangSwitcher } from "@/components/lang-switcher";
+import { SiteNav } from "@/components/site-nav";
 
 /** {n} yer tutucusunu deneme gün sayısıyla değiştirir. */
 function withDays(s: string) {
@@ -69,7 +69,7 @@ export default function Home() {
   return (
     <LangProvider>
       <VisitTracker kind="landing" />
-      <Nav />
+      <SiteNav />
       <main className="flex-1">
         <Hero />
         <PhotoMarquee />
@@ -81,71 +81,6 @@ export default function Home() {
       </main>
       <Footer />
     </LangProvider>
-  );
-}
-
-/* ── nav ──────────────────────────────────────────────────────── */
-function Nav() {
-  const { t } = useLang();
-  return (
-    <header className="sticky top-0 z-50 border-b border-border/70 bg-bg/80 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-        <Logo />
-        <nav className="hidden items-center gap-1 text-sm font-semibold md:flex">
-          <a
-            href="#ozellikler"
-            className="rounded-lg px-3 py-2 text-fg transition hover:bg-fg hover:text-bg"
-          >
-            {t.nav.features}
-          </a>
-          <a
-            href="#nasil"
-            className="rounded-lg px-3 py-2 text-fg transition hover:bg-fg hover:text-bg"
-          >
-            {t.nav.how}
-          </a>
-          <a
-            href="#paketler"
-            className="rounded-lg px-3 py-2 text-fg transition hover:bg-fg hover:text-bg"
-          >
-            {t.nav.packages}
-          </a>
-          <a
-            href="#iletisim"
-            className="rounded-lg px-3 py-2 text-fg transition hover:bg-fg hover:text-bg"
-          >
-            {t.nav.contact}
-          </a>
-        </nav>
-        <div className="flex items-center gap-3">
-          <LangSwitcher />
-          <a
-            href="https://wa.me/905368497535?text=Merhaba,%20S%C3%B6ztek%20QR%20Men%C3%BC%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum."
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-2.5 py-2 text-sm font-semibold text-white transition hover:brightness-110 sm:px-3.5"
-            aria-label={t.nav.whatsapp}
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-              <path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.588 5.301l-.999 3.648 3.91-1.026zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.017-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
-            </svg>
-            <span className="hidden sm:inline">{t.nav.whatsapp}</span>
-          </a>
-          <Link
-            href="/giris"
-            className="hidden text-sm text-muted transition hover:text-fg sm:block"
-          >
-            {t.nav.login}
-          </Link>
-          <Link
-            href="/kayit"
-            className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-black transition hover:bg-green-dark"
-          >
-            {t.nav.tryFree}
-          </Link>
-        </div>
-      </div>
-    </header>
   );
 }
 
