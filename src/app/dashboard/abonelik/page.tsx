@@ -29,7 +29,7 @@ export default async function AbonelikPage() {
     <div className="mx-auto max-w-4xl">
       <h1 className="text-2xl font-extrabold tracking-tight">Abonelik</h1>
       <p className="mt-1 text-muted">
-        Paketini seç, güvenli ödemeyle (PayTR) erişimini uzat.
+        Paketini seç, güvenli ödemeyle (iyzico) erişimini uzat.
       </p>
 
       {/* Mevcut durum */}
@@ -101,7 +101,7 @@ export default async function AbonelikPage() {
       </div>
 
       <p className="mt-6 text-xs text-faint">
-        Ödemeler PayTR / iyzico güvenli altyapısı ile alınır. Tek seferlik ödeme yaparsın;
+        Ödemeler iyzico güvenli ödeme altyapısı ile alınır. Tek seferlik ödeme yaparsın;
         süre bitmeden hatırlatma göndeririz. Kartın bizde saklanmaz.
       </p>
     </div>
