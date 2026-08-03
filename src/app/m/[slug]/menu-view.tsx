@@ -469,17 +469,23 @@ function ProductList({
       {items.map((item) => (
         <article
           key={item.id}
-          className="flex gap-3 rounded-2xl border border-border bg-surface p-3"
-        >
-          <button
-            type="button"
-            onClick={() => {
+          role="button"
+          tabIndex={0}
+          onClick={() => {
+            setDetail(item);
+            setZoom(false);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
               setDetail(item);
               setZoom(false);
-            }}
-            className="shrink-0"
-            aria-label={`${item.name} incele`}
-          >
+            }
+          }}
+          className="flex cursor-pointer gap-3 rounded-2xl border border-border bg-surface p-3 transition hover:border-green/50 active:scale-[0.99]"
+          aria-label={`${item.name} incele`}
+        >
+          <div className="shrink-0">
             {item.photoUrl ? (
               <Image
                 src={item.photoUrl}
@@ -493,7 +499,7 @@ function ProductList({
                 🍽️
               </div>
             )}
-          </button>
+          </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <h3 className="min-w-0 flex-1 font-semibold [overflow-wrap:anywhere]">
@@ -512,16 +518,9 @@ function ProductList({
               </p>
             )}
             <ComplianceTags item={item} />
-            <button
-              type="button"
-              onClick={() => {
-                setDetail(item);
-                setZoom(false);
-              }}
-              className="mt-2 text-xs font-semibold text-green hover:underline"
-            >
+            <span className="mt-2 inline-block text-xs font-semibold text-green">
               İncele →
-            </button>
+            </span>
           </div>
         </article>
       ))}
