@@ -1,9 +1,18 @@
+"use client";
+
 import Link from "next/link";
-import { PLANS, TRIAL_DAYS, formatPrice } from "@/lib/plans";
+import { PLANS, TRIAL_DAYS, formatPrice, type PlanId } from "@/lib/plans";
 import { COMPANY } from "@/lib/company";
 import { Logo } from "@/components/logo";
 import { VisitTracker } from "@/components/visit-tracker";
 import { PaymentLogos } from "@/components/payment-logos";
+import { LangProvider, useLang } from "@/components/lang-provider";
+import { LangSwitcher } from "@/components/lang-switcher";
+
+/** {n} yer tutucusunu deneme gün sayısıyla değiştirir. */
+function withDays(s: string) {
+  return s.replace("{n}", String(TRIAL_DAYS));
+}
 
 /* ── küçük ikonlar (bağımlılık yok) ───────────────────────────── */
 function Icon({ path, className = "" }: { path: string; className?: string }) {
@@ -38,10 +47,27 @@ const ICONS = {
   bolt: "M13 2L4 14h7l-1 8 9-12h-7z",
 } as const;
 
+/** Özellik ve uyumluluk kartlarının ikonları (metin sözlükten gelir, ikon burada). */
+const FEATURE_ICONS = [
+  ICONS.qr,
+  ICONS.photo,
+  ICONS.orders,
+  ICONS.tables,
+  ICONS.globe,
+  ICONS.bolt,
+];
+const COMPLIANCE_ICONS = ["🔥", "⚠️", "🥩", "🚫", "₺", "🖨️"];
+const PHONE_IMAGES = [
+  "/landing/food-burger.png",
+  "/landing/food-coffee.png",
+  "/landing/food-cake.png",
+];
+const PHONE_PRICES = ["₺180", "₺40", "₺120"];
+
 /* ── sayfa ────────────────────────────────────────────────────── */
 export default function Home() {
   return (
-    <>
+    <LangProvider>
       <VisitTracker kind="landing" />
       <Nav />
       <main className="flex-1">
@@ -54,12 +80,13 @@ export default function Home() {
         <FinalCta />
       </main>
       <Footer />
-    </>
+    </LangProvider>
   );
 }
 
 /* ── nav ──────────────────────────────────────────────────────── */
 function Nav() {
+  const { t } = useLang();
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-bg/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
@@ -69,51 +96,52 @@ function Nav() {
             href="#ozellikler"
             className="rounded-lg px-3 py-2 text-fg transition hover:bg-fg hover:text-bg"
           >
-            Özellikler
+            {t.nav.features}
           </a>
           <a
             href="#nasil"
             className="rounded-lg px-3 py-2 text-fg transition hover:bg-fg hover:text-bg"
           >
-            Nasıl çalışır
+            {t.nav.how}
           </a>
           <a
             href="#paketler"
             className="rounded-lg px-3 py-2 text-fg transition hover:bg-fg hover:text-bg"
           >
-            Paketler
+            {t.nav.packages}
           </a>
           <a
             href="#iletisim"
             className="rounded-lg px-3 py-2 text-fg transition hover:bg-fg hover:text-bg"
           >
-            İletişim
+            {t.nav.contact}
           </a>
         </nav>
         <div className="flex items-center gap-3">
+          <LangSwitcher />
           <a
             href="https://wa.me/905368497535?text=Merhaba,%20S%C3%B6ztek%20QR%20Men%C3%BC%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum."
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-2.5 py-2 text-sm font-semibold text-white transition hover:brightness-110 sm:px-3.5"
-            aria-label="WhatsApp Destek"
+            aria-label={t.nav.whatsapp}
           >
             <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
               <path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.588 5.301l-.999 3.648 3.91-1.026zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.017-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
             </svg>
-            <span className="hidden sm:inline">WhatsApp Destek</span>
+            <span className="hidden sm:inline">{t.nav.whatsapp}</span>
           </a>
           <Link
             href="/giris"
             className="hidden text-sm text-muted transition hover:text-fg sm:block"
           >
-            Giriş yap
+            {t.nav.login}
           </Link>
           <Link
             href="/kayit"
             className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-black transition hover:bg-green-dark"
           >
-            Ücretsiz dene
+            {t.nav.tryFree}
           </Link>
         </div>
       </div>
@@ -123,6 +151,7 @@ function Nav() {
 
 /* ── hero ─────────────────────────────────────────────────────── */
 function Hero() {
+  const { t } = useLang();
   return (
     <section className="relative overflow-hidden">
       <div
@@ -136,40 +165,36 @@ function Hero() {
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted">
             <span className="h-1.5 w-1.5 rounded-full bg-green" />
-            {TRIAL_DAYS} gün ücretsiz — kart gerekmez
+            {withDays(t.hero.badge)}
           </span>
           <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
-            İşletmeniz için{" "}
-            <span className="brand-gradient-text">dijital QR menü</span> dakikalar
-            içinde
+            {t.hero.titleBefore}
+            <span className="brand-gradient-text">{t.hero.titleHighlight}</span>
+            {t.hero.titleAfter}
           </h1>
-          <p className="mt-5 max-w-md text-lg text-muted">
-            Menünüzü oluşturun, ürünlerinize fotoğraf ekleyin, QR kodunuzu masaya
-            koyun. Müşteriniz telefonundan menüyü görsün, dilerseniz sipariş
-            versin.
-          </p>
+          <p className="mt-5 max-w-md text-lg text-muted">{t.hero.subtitle}</p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
               href="/kayit"
               className="rounded-lg bg-green px-6 py-3 text-sm font-semibold text-black transition hover:bg-green-dark"
             >
-              Hemen ücretsiz başla
+              {t.hero.ctaPrimary}
             </Link>
             <a
               href="#nasil"
               className="rounded-lg border border-border bg-surface px-6 py-3 text-sm font-semibold text-fg transition hover:border-green/50"
             >
-              Nasıl çalışır?
+              {t.hero.ctaSecondary}
             </a>
           </div>
           <div className="mt-8 flex items-center gap-6 text-xs text-faint">
             <span className="inline-flex items-center gap-1.5">
-              <Icon path={ICONS.check} className="h-4 w-4 text-green" /> Kurulum
-              gerekmez
+              <Icon path={ICONS.check} className="h-4 w-4 text-green" />{" "}
+              {t.hero.check1}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <Icon path={ICONS.check} className="h-4 w-4 text-green" /> Anında
-              güncelleme
+              <Icon path={ICONS.check} className="h-4 w-4 text-green" />{" "}
+              {t.hero.check2}
             </span>
           </div>
         </div>
@@ -182,43 +207,42 @@ function Hero() {
 
 /* Telefon içinde örnek menü önizlemesi */
 function PhoneMock() {
+  const { t } = useLang();
   return (
     <div className="relative mx-auto w-full max-w-xs">
       <div className="brand-glow rounded-[2.2rem] border border-border bg-surface p-3">
         <div className="overflow-hidden rounded-[1.7rem] bg-bg">
           <div className="bg-gradient-to-br from-green-soft to-orange-soft px-5 pb-5 pt-6">
             <div className="text-xs text-green">Söztek Cafe</div>
-            <div className="text-lg font-bold">Menü</div>
+            <div className="text-lg font-bold">{t.phone.menu}</div>
             <div className="mt-3 flex gap-2 text-[11px]">
               <span className="rounded-full bg-green px-2.5 py-1 font-medium text-black">
-                Popüler
+                {t.phone.popular}
               </span>
               <span className="rounded-full bg-surface-2 px-2.5 py-1 text-muted">
-                Tatlılar
+                {t.phone.desserts}
               </span>
             </div>
           </div>
           <div className="space-y-3 p-4">
-            {[
-              ["Cheeseburger", "₺180", "/landing/food-burger.png", "Ana yemek"],
-              ["Türk Kahvesi", "₺40", "/landing/food-coffee.png", "Sıcak içecek"],
-              ["Frambuazlı Pasta", "₺120", "/landing/food-cake.png", "Tatlı"],
-            ].map(([name, price, img, tag]) => (
+            {t.phone.items.map((item, i) => (
               <div
-                key={name}
+                key={i}
                 className="flex items-center gap-3 rounded-xl border border-border bg-surface p-2.5"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={img}
+                  src={PHONE_IMAGES[i]}
                   alt=""
                   className="h-11 w-11 shrink-0 rounded-lg object-cover"
                 />
                 <div className="flex-1">
-                  <div className="text-sm font-medium">{name}</div>
-                  <div className="text-[11px] text-faint">{tag}</div>
+                  <div className="text-sm font-medium">{item.name}</div>
+                  <div className="text-[11px] text-faint">{item.tag}</div>
                 </div>
-                <div className="text-sm font-semibold text-orange">{price}</div>
+                <div className="text-sm font-semibold text-orange">
+                  {PHONE_PRICES[i]}
+                </div>
               </div>
             ))}
           </div>
@@ -230,6 +254,7 @@ function PhoneMock() {
 
 /* ── animasyonlu fotoğraf şeridi ──────────────────────────────── */
 function PhotoMarquee() {
+  const { t } = useLang();
   const photos = [
     "food-burger.png",
     "food-cake.png",
@@ -241,11 +266,9 @@ function PhotoMarquee() {
     <section className="overflow-hidden border-y border-border/60 bg-surface/30 py-8">
       <div className="mb-5 text-center">
         <span className="text-xs font-semibold uppercase tracking-wider text-green">
-          Menü Galerisi
+          {t.marquee.eyebrow}
         </span>
-        <p className="mt-1 text-lg font-semibold text-fg">
-          İşletmelerin Menülerinden Bazı Görüntüler
-        </p>
+        <p className="mt-1 text-lg font-semibold text-fg">{t.marquee.title}</p>
       </div>
       {/* İki kopya yan yana → kesintisiz kayan bant */}
       <div className="marquee-track flex w-max gap-4">
@@ -253,7 +276,7 @@ function PhotoMarquee() {
           <a
             key={i}
             href="#paketler"
-            aria-label="Paketleri gör"
+            aria-label={t.nav.packages}
             className="block h-40 w-60 shrink-0 overflow-hidden rounded-2xl border border-border"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -271,56 +294,24 @@ function PhotoMarquee() {
 }
 
 /* ── özellikler ───────────────────────────────────────────────── */
-const FEATURES = [
-  {
-    icon: ICONS.qr,
-    title: "QR menü",
-    desc: "Kendi QR kodunuzu üretin, masaya koyun; müşteri telefonundan menüyü açsın.",
-  },
-  {
-    icon: ICONS.photo,
-    title: "Fotoğraflı ürünler",
-    desc: "Her ürüne fotoğraf ekleyin; iştah açan görsellerle satışı artırın.",
-  },
-  {
-    icon: ICONS.orders,
-    title: "Sipariş + mutfak paneli",
-    desc: "Müşteri QR'dan sipariş versin, siparişler canlı mutfak panelinize düşsün.",
-  },
-  {
-    icon: ICONS.tables,
-    title: "Masa yönetimi",
-    desc: "Her masaya özel QR; hangi siparişin hangi masadan geldiğini görün.",
-  },
-  {
-    icon: ICONS.globe,
-    title: "Çoklu dil",
-    desc: "Menünüzü birden fazla dilde sunun, yabancı misafirlerinizi rahat ettirin.",
-  },
-  {
-    icon: ICONS.bolt,
-    title: "Anında güncelleme",
-    desc: "Fiyat mı değişti, ürün mü tükendi? Menü anında güncellenir, baskı yok.",
-  },
-];
-
 function Features() {
+  const { t } = useLang();
   return (
     <section id="ozellikler" className="border-t border-border/60 py-20">
       <div className="mx-auto max-w-6xl px-5">
         <SectionHead
-          eyebrow="Özellikler"
-          title="İşletmenizin ihtiyacı olan her şey"
-          subtitle="Sade bir QR menüden tam kapsamlı sipariş yönetimine kadar, ihtiyacınız kadarını kullanın."
+          eyebrow={t.features.eyebrow}
+          title={t.features.title}
+          subtitle={t.features.subtitle}
         />
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((f) => (
+          {t.features.items.map((f, i) => (
             <div
-              key={f.title}
+              key={i}
               className="group rounded-2xl border border-border bg-surface p-6 transition hover:border-green/50"
             >
               <span className="grid h-11 w-11 place-items-center rounded-xl bg-green-soft text-green transition group-hover:bg-green group-hover:text-black">
-                <Icon path={f.icon} className="h-5 w-5" />
+                <Icon path={FEATURE_ICONS[i]} className="h-5 w-5" />
               </span>
               <h3 className="mt-4 font-semibold">{f.title}</h3>
               <p className="mt-2 text-sm text-muted">{f.desc}</p>
@@ -333,45 +324,28 @@ function Features() {
 }
 
 /* ── nasıl çalışır ────────────────────────────────────────────── */
-const STEPS = [
-  {
-    n: "1",
-    title: "Kayıt olun",
-    desc: `Ücretsiz hesap açın, ${TRIAL_DAYS} günlük denemeniz hemen başlasın.`,
-  },
-  {
-    n: "2",
-    title: "Menünüzü oluşturun",
-    desc: "Kategori ve ürünlerinizi ekleyin, fotoğraflarını yükleyin.",
-  },
-  {
-    n: "3",
-    title: "QR'ı yayınlayın",
-    desc: "QR kodunuzu indirin, masaya koyun. Müşteriniz okutsun, menü açılsın.",
-  },
-];
-
 function HowItWorks() {
+  const { t } = useLang();
   return (
     <section id="nasil" className="border-t border-border/60 bg-surface/40 py-20">
       <div className="mx-auto max-w-6xl px-5">
         <SectionHead
-          eyebrow="Nasıl çalışır"
-          title="3 adımda yayında"
-          subtitle="Teknik bilgi gerekmez. Kaydolun, menünüzü girin, QR'ı paylaşın."
+          eyebrow={t.how.eyebrow}
+          title={t.how.title}
+          subtitle={t.how.subtitle}
         />
         <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {STEPS.map((s, i) => (
+          {t.how.steps.map((s, i) => (
             <div
-              key={s.n}
+              key={i}
               className="relative rounded-2xl border border-border bg-surface p-6"
             >
               <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-green to-orange font-bold text-black">
-                {s.n}
+                {i + 1}
               </span>
               <h3 className="mt-4 font-semibold">{s.title}</h3>
-              <p className="mt-2 text-sm text-muted">{s.desc}</p>
-              {i < STEPS.length - 1 && (
+              <p className="mt-2 text-sm text-muted">{withDays(s.desc)}</p>
+              {i < t.how.steps.length - 1 && (
                 <span className="absolute -right-3 top-1/2 hidden text-border md:block">
                   →
                 </span>
@@ -385,42 +359,30 @@ function HowItWorks() {
 }
 
 /* ── yasal uyumluluk ──────────────────────────────────────────── */
-const COMPLIANCE = [
-  ["🔥", "Kalori & besin değerleri", "Porsiyon başına kcal, protein, yağ ve karbonhidrat girin."],
-  ["⚠️", "14 alerjen bildirimi", "Gluten, süt, yumurta, kuruyemiş… ürün bazında işaretleyin."],
-  ["🥩", "Et türü belirtme", "“Köfte/kebap” yerine dana, kuzu, kanatlı olarak gösterin."],
-  ["🚫", "Hassas içerik işareti", "Alkol veya domuz türevi içeriği açıkça belirtin."],
-  ["₺", "Fiyat = kasa tutarı", "Menü fiyatı kasadakiyle aynı; anlık güncelleme, gizli ücret yok."],
-  ["🖨️", "Fiziki (basılı) menü", "Talep edene sunmak için tek tıkla yazdırılabilir PDF menü."],
-];
-
 function Compliance() {
+  const { t } = useLang();
   return (
     <section className="border-t border-border/60 py-20">
       <div className="mx-auto max-w-6xl px-5">
         <SectionHead
-          eyebrow="Yasal Uyumluluk"
-          title="Mevzuata hazır QR menü"
-          subtitle="Türkiye'de menülerde kalori, alerjen ve içerik şeffaflığına yönelik düzenlemeler yürürlüğe giriyor. Söztek QR Menü bu gerekliliklere hazır."
+          eyebrow={t.compliance.eyebrow}
+          title={t.compliance.title}
+          subtitle={t.compliance.subtitle}
         />
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {COMPLIANCE.map(([icon, title, desc]) => (
+          {t.compliance.items.map((c, i) => (
             <div
-              key={title}
+              key={i}
               className="rounded-2xl border border-border bg-surface p-6"
             >
-              <div className="text-2xl">{icon}</div>
-              <h3 className="mt-3 font-semibold">{title}</h3>
-              <p className="mt-2 text-sm text-muted">{desc}</p>
+              <div className="text-2xl">{COMPLIANCE_ICONS[i]}</div>
+              <h3 className="mt-3 font-semibold">{c.title}</h3>
+              <p className="mt-2 text-sm text-muted">{c.desc}</p>
             </div>
           ))}
         </div>
         <p className="mx-auto mt-8 max-w-3xl text-center text-xs text-faint">
-          * Tarım ve Orman Bakanlığı (şeffaf menü / kalori) ve Ticaret Bakanlığı
-          (fiyat etiketi) düzenlemeleri kapsamında; ulusal zincirlerde 2026, tek
-          şubeli / KOBİ işletmelerde 2027'ye kadar kademeli geçiş öngörüldüğü
-          duyurulmuştur. Güncel ve size özel yükümlülükler için resmi kaynakları
-          ve mali müşavirinizi kontrol edin.
+          {t.compliance.footnote}
         </p>
       </div>
     </section>
@@ -429,60 +391,64 @@ function Compliance() {
 
 /* ── fiyatlandırma ────────────────────────────────────────────── */
 function Pricing() {
+  const { t } = useLang();
   return (
     <section id="paketler" className="border-t border-border/60 py-20">
       <div className="mx-auto max-w-6xl px-5">
         <SectionHead
-          eyebrow="Paketler"
-          title="İşletmenize uygun paketi seçin"
-          subtitle={`Tüm paketler ${TRIAL_DAYS} gün ücretsiz. Dilediğiniz zaman iptal edin.`}
+          eyebrow={t.pricing.eyebrow}
+          title={t.pricing.title}
+          subtitle={withDays(t.pricing.subtitle)}
         />
         <div className="mt-12 grid items-start gap-6 lg:grid-cols-3">
-          {PLANS.map((plan) => (
-            <div
-              key={plan.id}
-              className={`relative flex flex-col rounded-2xl border p-7 ${
-                plan.popular
-                  ? "border-green bg-surface brand-glow"
-                  : "border-border bg-surface"
-              }`}
-            >
-              {plan.popular && (
-                <span className="absolute -top-3 left-7 rounded-full bg-orange px-3 py-1 text-xs font-semibold text-black">
-                  En popüler
-                </span>
-              )}
-              <h3 className="font-semibold">{plan.name}</h3>
-              <p className="mt-1 text-sm text-muted">{plan.tagline}</p>
-              <div className="mt-5 flex items-baseline gap-1">
-                <span className="text-4xl font-extrabold">
-                  {formatPrice(plan.priceMonthly)}
-                </span>
-                <span className="text-sm text-faint">/ay</span>
-              </div>
-              <Link
-                href={`/kayit?plan=${plan.id}`}
-                className={`mt-6 rounded-lg py-2.5 text-center text-sm font-semibold transition ${
+          {PLANS.map((plan) => {
+            const tp = t.plans[plan.id as PlanId];
+            return (
+              <div
+                key={plan.id}
+                className={`relative flex flex-col rounded-2xl border p-7 ${
                   plan.popular
-                    ? "bg-green text-black hover:bg-green-dark"
-                    : "border border-border text-fg hover:border-green/50"
+                    ? "border-green bg-surface brand-glow"
+                    : "border-border bg-surface"
                 }`}
               >
-                {TRIAL_DAYS} gün ücretsiz dene
-              </Link>
-              <ul className="mt-6 space-y-3 text-sm">
-                {plan.highlights.map((h) => (
-                  <li key={h} className="flex items-start gap-2.5">
-                    <Icon
-                      path={ICONS.check}
-                      className="mt-0.5 h-4 w-4 shrink-0 text-green"
-                    />
-                    <span className="text-muted">{h}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+                {plan.popular && (
+                  <span className="absolute -top-3 left-7 rounded-full bg-orange px-3 py-1 text-xs font-semibold text-black">
+                    {t.pricing.popular}
+                  </span>
+                )}
+                <h3 className="font-semibold">{tp.name}</h3>
+                <p className="mt-1 text-sm text-muted">{tp.tagline}</p>
+                <div className="mt-5 flex items-baseline gap-1">
+                  <span className="text-4xl font-extrabold">
+                    {formatPrice(plan.priceMonthly)}
+                  </span>
+                  <span className="text-sm text-faint">{t.pricing.perMonth}</span>
+                </div>
+                <Link
+                  href={`/kayit?plan=${plan.id}`}
+                  className={`mt-6 rounded-lg py-2.5 text-center text-sm font-semibold transition ${
+                    plan.popular
+                      ? "bg-green text-black hover:bg-green-dark"
+                      : "border border-border text-fg hover:border-green/50"
+                  }`}
+                >
+                  {withDays(t.pricing.cta)}
+                </Link>
+                <ul className="mt-6 space-y-3 text-sm">
+                  {tp.highlights.map((h) => (
+                    <li key={h} className="flex items-start gap-2.5">
+                      <Icon
+                        path={ICONS.check}
+                        className="mt-0.5 h-4 w-4 shrink-0 text-green"
+                      />
+                      <span className="text-muted">{h}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -491,6 +457,7 @@ function Pricing() {
 
 /* ── son CTA ──────────────────────────────────────────────────── */
 function FinalCta() {
+  const { t } = useLang();
   return (
     <section className="border-t border-border/60 py-20">
       <div className="mx-auto max-w-4xl px-5">
@@ -502,17 +469,16 @@ function FinalCta() {
           }}
         >
           <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Menünüzü bugün dijitale taşıyın
+            {t.finalCta.title}
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-muted">
-            {TRIAL_DAYS} gün boyunca tüm özellikleri ücretsiz deneyin. Kart bilgisi
-            istemiyoruz.
+            {withDays(t.finalCta.subtitle)}
           </p>
           <Link
             href="/kayit"
             className="mt-8 inline-block rounded-lg bg-green px-8 py-3 text-sm font-semibold text-black transition hover:bg-green-dark"
           >
-            Ücretsiz hesap oluştur
+            {t.finalCta.cta}
           </Link>
         </div>
       </div>
@@ -522,6 +488,7 @@ function FinalCta() {
 
 /* ── footer ───────────────────────────────────────────────────── */
 function Footer() {
+  const { t } = useLang();
   return (
     <footer id="iletisim" className="border-t border-border/60 pt-14 pb-8">
       <div className="mx-auto max-w-6xl px-5">
@@ -529,29 +496,34 @@ function Footer() {
           {/* Marka */}
           <div>
             <Logo />
-            <p className="mt-3 max-w-xs text-sm text-muted">
-              İşletmeniz için dijital QR menü, sipariş ve masa yönetimi. Dakikalar
-              içinde kurun.
-            </p>
+            <p className="mt-3 max-w-xs text-sm text-muted">{t.footer.brandDesc}</p>
             <div className="mt-4 flex gap-4 text-sm">
-              <Link href="/giris" className="text-muted transition hover:text-fg">Giriş</Link>
-              <Link href="/kayit" className="text-muted transition hover:text-fg">Kayıt ol</Link>
-              <a href="#paketler" className="text-muted transition hover:text-fg">Paketler</a>
+              <Link href="/giris" className="text-muted transition hover:text-fg">
+                {t.footer.login}
+              </Link>
+              <Link href="/kayit" className="text-muted transition hover:text-fg">
+                {t.footer.register}
+              </Link>
+              <a href="#paketler" className="text-muted transition hover:text-fg">
+                {t.footer.packages}
+              </a>
             </div>
           </div>
 
           {/* İletişim */}
           <div>
-            <h3 className="text-sm font-semibold text-fg">İletişim</h3>
+            <h3 className="text-sm font-semibold text-fg">
+              {t.footer.contactTitle}
+            </h3>
             <ul className="mt-3 space-y-2 text-sm text-muted">
               <li>
                 <a href={`tel:${COMPANY.phoneRaw}`} className="transition hover:text-green">
-                  Tel/Faks: {COMPANY.phone}
+                  {t.footer.telFax}: {COMPANY.phone}
                 </a>
               </li>
               <li>
                 <a href={`tel:${COMPANY.gsmRaw}`} className="transition hover:text-green">
-                  GSM: {COMPANY.gsm}
+                  {t.footer.gsm}: {COMPANY.gsm}
                 </a>
               </li>
               <li>
@@ -574,12 +546,13 @@ function Footer() {
 
           {/* Firma / yasal */}
           <div>
-            <h3 className="text-sm font-semibold text-fg">Firma</h3>
+            <h3 className="text-sm font-semibold text-fg">{t.footer.company}</h3>
             <div className="mt-3 space-y-1.5 text-sm text-muted">
               <p className="font-medium text-fg/90">{COMPANY.legalName}</p>
               <p>{COMPANY.address}</p>
               <p>
-                Vergi Dairesi: {COMPANY.taxOffice} · VKN: {COMPANY.taxNumber}
+                {t.footer.taxOffice}: {COMPANY.taxOffice} · {t.footer.taxNo}:{" "}
+                {COMPANY.taxNumber}
               </p>
             </div>
           </div>
@@ -587,34 +560,32 @@ function Footer() {
 
         {/* Güvenli ödeme */}
         <div className="mt-10 flex flex-col items-center gap-3 border-t border-border/60 pt-6 sm:flex-row sm:justify-between">
-          <span className="text-xs text-faint">
-            Güvenli ödeme — kart bilgileriniz saklanmaz
-          </span>
+          <span className="text-xs text-faint">{t.footer.securePayment}</span>
           <PaymentLogos />
         </div>
 
         {/* Yasal sayfalar */}
         <nav className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 border-t border-border/60 pt-6 text-sm">
           <Link href="/hakkimizda" className="text-muted transition hover:text-green">
-            Hakkımızda
+            {t.footer.about}
           </Link>
           <Link href="/gizlilik" className="text-muted transition hover:text-green">
-            Gizlilik Sözleşmesi
+            {t.footer.privacy}
           </Link>
           <Link
             href="/mesafeli-satis-sozlesmesi"
             className="text-muted transition hover:text-green"
           >
-            Mesafeli Satış Sözleşmesi
+            {t.footer.distanceSales}
           </Link>
           <Link href="/teslimat-iade" className="text-muted transition hover:text-green">
-            Teslimat ve İade Şartları
+            {t.footer.delivery}
           </Link>
         </nav>
 
         <div className="mt-6 flex flex-col items-center justify-between gap-2 text-xs text-faint md:flex-row">
           <p>
-            © {new Date().getFullYear()} {COMPANY.shortName}. Tüm hakları saklıdır.
+            © {new Date().getFullYear()} {COMPANY.shortName}. {t.footer.rights}
           </p>
           <p className="italic">“{COMPANY.slogan}”</p>
         </div>
