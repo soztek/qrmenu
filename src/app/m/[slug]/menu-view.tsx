@@ -456,6 +456,11 @@ function ProductList({
   items: (MenuItemT & { categoryName?: string })[];
   empty: string;
 }) {
+  const [detail, setDetail] = useState<
+    (MenuItemT & { categoryName?: string }) | null
+  >(null);
+  const [zoom, setZoom] = useState(false);
+
   if (items.length === 0) {
     return <p className="py-10 text-center text-sm text-faint">{empty}</p>;
   }
@@ -466,19 +471,29 @@ function ProductList({
           key={item.id}
           className="flex gap-3 rounded-2xl border border-border bg-surface p-3"
         >
-          {item.photoUrl ? (
-            <Image
-              src={item.photoUrl}
-              alt={item.name}
-              width={80}
-              height={80}
-              className="h-20 w-20 shrink-0 rounded-xl object-cover"
-            />
-          ) : (
-            <div className="grid h-20 w-20 shrink-0 place-items-center rounded-xl bg-surface-2 text-2xl">
-              🍽️
-            </div>
-          )}
+          <button
+            type="button"
+            onClick={() => {
+              setDetail(item);
+              setZoom(false);
+            }}
+            className="shrink-0"
+            aria-label={`${item.name} incele`}
+          >
+            {item.photoUrl ? (
+              <Image
+                src={item.photoUrl}
+                alt={item.name}
+                width={80}
+                height={80}
+                className="h-20 w-20 rounded-xl object-cover"
+              />
+            ) : (
+              <div className="grid h-20 w-20 place-items-center rounded-xl bg-surface-2 text-2xl">
+                🍽️
+              </div>
+            )}
+          </button>
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <h3 className="min-w-0 flex-1 font-semibold [overflow-wrap:anywhere]">
@@ -492,12 +507,122 @@ function ProductList({
               <div className="text-[11px] text-faint">{item.categoryName}</div>
             )}
             {item.description && (
-              <p className="mt-1 text-sm text-muted">{item.description}</p>
+              <p className="mt-1 line-clamp-2 text-sm text-muted">
+                {item.description}
+              </p>
             )}
             <ComplianceTags item={item} />
+            <button
+              type="button"
+              onClick={() => {
+                setDetail(item);
+                setZoom(false);
+              }}
+              className="mt-2 text-xs font-semibold text-green hover:underline"
+            >
+              İncele →
+            </button>
           </div>
         </article>
       ))}
+
+      {/* Ürün detay penceresi */}
+      {detail && (
+        <div
+          className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 sm:items-center sm:p-4"
+          onClick={() => setDetail(null)}
+        >
+          <div
+            className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-bg text-fg sm:rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-bg/95 px-4 py-3 backdrop-blur">
+              <button
+                type="button"
+                onClick={() => setDetail(null)}
+                className="text-sm font-semibold text-green hover:underline"
+              >
+                ← Menüye dön
+              </button>
+              <span className="font-bold text-orange">
+                {formatTL(detail.price)}
+              </span>
+            </div>
+
+            {detail.photoUrl ? (
+              <button
+                type="button"
+                onClick={() => setZoom(true)}
+                className="relative block w-full"
+                aria-label="Görseli büyüt"
+              >
+                <Image
+                  src={detail.photoUrl}
+                  alt={detail.name}
+                  width={800}
+                  height={600}
+                  className="max-h-[45vh] w-full object-cover"
+                />
+                <span className="absolute bottom-2 right-2 rounded-full bg-black/55 px-2.5 py-1 text-xs text-white">
+                  🔍 Büyütmek için dokun
+                </span>
+              </button>
+            ) : (
+              <div className="grid h-40 place-items-center bg-surface-2 text-5xl">
+                🍽️
+              </div>
+            )}
+
+            <div className="p-4">
+              <h2 className="text-xl font-extrabold [overflow-wrap:anywhere]">
+                {detail.name}
+              </h2>
+              {detail.categoryName && (
+                <div className="mt-0.5 text-xs text-faint">
+                  {detail.categoryName}
+                </div>
+              )}
+              {detail.description && (
+                <p className="mt-2 text-muted">{detail.description}</p>
+              )}
+              <div className="mt-3">
+                <ComplianceTags item={detail} />
+              </div>
+              <button
+                type="button"
+                onClick={() => setDetail(null)}
+                className="mt-5 w-full rounded-lg border border-border py-2.5 text-sm font-medium text-fg transition hover:border-green/50"
+              >
+                ← Menüye dön
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tam ekran görsel yakınlaştırma */}
+      {zoom && detail?.photoUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-3"
+          onClick={() => setZoom(false)}
+        >
+          <Image
+            src={detail.photoUrl}
+            alt={detail.name}
+            width={1400}
+            height={1400}
+            className="max-h-[92vh] w-auto max-w-full object-contain"
+          />
+          <button
+            type="button"
+            onClick={() => setZoom(false)}
+            className="absolute right-4 top-4 rounded-full bg-white/20 px-3 py-1 text-lg text-white"
+            aria-label="Kapat"
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   );
 }
