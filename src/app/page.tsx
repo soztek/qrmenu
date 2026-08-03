@@ -3,6 +3,7 @@ import { PLANS, TRIAL_DAYS, formatPrice } from "@/lib/plans";
 import { COMPANY } from "@/lib/company";
 import { Logo } from "@/components/logo";
 import { VisitTracker } from "@/components/visit-tracker";
+import { PaymentLogos } from "@/components/payment-logos";
 
 /* ── küçük ikonlar (bağımlılık yok) ───────────────────────────── */
 function Icon({ path, className = "" }: { path: string; className?: string }) {
@@ -561,10 +562,35 @@ function Footer() {
                 Vergi Dairesi: {COMPANY.taxOffice} · VKN: {COMPANY.taxNumber}
               </p>
             </div>
+            <div className="mt-4 flex flex-col gap-1.5 text-sm">
+              <Link href="/hakkimizda" className="text-muted transition hover:text-green">
+                Hakkımızda
+              </Link>
+              <Link href="/gizlilik" className="text-muted transition hover:text-green">
+                Gizlilik Sözleşmesi
+              </Link>
+              <Link
+                href="/mesafeli-satis-sozlesmesi"
+                className="text-muted transition hover:text-green"
+              >
+                Mesafeli Satış Sözleşmesi
+              </Link>
+              <Link href="/teslimat-iade" className="text-muted transition hover:text-green">
+                Teslimat ve İade Şartları
+              </Link>
+            </div>
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col items-center justify-between gap-2 border-t border-border/60 pt-6 text-xs text-faint md:flex-row">
+        {/* Güvenli ödeme */}
+        <div className="mt-10 flex flex-col items-center gap-3 border-t border-border/60 pt-6 sm:flex-row sm:justify-between">
+          <span className="text-xs text-faint">
+            Güvenli ödeme — kart bilgileriniz saklanmaz
+          </span>
+          <PaymentLogos />
+        </div>
+
+        <div className="mt-6 flex flex-col items-center justify-between gap-2 text-xs text-faint md:flex-row">
           <p>
             © {new Date().getFullYear()} {COMPANY.shortName}. Tüm hakları saklıdır.
           </p>
