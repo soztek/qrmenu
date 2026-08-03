@@ -13,11 +13,16 @@ export function iyzicoConfig() {
 function client(): any | null {
   const cfg = iyzicoConfig();
   if (!cfg) return null;
-  return new Iyzipay({
-    apiKey: cfg.apiKey,
-    secretKey: cfg.secretKey,
-    uri: cfg.uri,
-  });
+  try {
+    return new Iyzipay({
+      apiKey: cfg.apiKey,
+      secretKey: cfg.secretKey,
+      uri: cfg.uri,
+    });
+  } catch (err) {
+    console.error("iyzico client init hatası:", err);
+    return null;
+  }
 }
 
 export async function createIyzicoCheckout(opts: {
@@ -84,16 +89,25 @@ export async function createIyzicoCheckout(opts: {
   };
 
   return new Promise((resolve) => {
-    iyzipay.checkoutFormInitialize.create(request, (err: any, result: any) => {
-      if (err) return resolve({ error: "iyzico bağlantı hatası." });
-      if (result?.status === "success" && result.paymentPageUrl) {
-        return resolve({
-          token: result.token,
-          paymentPageUrl: result.paymentPageUrl,
-        });
-      }
-      resolve({ error: result?.errorMessage || "iyzico ödeme başlatılamadı." });
-    });
+    try {
+      iyzipay.checkoutFormInitialize.create(request, (err: any, result: any) => {
+        if (err) {
+          console.error("iyzico checkout callback hatası:", err);
+          return resolve({ error: "iyzico bağlantı hatası." });
+        }
+        if (result?.status === "success" && result.paymentPageUrl) {
+          return resolve({
+            token: result.token,
+            paymentPageUrl: result.paymentPageUrl,
+          });
+        }
+        console.error("iyzico checkout başarısız:", result?.errorCode, result?.errorMessage);
+        resolve({ error: result?.errorMessage || "iyzico ödeme başlatılamadı." });
+      });
+    } catch (err) {
+      console.error("iyzico checkout senkron hata:", err);
+      resolve({ error: "iyzico ödeme başlatılamadı (sunucu)." });
+    }
   });
 }
 
