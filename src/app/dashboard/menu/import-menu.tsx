@@ -66,6 +66,45 @@ function rowsToItems(matrix: string[][]): ImportRow[] {
   return out;
 }
 
+/** OCR ile okunan menü metnini ürünlere çevirir (sezgisel: satır sonu fiyat = ürün, fiyatsız kısa satır = kategori). */
+function ocrTextToItems(text: string): ImportRow[] {
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+  const out: ImportRow[] = [];
+  let category = "Menü";
+  for (const line of lines) {
+    const m = line.match(/([\d][\d.,]*)\s*(?:₺|tl|try)?\s*$/i);
+    if (m) {
+      const price = parsePrice(m[1]);
+      const name = line
+        .slice(0, m.index)
+        .replace(/[.\-–—:·•\s]+$/g, "")
+        .trim();
+      if (
+        price !== null &&
+        price > 0 &&
+        name.replace(/[^\p{L}]/gu, "").length >= 2
+      ) {
+        out.push({ category, name: name.slice(0, 80), description: null, price });
+        continue;
+      }
+    }
+    // Rakam içermeyen kısa satır → kategori başlığı
+    const letters = line.replace(/[^\p{L}]/gu, "");
+    if (letters.length >= 2 && letters.length <= 28 && !/\d/.test(line)) {
+      category =
+        line
+          .replace(/[^\p{L}\s&./-]/gu, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+          .slice(0, 60) || category;
+    }
+  }
+  return out;
+}
+
 type Parsed = { rows: ImportRow[]; source: string };
 
 export function ImportMenu() {
@@ -75,8 +114,42 @@ export function ImportMenu() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [ocrBusy, setOcrBusy] = useState(false);
+  const [ocrMsg, setOcrMsg] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const imgRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  async function handleImage(file: File) {
+    setError(null);
+    setResult(null);
+    setParsed(null);
+    setOcrBusy(true);
+    setOcrMsg("Fotoğraf okunuyor… (ilk seferde dil verisi inecek, biraz sürebilir)");
+    try {
+      const mod = await import("tesseract.js");
+      const { data } = await mod.recognize(file, "tur+eng", {
+        logger: (m) => {
+          if (m.status === "recognizing text")
+            setOcrMsg(`Okunuyor… %${Math.round(m.progress * 100)}`);
+        },
+      });
+      const rows = ocrTextToItems(data.text || "");
+      if (rows.length === 0) {
+        setError(
+          "Fotoğraftan ürün okunamadı. Daha net/düz bir fotoğraf deneyin (iyi ışık, dik açı, tek sütun).",
+        );
+      } else {
+        setParsed({ rows, source: "menü fotoğrafı (OCR)" });
+      }
+    } catch {
+      setError("Fotoğraf okunamadı, tekrar deneyin.");
+    } finally {
+      setOcrBusy(false);
+      setOcrMsg(null);
+      if (imgRef.current) imgRef.current.value = "";
+    }
+  }
 
   function reset() {
     setParsed(null);
@@ -228,7 +301,31 @@ export function ImportMenu() {
         >
           ⬇ Şablon indir
         </button>
+        <label
+          className={`cursor-pointer rounded-lg border border-border px-4 py-2 text-sm text-fg transition hover:border-green/50 ${
+            ocrBusy ? "pointer-events-none opacity-60" : ""
+          }`}
+        >
+          {ocrBusy ? "Okunuyor…" : "📷 Menü fotoğrafından aktar"}
+          <input
+            ref={imgRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            disabled={ocrBusy}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleImage(f);
+            }}
+          />
+        </label>
       </div>
+
+      {ocrMsg && <p className="mt-2 text-xs text-muted">{ocrMsg}</p>}
+      <p className="mt-1 text-xs text-faint">
+        Kağıt menü fotoğrafını yükleyince ürün adları ve fiyatları okunup önizlemeye
+        gelir (fotoğraf net olmalı). Okunanları düzeltip içe aktarabilirsin.
+      </p>
 
       <details className="mt-3">
         <summary className="cursor-pointer text-sm text-muted hover:text-fg">

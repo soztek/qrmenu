@@ -33,7 +33,7 @@ export const PLANS: Plan[] = [
     id: "starter",
     name: "Başlangıç",
     tagline: "Dijital menüye ilk adım",
-    priceMonthly: 199,
+    priceMonthly: 249,
     features: ["qr_menu"],
     highlights: [
       "Sınırsız kategori ve ürün",
@@ -47,7 +47,7 @@ export const PLANS: Plan[] = [
     id: "pro",
     name: "Pro",
     tagline: "Sipariş alan işletmeler için",
-    priceMonthly: 399,
+    priceMonthly: 449,
     popular: true,
     features: ["qr_menu", "orders"],
     highlights: [
@@ -61,7 +61,7 @@ export const PLANS: Plan[] = [
     id: "premium",
     name: "Premium",
     tagline: "Tam kapsamlı işletme yönetimi",
-    priceMonthly: 699,
+    priceMonthly: 749,
     features: ["qr_menu", "orders", "tables", "multi_language"],
     highlights: [
       "Pro'daki her şey",
