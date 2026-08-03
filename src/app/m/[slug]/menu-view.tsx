@@ -222,11 +222,32 @@ export function MenuView({
                 />
               )}
               {business.wifiName && (
-                <InfoRow
-                  icon="📶"
-                  label="WiFi"
-                  value={`${business.wifiName}${business.wifiPassword ? ` · ${business.wifiPassword}` : ""}`}
-                />
+                <div className="flex items-start gap-2.5">
+                  <span className="mt-0.5 shrink-0 text-lg">📶</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs text-faint">WiFi</div>
+                    <div className="mt-1.5 flex flex-wrap gap-2">
+                      <div className="min-w-0 rounded-lg border border-green/40 bg-green/10 px-3 py-1.5">
+                        <div className="text-[10px] font-medium uppercase tracking-wide text-faint">
+                          Ağ adı
+                        </div>
+                        <div className="font-mono text-sm font-bold text-green [overflow-wrap:anywhere]">
+                          {business.wifiName}
+                        </div>
+                      </div>
+                      {business.wifiPassword && (
+                        <div className="min-w-0 rounded-lg border border-green/40 bg-green/10 px-3 py-1.5">
+                          <div className="text-[10px] font-medium uppercase tracking-wide text-faint">
+                            Şifre
+                          </div>
+                          <div className="font-mono text-sm font-bold text-green [overflow-wrap:anywhere]">
+                            {business.wifiPassword}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           )}
