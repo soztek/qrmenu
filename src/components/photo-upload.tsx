@@ -67,6 +67,7 @@ export function PhotoUpload({
   label,
   aspect = "square",
   cropTo,
+  banner = false,
   hint,
   onChange,
   getQuery,
@@ -77,6 +78,8 @@ export function PhotoUpload({
   aspect?: "square" | "wide";
   /** Verilirse yüklemeden önce görsel bu orana kırpılır (ör. 3 = 3:1 banner). */
   cropTo?: number;
+  /** Tam genişlik önizleme (üst banner gibi) — kırpmadan olduğu gibi gösterir. */
+  banner?: boolean;
   hint?: string;
   onChange?: (url: string) => void;
   getQuery?: () => string;
@@ -91,7 +94,7 @@ export function PhotoUpload({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const wide = aspect === "wide";
-  const bannerMode = typeof cropTo === "number";
+  const bannerMode = banner || typeof cropTo === "number";
 
   function update(next: string) {
     setUrl(next);
@@ -174,15 +177,15 @@ export function PhotoUpload({
       )}
       {name && <input type="hidden" name={name} value={url} />}
 
-      {/* Banner (3:1) modu: tam genişlik önizleme */}
+      {/* Banner modu: tam genişlik önizleme (kırpmadan, olduğu gibi) */}
       {bannerMode && (
-        <div className="mb-2 aspect-[3/1] w-full overflow-hidden rounded-lg border border-border bg-surface-2">
+        <div className="mb-2 w-full overflow-hidden rounded-lg border border-border bg-surface-2">
           {url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={url} alt={label ?? "Banner"} className="h-full w-full object-cover" />
+            <img src={url} alt={label ?? "Banner"} className="block h-auto w-full" />
           ) : (
-            <div className="grid h-full place-items-center text-sm text-faint">
-              🖼️ 3:1 banner (1200×400)
+            <div className="grid aspect-[3/1] place-items-center text-sm text-faint">
+              🖼️ Üst banner
             </div>
           )}
         </div>

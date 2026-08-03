@@ -130,10 +130,10 @@ export function SettingsForm({ business }: { business: BusinessData }) {
           <PhotoUpload name="logoUrl" label="Logo" initialUrl={business.logoUrl} />
           <PhotoUpload
             name="coverUrl"
-            label="Üst banner (3:1)"
-            cropTo={3}
+            label="Üst banner"
+            banner
             initialUrl={business.coverUrl}
-            hint="En iyi sonuç için geniş (yatay) bir görsel yükleyin; otomatik 3:1 (1200×400) olarak kırpılır. Menünün ve PDF'in en üstünde tam genişlikte görünür."
+            hint="Menünün ve PDF'in en üstünde tam genişlikte, kırpılmadan olduğu gibi görünür. En iyi sonuç için geniş (yatay) bir görsel önerilir."
           />
         </div>
       </section>
