@@ -28,6 +28,7 @@ interface NavItem {
 const NAV: NavItem[] = [
   { href: "/dashboard", label: "Genel bakış" },
   { href: "/dashboard/menu", label: "Menü" },
+  { href: "/dashboard/sosyal", label: "Sosyal Medya" },
   { href: "/dashboard/reviews", label: "Yorumlar" },
   { href: "/dashboard/qr", label: "QR Kod" },
   { href: "/dashboard/orders", label: "Siparişler", feature: "orders", soon: true },
