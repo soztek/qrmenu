@@ -199,7 +199,7 @@ export function CreateStudio({
       <div className="space-y-5">
         {!aiEnabled && (
           <div className="rounded-xl border border-orange/40 bg-orange-soft/40 p-3 text-sm text-fg">
-            AI içerik üretimi şu an kapalı. Yönetici <code>OPENAI_API_KEY</code> ekleyince aktifleşir.
+            AI içerik üretimi şu an kapalı. Yönetici <code>ANTHROPIC_API_KEY</code> ekleyince aktifleşir.
           </div>
         )}
 

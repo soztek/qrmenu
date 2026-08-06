@@ -97,7 +97,7 @@ export default async function SocialHomePage() {
 
       {!isAIConfigured() && (
         <div className="mt-3 rounded-xl border border-orange/40 bg-orange-soft/30 p-3 text-sm text-fg">
-          Not: AI içerik üretimi için yönetici <code>OPENAI_API_KEY</code> eklemeli. Arayüz ve akış hazır.
+          Not: AI içerik üretimi için yönetici <code>ANTHROPIC_API_KEY</code> eklemeli. Arayüz ve akış hazır.
         </div>
       )}
 

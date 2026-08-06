@@ -1,12 +1,13 @@
 import "server-only";
-import { isAIConfigured, openaiConfig } from "./config";
+import Anthropic from "@anthropic-ai/sdk";
+import { isAIConfigured, anthropicConfig } from "./config";
 import { contentTypeLabel } from "./types";
 import type { SocialPostType } from "@/generated/prisma/enums";
 
 /**
  * AIContentService — Instagram metin içeriği üretimi.
- * Sağlayıcı: OpenAI (Chat Completions, JSON çıktısı). Anahtar yalnızca sunucuda.
- * Sağlayıcı soyutlanmıştır; ileride başka bir modele geçmek bu dosyayla sınırlıdır.
+ * Sağlayıcı: Anthropic (Claude). Anahtar yalnızca sunucuda.
+ * Sağlayıcı soyutlanmıştır; başka bir modele geçmek bu dosyayla sınırlıdır.
  */
 
 export class AIContentError extends Error {}
@@ -59,10 +60,10 @@ export async function generateContent(
 ): Promise<AIContentResult> {
   if (!isAIConfigured()) {
     throw new AIContentError(
-      "AI içerik üretimi şu an kapalı. Yönetici OpenAI anahtarını (OPENAI_API_KEY) eklemeli.",
+      "AI içerik üretimi şu an kapalı. Yönetici Anthropic anahtarını (ANTHROPIC_API_KEY) eklemeli.",
     );
   }
-  const { apiKey, model } = openaiConfig();
+  const { apiKey, model } = anthropicConfig();
 
   const system = [
     "Sen bir restoran/kafe için uzman bir sosyal medya içerik editörüsün.",
@@ -70,7 +71,7 @@ export async function generateContent(
     "Abartılı vaatlerden ve klişelerden kaçın; iştah açıcı, net ve marka güveni veren bir ton kullan.",
     "Yalnızca verilen bilgilere sadık kal; olmayan ürün, fiyat veya özellik uydurma.",
     "Emojileri ölçülü kullan. Hashtag'leri Türkçe + sektörel karışık, 8-15 adet üret.",
-    "SADECE şu şemada geçerli JSON döndür, başka metin yazma:",
+    "SADECE şu şemada geçerli JSON döndür, başka hiçbir metin/açıklama yazma:",
     '{"title": string, "body": string, "cta": string, "hashtags": string[], "imageConcept": string}',
     "title: kısa başlık. body: 2-4 cümle açıklama. cta: tek cümle çağrı. imageConcept: görsel için kısa sahne betimi (Türkçe).",
   ].join(" ");
@@ -98,55 +99,49 @@ export async function generateContent(
     platform: "Söztek QR Menü (dijital QR menü platformu)",
   };
 
-  let res: Response;
+  let raw = "";
   try {
-    res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        temperature: 0.8,
-        max_tokens: 800,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: system },
-          {
-            role: "user",
-            content:
-              "Aşağıdaki bilgilerle bir Instagram gönderisi üret:\n" +
-              JSON.stringify(ctx, null, 2),
-          },
-        ],
-      }),
+    const client = new Anthropic({ apiKey });
+    const response = await client.messages.create({
+      model,
+      max_tokens: 900,
+      system,
+      messages: [
+        {
+          role: "user",
+          content:
+            "Aşağıdaki bilgilerle bir Instagram gönderisi üret ve SADECE JSON döndür:\n" +
+            JSON.stringify(ctx, null, 2),
+        },
+      ],
     });
+    const textBlock = response.content.find((b) => b.type === "text");
+    raw = textBlock && textBlock.type === "text" ? textBlock.text : "";
   } catch (err) {
-    console.error("OpenAI network error:", err);
-    throw new AIContentError("AI servisine ulaşılamadı, tekrar deneyin.");
-  }
-
-  if (!res.ok) {
-    const detail = await res.text().catch(() => "");
-    console.error("OpenAI error:", res.status, detail.slice(0, 500));
-    if (res.status === 401) {
+    const detail =
+      err instanceof Anthropic.APIError
+        ? `${err.status ?? ""} ${err.message}`
+        : err instanceof Error
+          ? err.message
+          : String(err);
+    console.error("Anthropic içerik hatası:", detail);
+    if (err instanceof Anthropic.APIError && err.status === 401) {
       throw new AIContentError("AI anahtarı geçersiz. Yönetici ayarlarını kontrol etmeli.");
     }
-    if (res.status === 429) {
+    if (err instanceof Anthropic.APIError && err.status === 429) {
       throw new AIContentError("AI servisi şu an yoğun/limit doldu, biraz sonra deneyin.");
     }
     throw new AIContentError("AI içerik üretilemedi, tekrar deneyin.");
   }
 
-  const data = (await res.json()) as {
-    choices?: { message?: { content?: string } }[];
-  };
-  const raw = data.choices?.[0]?.message?.content ?? "{}";
-
+  // Olası kod bloğu/çerçeveleri temizle, ilk JSON nesnesini yakala.
+  const match = raw.match(/\{[\s\S]*\}/);
+  if (!match) {
+    throw new AIContentError("AI yanıtı çözümlenemedi, tekrar deneyin.");
+  }
   let parsed: Record<string, unknown>;
   try {
-    parsed = JSON.parse(raw) as Record<string, unknown>;
+    parsed = JSON.parse(match[0]) as Record<string, unknown>;
   } catch {
     throw new AIContentError("AI yanıtı çözümlenemedi, tekrar deneyin.");
   }

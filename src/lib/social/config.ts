@@ -23,16 +23,16 @@ export function isInstagramConfigured(): boolean {
   return Boolean(c.appId && c.appSecret && c.redirectUri);
 }
 
-/** AI içerik üretimi (OpenAI) yapılandırıldı mı? */
+/** AI içerik üretimi (Anthropic/Claude) yapılandırıldı mı? */
 export function isAIConfigured(): boolean {
-  return Boolean(process.env.OPENAI_API_KEY);
+  return Boolean(process.env.ANTHROPIC_API_KEY);
 }
 
-export function openaiConfig() {
+export function anthropicConfig() {
   return {
-    apiKey: process.env.OPENAI_API_KEY ?? "",
-    // Metin modeli — env ile değiştirilebilir.
-    model: process.env.OPENAI_TEXT_MODEL || "gpt-4o-mini",
+    apiKey: process.env.ANTHROPIC_API_KEY ?? "",
+    // Metin modeli — env ile değiştirilebilir (varsayılan: hızlı/ucuz Haiku).
+    model: process.env.ANTHROPIC_TEXT_MODEL || "claude-haiku-4-5-20251001",
   };
 }
 
