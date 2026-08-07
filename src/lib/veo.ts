@@ -84,31 +84,56 @@ export async function startVideoGeneration(opts: {
 export type VeoStatus =
   | { status: "running" }
   | { status: "done"; uri: string; mimeType: string }
-  | { status: "error"; message: string };
+  | { status: "error"; message: string; detail?: string };
 
-/** Operation durumunu sorgular. */
+/**
+ * Operation durumunu sorgular — doğrudan REST (SDK operation yeniden kurma
+ * sorunlarını bypass eder). Operation adı "models/.../operations/xyz" biçiminde.
+ */
 export async function getVideoStatus(operationId: string): Promise<VeoStatus> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return { status: "error", message: "GEMINI_API_KEY yok." };
   try {
-    const ai = client();
-    const op = await ai.operations.getVideosOperation({
-      // Sadece isim ile yeniden sorgula.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      operation: { name: operationId } as any,
-    });
-    if (!op.done) return { status: "running" };
+    const url = `https://generativelanguage.googleapis.com/v1beta/${operationId}`;
+    const res = await fetch(url, { headers: { "x-goog-api-key": apiKey } });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const opError = (op as any).error;
-    if (opError) {
-      return { status: "error", message: opError?.message || "Video üretimi başarısız oldu." };
+    const data = (await res.json().catch(() => null)) as any;
+
+    if (!res.ok) {
+      const raw = data?.error?.message || `HTTP ${res.status}`;
+      return { status: "error", message: friendly(new Error(raw)), detail: raw };
     }
-    const video = op.response?.generatedVideos?.[0]?.video;
-    if (!video?.uri) {
-      return { status: "error", message: "Video çıktısı bulunamadı." };
+    if (!data?.done) return { status: "running" };
+    if (data.error) {
+      return {
+        status: "error",
+        message: data.error.message || "Video üretimi başarısız oldu.",
+        detail: JSON.stringify(data.error).slice(0, 400),
+      };
     }
-    return { status: "done", uri: video.uri, mimeType: video.mimeType || "video/mp4" };
+
+    // Video URI'sini olası farklı yanıt şekillerinde ara.
+    const resp = data.response ?? {};
+    const uri =
+      resp?.generateVideoResponse?.generatedSamples?.[0]?.video?.uri ??
+      resp?.generatedVideos?.[0]?.video?.uri ??
+      resp?.generateVideoResponse?.generatedVideos?.[0]?.video?.uri ??
+      null;
+    if (!uri) {
+      return {
+        status: "error",
+        message: "Video çıktısı alınamadı.",
+        detail: JSON.stringify(resp).slice(0, 400),
+      };
+    }
+    const mimeType =
+      resp?.generateVideoResponse?.generatedSamples?.[0]?.video?.mimeType ||
+      "video/mp4";
+    return { status: "done", uri, mimeType };
   } catch (err) {
     console.error("Veo status hata:", err);
-    return { status: "error", message: friendly(err) };
+    const raw = err instanceof Error ? err.message : String(err);
+    return { status: "error", message: friendly(err), detail: raw };
   }
 }
 

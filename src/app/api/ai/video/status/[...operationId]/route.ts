@@ -33,7 +33,11 @@ export async function GET(
     return NextResponse.json({ status: "generating" });
   }
   if (result.status === "error") {
-    return NextResponse.json({ status: "error", error: result.message });
+    return NextResponse.json({
+      status: "error",
+      error: result.message,
+      detail: result.detail,
+    });
   }
 
   // done → indir + Blob'a kaydet

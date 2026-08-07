@@ -117,6 +117,7 @@ export function AdVideoStudio({
       }
       if (data.status === "error") {
         setError(data.error || "Video üretimi başarısız.");
+        setDetail(data.detail || "");
         setPhase("error");
         localStorage.removeItem(STORAGE_KEY);
         inFlight.current = false;
