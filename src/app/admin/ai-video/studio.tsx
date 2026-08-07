@@ -53,6 +53,9 @@ export function AdVideoStudio({
   const [productId, setProductId] = useState("");
   const [refs, setRefs] = useState<{ file: File; url: string }[]>([]);
   const [prompt, setPrompt] = useState(DEFAULT_AD_PROMPT);
+  const [topic, setTopic] = useState("");
+  const [promptLoading, setPromptLoading] = useState(false);
+  const [promptErr, setPromptErr] = useState("");
   const [format, setFormat] = useState(VIDEO_FORMATS[0].key);
   const [model, setModel] = useState<VeoModelKey>("fast");
   const [duration, setDuration] = useState<number>(DEFAULT_DURATION);
@@ -157,6 +160,37 @@ export function AdVideoStudio({
       if (removed) URL.revokeObjectURL(removed.url);
       return copy;
     });
+  }
+
+  async function onExpandPrompt() {
+    if (promptLoading) return;
+    if (topic.trim().length < 3) {
+      setPromptErr("Lütfen kısa bir konu yazın.");
+      return;
+    }
+    setPromptLoading(true);
+    setPromptErr("");
+    try {
+      const res = await fetch("/api/ai/video/prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: topic.trim(),
+          businessName: business?.name,
+          productName: product?.name,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.prompt) {
+        setPromptErr(data.error || "Prompt oluşturulamadı.");
+        return;
+      }
+      setPrompt(data.prompt);
+    } catch {
+      setPromptErr("Sunucuya ulaşılamadı, tekrar deneyin.");
+    } finally {
+      setPromptLoading(false);
+    }
   }
 
   async function onGenerate() {
@@ -358,6 +392,33 @@ export function AdVideoStudio({
         <p className="-mt-2 text-xs text-faint">
           “Başlangıç karesi” açıkken video, yüklediğin gerçek menü görüntüsünden başlayıp onu canlandırır (görsel sadakati en yüksek). Kapatırsan referanstan ilham alır. Veo tek üretimde en çok ~8 sn üretir.
         </p>
+
+        {/* Kısa konu → AI prompt */}
+        <div className="rounded-xl border border-green/30 bg-green-soft/20 p-3">
+          <label className="mb-1.5 block text-sm font-medium text-fg">
+            Kolay yol: sadece konuyu yaz, AI promptu hazırlasın
+          </label>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder='Örn: "Kahve dükkanı için sıcak, samimi tanıtım"'
+              className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg outline-none focus:border-green/50"
+            />
+            <button
+              type="button"
+              onClick={onExpandPrompt}
+              disabled={promptLoading}
+              className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-black transition hover:bg-green-dark disabled:opacity-50"
+            >
+              {promptLoading ? "Yazılıyor…" : "✨ Prompt oluştur"}
+            </button>
+          </div>
+          {promptErr && <p className="mt-1.5 text-xs text-orange">{promptErr}</p>}
+          <p className="mt-1.5 text-xs text-faint">
+            Oluşan promptu aşağıda görüp düzenleyebilirsin. Bu adım ücretsiz sayılır; asıl ücret video üretiminde.
+          </p>
+        </div>
 
         {/* Prompt */}
         <div>

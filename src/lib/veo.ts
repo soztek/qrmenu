@@ -1,5 +1,6 @@
 import "server-only";
 import { GoogleGenAI } from "@google/genai";
+import Anthropic from "@anthropic-ai/sdk";
 import { veoModelId, type VeoModelKey, MAX_REFERENCE_IMAGES } from "./veo-prompt";
 
 /**
@@ -155,6 +156,52 @@ export async function getVideoStatus(operationId: string): Promise<VeoStatus> {
     console.error("Veo status hata:", err);
     const raw = err instanceof Error ? err.message : String(err);
     return { status: "error", message: friendly(err), detail: raw };
+  }
+}
+
+/**
+ * Kısa bir konu/fikirden Veo için tam reklam prompt'u üretir (Claude ile).
+ * Video üretiminden önce çalışır; ucuzdur ve kullanıcı düzenleyebilir.
+ */
+export async function expandVideoPrompt(
+  topic: string,
+  ctx?: { businessName?: string | null; productName?: string | null },
+): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    throw new VeoError("Prompt oluşturma kapalı (yönetici ANTHROPIC_API_KEY eklemeli).");
+  }
+  const system = [
+    "You are an expert creative director writing prompts for Google's Veo text-to-video model.",
+    "You produce a single cinematic prompt for a VERTICAL 9:16 advertising video for SÖZTEK QR MENÜ, a Turkish digital QR menu service for cafés and restaurants.",
+    "Style: modern, premium, cinematic; dark UI aesthetic with vibrant green accents; warm café lighting; smooth camera motion; appetizing close-ups; a customer scanning a QR code and viewing the digital menu on a smartphone.",
+    "If reference images are provided by the system, the video should feature that real menu/food faithfully.",
+    "Always finish with an end card on black with green accent text exactly:",
+    "SÖZTEK QR MENÜ / İŞLETMENİZİ DİJİTALE TAŞIYIN / www.soztekqrmenu.com.tr",
+    "Output ONLY the final video prompt in English (120-180 words), visual and motion-focused, positive phrasing. Keep relevant on-screen Turkish keywords (QR Menü, Fotoğraflı Ürünler, Güncel Fiyatlar, WhatsApp, Instagram, WiFi, Konum). No preamble, no explanations, no quotes.",
+  ].join(" ");
+  const user =
+    `Konu / kısa fikir: ${topic}` +
+    (ctx?.businessName ? `\nİşletme: ${ctx.businessName}` : "") +
+    (ctx?.productName ? `\nÖne çıkan ürün: ${ctx.productName}` : "") +
+    `\n\nBuna göre Veo için nihai reklam prompt'unu yaz.`;
+
+  try {
+    const anthropic = new Anthropic({ apiKey });
+    const resp = await anthropic.messages.create({
+      model: process.env.ANTHROPIC_TEXT_MODEL || "claude-haiku-4-5-20251001",
+      max_tokens: 600,
+      system,
+      messages: [{ role: "user", content: user }],
+    });
+    const block = resp.content.find((b) => b.type === "text");
+    const out = block && block.type === "text" ? block.text.trim() : "";
+    if (!out) throw new VeoError("Prompt oluşturulamadı, tekrar deneyin.");
+    return out;
+  } catch (err) {
+    if (err instanceof VeoError) throw err;
+    console.error("Prompt genişletme hatası:", err);
+    throw new VeoError("Prompt oluşturulamadı, tekrar deneyin.");
   }
 }
 
