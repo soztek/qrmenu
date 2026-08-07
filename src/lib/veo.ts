@@ -55,6 +55,8 @@ export async function startVideoGeneration(opts: {
   durationSeconds?: number;
   resolution?: string;
   negativePrompt?: string;
+  /** Videoda ses/seslendirme üretilsin mi (Veo native audio). */
+  generateAudio?: boolean;
   /** Verilirse image-to-video: video bu kareden başlar (menüyü birebir gösterir). */
   startImage?: RefImage | null;
   referenceImages: RefImage[];
@@ -66,6 +68,7 @@ export async function startVideoGeneration(opts: {
     if (opts.durationSeconds) config.durationSeconds = opts.durationSeconds;
     if (opts.resolution) config.resolution = opts.resolution;
     if (opts.negativePrompt) config.negativePrompt = opts.negativePrompt;
+    if (opts.generateAudio) config.generateAudio = true;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any = {

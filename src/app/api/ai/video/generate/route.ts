@@ -61,6 +61,12 @@ export async function POST(req: Request) {
   // Fast → 720p (hızlı/ekonomik), Quality → 1080p (daha net)
   const resolution = modelKey === "quality" ? "1080p" : "720p";
 
+  // Seslendirme (opsiyonel) → prompt'a Türkçe voice-over talimatı eklenir.
+  const voice = String(form.get("voice") ?? "").trim().slice(0, 400);
+  const finalPrompt = voice
+    ? `${prompt}\n\nAudio: a warm, friendly Turkish voice-over speaks clearly and naturally in Turkish: "${voice}". Add subtle upbeat background music. Natural Turkish pronunciation, well synced.`
+    : prompt;
+
   // Referans görseller: seçili ürün foto URL'leri + yüklenen dosyalar (toplam max 3)
   const refs: RefImage[] = [];
 
@@ -96,12 +102,13 @@ export async function POST(req: Request) {
 
   try {
     const operationId = await startVideoGeneration({
-      prompt,
+      prompt: finalPrompt,
       model: modelKey,
       aspectRatio,
       durationSeconds,
       resolution,
       negativePrompt: DEFAULT_NEGATIVE_PROMPT,
+      generateAudio: Boolean(voice),
       startImage,
       referenceImages,
     });

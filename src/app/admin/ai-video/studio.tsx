@@ -56,6 +56,7 @@ export function AdVideoStudio({
   const [topic, setTopic] = useState("");
   const [promptLoading, setPromptLoading] = useState(false);
   const [promptErr, setPromptErr] = useState("");
+  const [voice, setVoice] = useState("");
   const [format, setFormat] = useState(VIDEO_FORMATS[0].key);
   const [model, setModel] = useState<VeoModelKey>("fast");
   const [duration, setDuration] = useState<number>(DEFAULT_DURATION);
@@ -220,6 +221,7 @@ export function AdVideoStudio({
       fd.set("format", format);
       fd.set("duration", String(duration));
       fd.set("startFrame", startFrame ? "1" : "0");
+      if (voice.trim()) fd.set("voice", voice.trim());
       // seçili ürün fotoğrafı da referans olarak kullanılır
       const urls = productPhoto ? [productPhoto] : [];
       fd.set("imageUrls", JSON.stringify(urls));
@@ -429,6 +431,23 @@ export function AdVideoStudio({
             rows={10}
             className="w-full resize-y rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg outline-none focus:border-green/50"
           />
+        </div>
+
+        {/* Seslendirme (video konuşsun) */}
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-fg">
+            🎙️ Seslendirme metni (opsiyonel — video Türkçe konuşsun)
+          </label>
+          <textarea
+            value={voice}
+            onChange={(e) => setVoice(e.target.value)}
+            rows={2}
+            placeholder='Örn: "Menünüz artık cebinizde! Söztek QR Menü ile dijitale geçin."'
+            className="w-full resize-y rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg outline-none focus:border-green/50"
+          />
+          <p className="mt-1 text-xs text-faint">
+            Yazarsan Veo videoya Türkçe seslendirme + hafif müzik ekler. Kısa tut (8 sn&apos;e sığmalı — ~15-20 kelime). Boş bırakırsan sessiz/müzikli olur.
+          </p>
         </div>
 
         <button
