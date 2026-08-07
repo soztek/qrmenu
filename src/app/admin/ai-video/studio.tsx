@@ -57,6 +57,7 @@ export function AdVideoStudio({
   const [phase, setPhase] = useState<Phase>("idle");
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [detail, setDetail] = useState<string>("");
 
   const inFlight = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -165,6 +166,7 @@ export function AdVideoStudio({
     polls.current = 0;
     stopTimer();
     setError("");
+    setDetail("");
     setVideoUrl("");
     setPhase("preparing");
 
@@ -188,6 +190,7 @@ export function AdVideoStudio({
       const data = await res.json();
       if (!res.ok || !data.operationId) {
         setError(data.error || "Video başlatılamadı.");
+        setDetail(data.detail || "");
         setPhase("error");
         inFlight.current = false;
         return;
@@ -376,6 +379,11 @@ export function AdVideoStudio({
           {phase === "error" && (
             <div className="mt-3 rounded-lg border border-orange/50 bg-orange-soft/40 p-3 text-sm text-fg">
               {error || "Bir hata oluştu."}
+              {detail && (
+                <p className="mt-2 break-words rounded bg-black/30 p-2 font-mono text-[11px] leading-snug text-faint">
+                  {detail}
+                </p>
+              )}
               <button
                 type="button"
                 onClick={reset}

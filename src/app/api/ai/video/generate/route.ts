@@ -89,6 +89,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ operationId, referenceCount: refs.length });
   } catch (err) {
     const message = err instanceof VeoError ? err.message : "Video başlatılamadı.";
-    return NextResponse.json({ error: message }, { status: 502 });
+    const detail = err instanceof VeoError ? err.detail : undefined;
+    return NextResponse.json(
+      { error: message, detail: detail?.slice(0, 400) },
+      { status: 502 },
+    );
   }
 }

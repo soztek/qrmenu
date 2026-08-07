@@ -7,7 +7,13 @@ import { veoModelId, type VeoModelKey, MAX_REFERENCE_IMAGES } from "./veo-prompt
  * GEMINI_API_KEY yalnızca sunucuda okunur; asla frontend'e gitmez.
  */
 
-export class VeoError extends Error {}
+export class VeoError extends Error {
+  detail?: string;
+  constructor(message: string, detail?: string) {
+    super(message);
+    this.detail = detail;
+  }
+}
 
 export function isVeoConfigured(): boolean {
   return Boolean(process.env.GEMINI_API_KEY);
@@ -69,7 +75,9 @@ export async function startVideoGeneration(opts: {
     return operation.name;
   } catch (err) {
     console.error("Veo generate hata:", err);
-    throw new VeoError(err instanceof VeoError ? err.message : friendly(err));
+    if (err instanceof VeoError) throw err;
+    const raw = err instanceof Error ? err.message : String(err);
+    throw new VeoError(friendly(err), raw);
   }
 }
 
