@@ -173,12 +173,11 @@ export async function expandVideoPrompt(
   }
   const system = [
     "You are an expert creative director writing prompts for Google's Veo text-to-video model.",
-    "You produce a single cinematic prompt for a VERTICAL 9:16 advertising video for SÖZTEK QR MENÜ, a Turkish digital QR menu service for cafés and restaurants.",
-    "Style: modern, premium, cinematic; dark UI aesthetic with vibrant green accents; warm café lighting; smooth camera motion; appetizing close-ups; a customer scanning a QR code and viewing the digital menu on a smartphone.",
-    "If reference images are provided by the system, the video should feature that real menu/food faithfully.",
-    "Always finish with an end card on black with green accent text exactly:",
-    "SÖZTEK QR MENÜ / İŞLETMENİZİ DİJİTALE TAŞIYIN / www.soztekqrmenu.com.tr",
-    "Output ONLY the final video prompt in English (120-180 words), visual and motion-focused, positive phrasing. Keep relevant on-screen Turkish keywords (QR Menü, Fotoğraflı Ürünler, Güncel Fiyatlar, WhatsApp, Instagram, WiFi, Konum). No preamble, no explanations, no quotes.",
+    "You produce a single cinematic prompt for a VERTICAL 9:16 advertising clip (about 8 seconds) for a café/restaurant, promoting a digital QR menu experience.",
+    "Style: modern, premium, cinematic, photographic realism; dark elegant mood with vibrant green accents; warm café lighting; slow smooth camera motion; shallow depth of field; appetizing close-ups; a customer scanning a QR code on the table and viewing a glowing digital food menu on a smartphone.",
+    "If a reference image is provided by the system, keep the real food/menu faithful to it.",
+    "CRITICAL: The video must contain ABSOLUTELY NO on-screen text, letters, words, captions or logos — Veo renders text as garbled nonsense. Describe only visuals, motion, lighting and mood. Branding/text will be added later in editing.",
+    "Output ONLY the final video prompt in English (about 90-140 words), purely visual and motion-focused, positive phrasing. No preamble, no explanations, no quotes, no Turkish on-screen text.",
   ].join(" ");
   const user =
     `Konu / kısa fikir: ${topic}` +

@@ -508,11 +508,21 @@ export function AdVideoStudio({
         </div>
 
         <div className="rounded-xl border border-border bg-surface/60 p-4 text-xs text-muted">
-          <p className="font-medium text-fg">İpuçları</p>
-          <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>Gerçek QR menü ekran görüntüsünü referans olarak ekleyin — en iyi sonuç için.</li>
-            <li>Video üretimi <strong>ücretlidir</strong>; her tıklama bir üretim başlatır.</li>
-            <li>Fast modeli hızlı/ekonomik, Quality daha kaliteli ama yavaştır.</li>
+          <p className="font-medium text-fg">Nasıl iyi sonuç alınır?</p>
+          <ul className="mt-2 list-disc space-y-1.5 pl-5">
+            <li>
+              Uzun prompt yazma — üstteki <strong>“Kolay yol”</strong> kutusuna kısa konuyu yaz,
+              <strong> ✨ Prompt oluştur</strong>&apos;a bas. AI sinematik promptu hazırlar.
+            </li>
+            <li>
+              Video <strong>yazısız/sinematik</strong> çıkar (Veo ekran yazısını bozuk üretir).
+              Marka/logo/CTA yazısını sonradan <strong>CapCut vb. ile</strong> eklersin.
+            </li>
+            <li>
+              Veo tek üretimde <strong>~8 sn</strong> yapar. Daha uzun reklam için 2-3 klip üretip birleştir.
+            </li>
+            <li>Gerçek menü fotoğrafını ekle + “başlangıç karesi” açık kalsın.</li>
+            <li>Video üretimi <strong>ücretlidir</strong>; her tıklama bir üretim başlatır (Fast = ekonomik).</li>
           </ul>
         </div>
       </div>

@@ -36,23 +36,22 @@ export const MAX_REFERENCE_IMAGES = 3;
 export const DURATIONS = [4, 6, 8];
 export const DEFAULT_DURATION = 8;
 
-/** İstenmeyen çıktıyı bastırmak için varsayılan negatif prompt. */
+/**
+ * İstenmeyen çıktıyı bastırmak için varsayılan negatif prompt.
+ * Yazı/harf bastırma güçlü — çünkü Veo metni bozuk üretir; markayı sonradan ekleriz.
+ */
 export const DEFAULT_NEGATIVE_PROMPT =
-  "distorted text, gibberish text, warped interface, extra fingers, low quality, blurry, watermark, logo distortion";
+  "on-screen text, letters, words, captions, subtitles, typography, gibberish text, warped text, watermark, logo, distorted, deformed hands, extra fingers, low quality, blurry, oversaturated";
 
 /**
  * Söztek QR Menü için varsayılan reklam prompt şablonu.
- * Veo daha iyi takip etsin diye: kısa, sinematik, hareket odaklı, pozitif ifadeler.
+ * Strateji: TEMİZ SİNEMATİK ÇEKİM üret, ekranda YAZI YOK (Veo yazıyı bozar).
+ * Marka yazısı/CTA sonradan düzenlemeyle eklenir.
  */
-export const DEFAULT_AD_PROMPT = `Premium vertical 9:16 commercial for a Turkish digital QR menu service, SÖZTEK QR MENÜ.
+export const DEFAULT_AD_PROMPT = `Cinematic vertical 9:16 commercial b-roll for a modern café / restaurant. Premium, warm and inviting.
 
-Scene: a cozy modern café. A customer scans a QR code on the table with their smartphone; the phone reveals the digital menu from the reference image — real food photos, categories and Turkish prices on a sleek dark interface with vibrant green accents.
+A customer sits at a cozy café table and scans a QR code on the table with their smartphone; the phone screen glows as a sleek dark food menu with vibrant green accents appears. Slow smooth camera moves, shallow depth of field, warm natural lighting, gentle steam and bokeh. Appetizing close-ups of the food and of the glowing phone screen in hand.
 
-Cinematic, shallow depth of field, smooth camera motion, warm café lighting, appetizing close-ups of food and the phone screen. Modern, clean, trustworthy tech aesthetic.
+Absolutely NO on-screen text, no words, no letters, no logos — clean cinematic footage only.
 
-Feature keywords appearing as elegant on-screen text: QR Menü, Fotoğraflı Ürünler, Güncel Fiyatlar, WhatsApp, Instagram, WiFi, Konum.
-
-Final end card on black with green accent text:
-SÖZTEK QR MENÜ
-İŞLETMENİZİ DİJİTALE TAŞIYIN
-www.soztekqrmenu.com.tr`;
+Mood: appetizing, trustworthy, high-end and modern. Real, photographic look.`;
