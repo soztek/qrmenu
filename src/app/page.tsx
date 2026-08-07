@@ -57,12 +57,6 @@ const FEATURE_ICONS = [
   ICONS.bolt,
 ];
 const COMPLIANCE_ICONS = ["🔥", "⚠️", "🥩", "🚫", "₺", "🖨️"];
-const PHONE_IMAGES = [
-  "/landing/food-burger.png",
-  "/landing/food-coffee.png",
-  "/landing/food-cake.png",
-];
-const PHONE_PRICES = ["₺180", "₺40", "₺120"];
 
 /* ── sayfa ────────────────────────────────────────────────────── */
 export default function Home() {
@@ -140,47 +134,18 @@ function Hero() {
   );
 }
 
-/* Telefon içinde örnek menü önizlemesi */
+/* Telefon içinde gerçek Söztek QR Menü ekran görüntüsü */
 function PhoneMock() {
-  const { t } = useLang();
   return (
     <div className="relative mx-auto w-full max-w-xs">
       <div className="brand-glow rounded-[2.2rem] border border-border bg-surface p-3">
         <div className="overflow-hidden rounded-[1.7rem] bg-bg">
-          <div className="bg-gradient-to-br from-green-soft to-orange-soft px-5 pb-5 pt-6">
-            <div className="text-xs text-green">Söztek Cafe</div>
-            <div className="text-lg font-bold">{t.phone.menu}</div>
-            <div className="mt-3 flex gap-2 text-[11px]">
-              <span className="rounded-full bg-green px-2.5 py-1 font-medium text-black">
-                {t.phone.popular}
-              </span>
-              <span className="rounded-full bg-surface-2 px-2.5 py-1 text-muted">
-                {t.phone.desserts}
-              </span>
-            </div>
-          </div>
-          <div className="space-y-3 p-4">
-            {t.phone.items.map((item, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-3 rounded-xl border border-border bg-surface p-2.5"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={PHONE_IMAGES[i]}
-                  alt=""
-                  className="h-11 w-11 shrink-0 rounded-lg object-cover"
-                />
-                <div className="flex-1">
-                  <div className="text-sm font-medium">{item.name}</div>
-                  <div className="text-[11px] text-faint">{item.tag}</div>
-                </div>
-                <div className="text-sm font-semibold text-orange">
-                  {PHONE_PRICES[i]}
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/landing/menu-preview.jpeg"
+            alt="Söztek QR Menü — gerçek bir işletme menüsü"
+            className="block h-auto w-full"
+          />
         </div>
       </div>
     </div>
