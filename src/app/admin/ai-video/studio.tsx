@@ -6,6 +6,8 @@ import {
   VEO_MODELS,
   VIDEO_FORMATS,
   MAX_REFERENCE_IMAGES,
+  DURATIONS,
+  DEFAULT_DURATION,
   type VeoModelKey,
 } from "@/lib/veo-prompt";
 
@@ -53,6 +55,8 @@ export function AdVideoStudio({
   const [prompt, setPrompt] = useState(DEFAULT_AD_PROMPT);
   const [format, setFormat] = useState(VIDEO_FORMATS[0].key);
   const [model, setModel] = useState<VeoModelKey>("fast");
+  const [duration, setDuration] = useState<number>(DEFAULT_DURATION);
+  const [startFrame, setStartFrame] = useState(true);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [videoUrl, setVideoUrl] = useState<string>("");
@@ -180,6 +184,8 @@ export function AdVideoStudio({
         VIDEO_FORMATS.find((f) => f.key === format)?.aspectRatio ?? "9:16",
       );
       fd.set("format", format);
+      fd.set("duration", String(duration));
+      fd.set("startFrame", startFrame ? "1" : "0");
       // seçili ürün fotoğrafı da referans olarak kullanılır
       const urls = productPhoto ? [productPhoto] : [];
       fd.set("imageUrls", JSON.stringify(urls));
@@ -331,7 +337,27 @@ export function AdVideoStudio({
             onChange={(v) => setModel(v as VeoModelKey)}
             options={VEO_MODELS.map((m) => ({ value: m.key, label: `${m.label} — ${m.hint}` }))}
           />
+          <Select
+            label="Süre"
+            value={String(duration)}
+            onChange={(v) => setDuration(Number(v))}
+            options={DURATIONS.map((d) => ({ value: String(d), label: `${d} saniye` }))}
+          />
+          <div className="flex items-end">
+            <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg">
+              <input
+                type="checkbox"
+                checked={startFrame}
+                onChange={(e) => setStartFrame(e.target.checked)}
+                className="h-4 w-4 accent-green"
+              />
+              Referansı başlangıç karesi yap
+            </label>
+          </div>
         </div>
+        <p className="-mt-2 text-xs text-faint">
+          “Başlangıç karesi” açıkken video, yüklediğin gerçek menü görüntüsünden başlayıp onu canlandırır (görsel sadakati en yüksek). Kapatırsan referanstan ilham alır. Veo tek üretimde en çok ~8 sn üretir.
+        </p>
 
         {/* Prompt */}
         <div>

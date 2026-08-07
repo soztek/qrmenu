@@ -51,24 +51,45 @@ export async function startVideoGeneration(opts: {
   prompt: string;
   model: VeoModelKey;
   aspectRatio: string;
+  durationSeconds?: number;
+  resolution?: string;
+  negativePrompt?: string;
+  /** Verilirse image-to-video: video bu kareden başlar (menüyü birebir gösterir). */
+  startImage?: RefImage | null;
   referenceImages: RefImage[];
 }): Promise<string> {
   try {
     const ai = client();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const config: any = { numberOfVideos: 1, aspectRatio: opts.aspectRatio };
-    const refs = opts.referenceImages.slice(0, MAX_REFERENCE_IMAGES);
-    if (refs.length) {
-      config.referenceImages = refs.map((r) => ({
-        image: { imageBytes: r.base64, mimeType: r.mimeType },
-        referenceType: "ASSET",
-      }));
-    }
-    const operation = await ai.models.generateVideos({
+    if (opts.durationSeconds) config.durationSeconds = opts.durationSeconds;
+    if (opts.resolution) config.resolution = opts.resolution;
+    if (opts.negativePrompt) config.negativePrompt = opts.negativePrompt;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const params: any = {
       model: veoModelId(opts.model),
       prompt: opts.prompt,
       config,
-    });
+    };
+
+    if (opts.startImage) {
+      // image-to-video: en güçlü görsel sadakati
+      params.image = {
+        imageBytes: opts.startImage.base64,
+        mimeType: opts.startImage.mimeType,
+      };
+    } else {
+      const refs = opts.referenceImages.slice(0, MAX_REFERENCE_IMAGES);
+      if (refs.length) {
+        config.referenceImages = refs.map((r) => ({
+          image: { imageBytes: r.base64, mimeType: r.mimeType },
+          referenceType: "ASSET",
+        }));
+      }
+    }
+
+    const operation = await ai.models.generateVideos(params);
     if (!operation?.name) {
       throw new VeoError("Video işlemi başlatılamadı.");
     }

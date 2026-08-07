@@ -2,7 +2,13 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { isAdmin } from "@/lib/admin";
 import { isVeoConfigured, startVideoGeneration, VeoError, type RefImage } from "@/lib/veo";
-import { MAX_REFERENCE_IMAGES, type VeoModelKey } from "@/lib/veo-prompt";
+import {
+  MAX_REFERENCE_IMAGES,
+  DURATIONS,
+  DEFAULT_DURATION,
+  DEFAULT_NEGATIVE_PROMPT,
+  type VeoModelKey,
+} from "@/lib/veo-prompt";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -49,6 +55,11 @@ export async function POST(req: Request) {
   }
   const modelKey: VeoModelKey = form.get("model") === "quality" ? "quality" : "fast";
   const aspectRatio = String(form.get("aspectRatio") ?? "9:16") || "9:16";
+  const durationReq = Number(form.get("duration"));
+  const durationSeconds = DURATIONS.includes(durationReq) ? durationReq : DEFAULT_DURATION;
+  const useStartFrame = String(form.get("startFrame") ?? "1") !== "0";
+  // Fast → 720p (hızlı/ekonomik), Quality → 1080p (daha net)
+  const resolution = modelKey === "quality" ? "1080p" : "720p";
 
   // Referans görseller: seçili ürün foto URL'leri + yüklenen dosyalar (toplam max 3)
   const refs: RefImage[] = [];
@@ -79,12 +90,20 @@ export async function POST(req: Request) {
     }
   }
 
+  // Başlangıç karesi (image-to-video) modu: ilk referans başlangıç karesi olur.
+  const startImage = useStartFrame && refs.length ? refs[0] : null;
+  const referenceImages = startImage ? refs.slice(1) : refs;
+
   try {
     const operationId = await startVideoGeneration({
       prompt,
       model: modelKey,
       aspectRatio,
-      referenceImages: refs,
+      durationSeconds,
+      resolution,
+      negativePrompt: DEFAULT_NEGATIVE_PROMPT,
+      startImage,
+      referenceImages,
     });
     return NextResponse.json({ operationId, referenceCount: refs.length });
   } catch (err) {

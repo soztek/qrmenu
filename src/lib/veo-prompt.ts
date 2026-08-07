@@ -32,35 +32,27 @@ export const VIDEO_FORMATS: { key: string; label: string; aspectRatio: string }[
 
 export const MAX_REFERENCE_IMAGES = 3;
 
-/** Söztek QR Menü için varsayılan reklam prompt şablonu. */
-export const DEFAULT_AD_PROMPT = `Create a premium vertical commercial video for a Turkish digital QR menu service called SÖZTEK QR MENÜ.
+/** Süre seçenekleri (Veo tek üretimde ~8sn'e kadar). */
+export const DURATIONS = [4, 6, 8];
+export const DEFAULT_DURATION = 8;
 
-Use the supplied real QR menu screenshots as the main visual reference.
+/** İstenmeyen çıktıyı bastırmak için varsayılan negatif prompt. */
+export const DEFAULT_NEGATIVE_PROMPT =
+  "distorted text, gibberish text, warped interface, extra fingers, low quality, blurry, watermark, logo distortion";
 
-Do not redesign the interface.
-Do not invent another menu.
-Preserve existing product photographs, categories, prices and Turkish text.
+/**
+ * Söztek QR Menü için varsayılan reklam prompt şablonu.
+ * Veo daha iyi takip etsin diye: kısa, sinematik, hareket odaklı, pozitif ifadeler.
+ */
+export const DEFAULT_AD_PROMPT = `Premium vertical 9:16 commercial for a Turkish digital QR menu service, SÖZTEK QR MENÜ.
 
-Create a modern café and restaurant advertising aesthetic.
+Scene: a cozy modern café. A customer scans a QR code on the table with their smartphone; the phone reveals the digital menu from the reference image — real food photos, categories and Turkish prices on a sleek dark interface with vibrant green accents.
 
-Dark black interface aesthetic with vibrant green accents.
+Cinematic, shallow depth of field, smooth camera motion, warm café lighting, appetizing close-ups of food and the phone screen. Modern, clean, trustworthy tech aesthetic.
 
-Show customers scanning a QR code at a café table and accessing the digital menu from their smartphone.
+Feature keywords appearing as elegant on-screen text: QR Menü, Fotoğraflı Ürünler, Güncel Fiyatlar, WhatsApp, Instagram, WiFi, Konum.
 
-Emphasize:
-
-QR Menü
-Fotoğraflı Ürünler
-Güncel Fiyatlar
-WhatsApp
-Instagram
-WiFi
-Konum
-
-Final screen:
-
+Final end card on black with green accent text:
 SÖZTEK QR MENÜ
 İŞLETMENİZİ DİJİTALE TAŞIYIN
-www.soztekqrmenu.com.tr
-
-Vertical 9:16 social media commercial.`;
+www.soztekqrmenu.com.tr`;
