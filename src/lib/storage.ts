@@ -70,6 +70,35 @@ export async function saveUpload(file: File): Promise<string> {
   return `/${key}`; // /uploads/...
 }
 
+/**
+ * Üretilen videoyu (MP4) kalıcı depolamaya kaydeder → tam URL döner.
+ * Prod: Vercel Blob; yerelde public/generated-videos.
+ */
+export async function saveVideo(buffer: Buffer, ext = "mp4"): Promise<string> {
+  const key = `generated-videos/${randomBytes(12).toString("hex")}.${ext}`;
+
+  const token = blobToken();
+  if (token) {
+    const blob = await put(key, buffer, {
+      access: "public",
+      contentType: "video/mp4",
+      token,
+    });
+    return blob.url;
+  }
+
+  if (process.env.VERCEL) {
+    throw new Error(
+      "Video depolama yapılandırılmamış (BLOB_READ_WRITE_TOKEN yok). Lütfen yönetici ile iletişime geçin.",
+    );
+  }
+
+  const dir = path.join(process.cwd(), "public", "generated-videos");
+  await mkdir(dir, { recursive: true });
+  await writeFile(path.join(process.cwd(), "public", key), buffer);
+  return `/${key}`;
+}
+
 /** Yüklenen dosyayı siler (Blob tam URL veya yerel /uploads yolu). */
 export async function deleteUpload(url: string | null | undefined): Promise<void> {
   if (!url) return;
