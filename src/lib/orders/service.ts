@@ -324,6 +324,32 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderDTO> {
   }
 }
 
+/**
+ * Masa QR token'ına bağlı AKTİF oturumun siparişleri (müşteri "siparişlerim").
+ * Hesap kapatılınca yeni oturum açılır; eski siparişler görünmez.
+ */
+export async function getSessionOrders(
+  token: string,
+): Promise<{ tableLabel: string; orders: OrderDTO[] }> {
+  const table = await prisma.restaurantTable.findUnique({
+    where: { qrToken: token },
+    select: { id: true, label: true, active: true },
+  });
+  if (!table || !table.active) return { tableLabel: "", orders: [] };
+  const session = await prisma.tableSession.findFirst({
+    where: { tableId: table.id, status: "active" },
+    select: { id: true },
+  });
+  if (!session) return { tableLabel: table.label, orders: [] };
+  const orders = await prisma.order.findMany({
+    where: { sessionId: session.id },
+    orderBy: { createdAt: "desc" },
+    take: 30,
+    select: ORDER_SELECT,
+  });
+  return { tableLabel: table.label, orders: orders.map(mapOrder) };
+}
+
 /** Müşteri sipariş takibi (tahmin edilemez id ile). */
 export async function getCustomerOrder(orderId: string): Promise<OrderDTO | null> {
   const order = await prisma.order.findUnique({

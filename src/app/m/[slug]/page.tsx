@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { MenuView } from "./menu-view";
+import { OrderView } from "./order-view";
+import { loadOrderContext } from "@/lib/orders/menu";
 import { VisitTracker } from "@/components/visit-tracker";
 import { SITE_URL, SITE_NAME, abs } from "@/lib/seo";
 
@@ -102,10 +104,27 @@ export async function generateMetadata({
 
 export default async function PublicMenuPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ t?: string }>;
 }) {
   const { slug } = await params;
+  const { t } = await searchParams;
+
+  // Masa QR token'ı geçerli + sipariş açıksa → sipariş görünümü
+  if (t) {
+    const ctx = await loadOrderContext(slug, t);
+    if (ctx) {
+      return (
+        <>
+          <VisitTracker kind="menu" slug={slug} />
+          <OrderView ctx={ctx} />
+        </>
+      );
+    }
+  }
+
   const business = await getMenu(slug);
   if (!business) notFound();
 
