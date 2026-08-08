@@ -99,6 +99,13 @@ model Business {
   socialSettings  SocialSettings?
   socialTemplates SocialTemplate[]
 
+  // Masadan sipariş sistemi (Pro/Premium)
+  orderSettings   OrderSettings?
+  tableSessions   TableSession[]
+  orders          Order[]
+  serviceRequests ServiceRequest[]
+  kitchenStations KitchenStation[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -157,13 +164,24 @@ model MenuItem {
   containsAlcohol Boolean  @default(false)
   containsPork    Boolean  @default(false)
 
-  socialPosts SocialPost[] // bu üründen üretilen sosyal medya gönderileri
+  // Sipariş sistemi alanları (opsiyonel — sipariş kapalıyken kullanılmaz)
+  discountPrice Decimal?    @db.Decimal(10, 2) // indirimli fiyat
+  prepMinutes   Int? // tahmini hazırlanma süresi (dk)
+  stockQty      Int? // null = stok takibi yok; sayı = günlük kalan adet
+  stockStatus   StockStatus @default(in_stock)
+  isOrderable   Boolean     @default(true) // menüde görünür ama siparişe kapalı olabilir
+  station       KitchenStation? @relation(fields: [stationId], references: [id], onDelete: SetNull)
+  stationId     String?
+
+  socialPosts    SocialPost[] // bu üründen üretilen sosyal medya gönderileri
+  modifierGroups ModifierGroup[] // ürün seçenekleri (boyut, ekstra vb.)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([businessId])
   @@index([categoryId])
+  @@index([stationId])
 }
 
 /// Günlük ziyaret sayacı (herkese açık sayfalar). kind: "landing" | "menu".
@@ -206,14 +224,21 @@ model MenuVisit {
   @@index([businessId])
 }
 
-/// Masa (Premium: masa yönetimi) — masaya özel QR için qrToken.
+/// Masa — masaya özel QR için güvenli qrToken (tahmin edilemez, yenilenebilir).
 model RestaurantTable {
   id         String   @id @default(cuid())
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
   businessId String
+  branchId   String? // ileriye dönük (çok şube)
   label      String // ör. "Masa 5"
   qrToken    String   @unique @default(cuid())
+  active     Boolean  @default(true) // pasif token okutulunca hata ekranı
+  lastUsedAt DateTime?
   createdAt  DateTime @default(now())
+
+  sessions        TableSession[]
+  orders          Order[]
+  serviceRequests ServiceRequest[]
 
   @@index([businessId])
 }
@@ -378,4 +403,291 @@ model SocialTemplate {
   createdAt  DateTime  @default(now())
 
   @@index([businessId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Masadan Sipariş Sistemi (Pro/Premium) — çok kiracılı (businessId ile izole).
+// v1: tek işletme/şube, sahip panelinden yönetim. branchId ileriye dönük.
+// ─────────────────────────────────────────────────────────────
+
+/// Sipariş durumu (hazırlanma akışı — ödemeden bağımsız).
+enum OrderStatus {
+  pending // işletme onayı bekliyor
+  accepted // kabul edildi
+  preparing // hazırlanıyor
+  ready // servise hazır
+  served // teslim edildi
+  cancelled // iptal
+  rejected // reddedildi
+}
+
+/// Ödeme durumu (sipariş durumundan ayrı).
+enum PaymentStatus {
+  unpaid
+  payment_requested
+  paid
+  partially_paid
+  refunded
+}
+
+/// Açık masa hesabı durumu.
+enum TableSessionStatus {
+  active
+  payment_requested
+  closed
+}
+
+/// Sipariş kaynağı (ileride ekstra kanallar).
+enum OrderSource {
+  qr_menu
+}
+
+/// Sipariş kabul modu.
+enum OrderAcceptMode {
+  staff // önce personel onayı
+  auto // doğrudan mutfağa
+}
+
+/// Servis talebi türü.
+enum ServiceRequestType {
+  waiter
+  bill
+  water
+  cleaning
+  other
+}
+
+/// Servis talebi durumu.
+enum ServiceRequestStatus {
+  pending
+  acknowledged
+  completed
+  cancelled
+}
+
+/// Ürün stok durumu.
+enum StockStatus {
+  in_stock
+  out_of_stock
+  disabled // geçici satışa kapalı
+}
+
+/// İşletme sipariş ayarları (işletme başına tek kayıt).
+model OrderSettings {
+  id         String   @id @default(cuid())
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String   @unique
+  branchId   String?
+
+  qrOrderingEnabled  Boolean         @default(false) // kapalıysa QR menü normal menü gibi çalışır
+  acceptMode         OrderAcceptMode @default(staff)
+  callWaiterEnabled  Boolean         @default(true)
+  requestBillEnabled Boolean         @default(true)
+  askCustomerName    Boolean         @default(false)
+  allowNotes         Boolean         @default(true)
+  serviceRequestTypes String[]       @default([]) // aktif çağrı türleri (boş = varsayılan)
+  minOrderTotal      Decimal?        @db.Decimal(10, 2)
+  acceptFrom         String? // "09:00"
+  acceptTo           String? // "23:00"
+  prepWarnMins       Int             @default(15)
+  soundEnabled       Boolean         @default(true)
+  kitchenEnabled     Boolean         @default(true)
+  stockControl       Boolean         @default(true)
+  currency           String          @default("TRY")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Açık masa oturumu (hesap). Aynı masanın siparişleri tek oturumda toplanır.
+model TableSession {
+  id         String             @id @default(cuid())
+  business   Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String
+  table      RestaurantTable    @relation(fields: [tableId], references: [id], onDelete: Cascade)
+  tableId    String
+  branchId   String?
+  status     TableSessionStatus @default(active)
+  customerName String?
+  openedAt   DateTime           @default(now())
+  closedAt   DateTime?
+  closedById String?
+
+  orders          Order[]
+  serviceRequests ServiceRequest[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([businessId, status])
+  @@index([tableId, status])
+}
+
+/// Sipariş. total backend'de hesaplanır; kalem bilgileri snapshot.
+model Order {
+  id         String   @id @default(cuid())
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String
+  branchId   String?
+
+  // Masa/oturum silinirse geçmiş sipariş korunur (SetNull + snapshot label).
+  table      RestaurantTable? @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  tableId    String?
+  session    TableSession?    @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  sessionId  String?
+  tableLabel String // snapshot
+
+  code           String // personel için kısa: "S-1042"
+  seq            Int // işletme içi artan sıra
+  source         OrderSource   @default(qr_menu)
+  status         OrderStatus   @default(pending)
+  paymentStatus  PaymentStatus @default(unpaid)
+  paymentMethod  String?
+
+  subtotal Decimal @db.Decimal(10, 2)
+  discount Decimal @db.Decimal(10, 2) @default(0)
+  total    Decimal @db.Decimal(10, 2)
+
+  customerName   String?
+  note           String?
+  idempotencyKey String  @unique // mükerrer sipariş koruması
+
+  acceptedAt DateTime?
+  readyAt    DateTime?
+  servedAt   DateTime?
+
+  items     OrderItem[]
+  events    OrderEvent[]
+  printJobs PrintJob[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([businessId, code])
+  @@index([businessId, status])
+  @@index([businessId, paymentStatus])
+  @@index([sessionId])
+  @@index([tableId])
+  @@index([businessId, createdAt])
+}
+
+/// Sipariş kalemi — sipariş anındaki ürün bilgisi snapshot olarak saklanır.
+model OrderItem {
+  id         String   @id @default(cuid())
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId    String
+  menuItemId String? // ürün silinse de snapshot kalır (ilişki yok, düz id)
+
+  name      String
+  imageUrl  String?
+  unitPrice Decimal  @db.Decimal(10, 2)
+  quantity  Int
+  taxRate   Decimal? @db.Decimal(5, 2)
+  lineTotal Decimal  @db.Decimal(10, 2)
+  note      String?
+  stationId String?
+
+  modifiers OrderItemModifier[]
+  createdAt DateTime            @default(now())
+
+  @@index([orderId])
+}
+
+/// Sipariş kalemi seçeneği (boyut, ekstra vb.) — fiyat snapshot.
+model OrderItemModifier {
+  id          String    @id @default(cuid())
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  orderItemId String
+  groupName   String?
+  name        String
+  price       Decimal   @db.Decimal(10, 2) @default(0)
+
+  @@index([orderItemId])
+}
+
+/// Sipariş durum geçiş logu (audit).
+model OrderEvent {
+  id         String       @id @default(cuid())
+  order      Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId    String
+  fromStatus OrderStatus?
+  toStatus   OrderStatus
+  byUserId   String?
+  reason     String?
+  createdAt  DateTime     @default(now())
+
+  @@index([orderId])
+}
+
+/// Servis talebi (garson çağır, hesap iste, su, temizlik...).
+model ServiceRequest {
+  id         String               @id @default(cuid())
+  business   Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String
+  table      RestaurantTable?     @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  tableId    String?
+  tableLabel String?
+  session    TableSession?        @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  sessionId  String?
+  type       ServiceRequestType
+  status     ServiceRequestStatus @default(pending)
+  note       String?
+  handledById String?
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  @@index([businessId, status])
+}
+
+/// Hazırlık istasyonu (Mutfak, Bar, Tatlı...). v1: varsayılan tek "Mutfak".
+model KitchenStation {
+  id         String   @id @default(cuid())
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String
+  name       String
+  sortOrder  Int      @default(0)
+
+  items     MenuItem[]
+  createdAt DateTime   @default(now())
+
+  @@index([businessId])
+}
+
+/// Ürün seçenek grubu (ör. Boyut, Ekstralar).
+model ModifierGroup {
+  id         String  @id @default(cuid())
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  menuItemId String
+  name       String
+  required   Boolean @default(false)
+  minSelect  Int     @default(0)
+  maxSelect  Int     @default(1)
+  sortOrder  Int     @default(0)
+
+  options   ModifierOption[]
+  createdAt DateTime         @default(now())
+
+  @@index([menuItemId])
+}
+
+/// Seçenek (ör. Büyük +30, Ekstra peynir +15).
+model ModifierOption {
+  id          String        @id @default(cuid())
+  group       ModifierGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     String
+  name        String
+  priceDelta  Decimal       @db.Decimal(10, 2) @default(0)
+  isAvailable Boolean       @default(true)
+  sortOrder   Int           @default(0)
+
+  @@index([groupId])
+}
+
+/// Mutfak fişi yazdırma geçmişi (mükerrer yazdırma takibi).
+model PrintJob {
+  id        String   @id @default(cuid())
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  printedAt DateTime @default(now())
+  count     Int      @default(1)
+
+  @@index([orderId])
 }
