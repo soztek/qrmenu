@@ -5,6 +5,7 @@ import QRCode from "qrcode";
 import { getCurrentUser } from "@/lib/auth";
 import { menuUrl } from "@/lib/url";
 import { QrDownload, CopyLink } from "./qr-actions";
+import { QrPrintForm } from "./qr-print-form";
 
 export const metadata: Metadata = { title: "QR Kod" };
 
@@ -63,6 +64,8 @@ export default async function QrPage() {
           </p>
         </div>
       </div>
+
+      <QrPrintForm />
     </div>
   );
 }

@@ -12,7 +12,8 @@ export function proxy(request: NextRequest) {
   const isProtected =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/admin") ||
-    pathname.startsWith("/yazdir");
+    pathname.startsWith("/yazdir") ||
+    pathname.startsWith("/qr-yazdir");
   if (isProtected && !hasSession) {
     const url = request.nextUrl.clone();
     url.pathname = "/giris";
@@ -24,5 +25,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/yazdir"],
+  matcher: ["/dashboard/:path*", "/admin/:path*", "/yazdir", "/qr-yazdir"],
 };
