@@ -24,8 +24,7 @@ export function TablesClient({ tables, slug }: { tables: TableRow[]; slug: strin
   const [busy, setBusy] = useState("");
   const [err, setErr] = useState("");
   const [newLabel, setNewLabel] = useState("");
-  const [bulkPrefix, setBulkPrefix] = useState("Masa");
-  const [bulkCount, setBulkCount] = useState(10);
+  const [count, setCount] = useState(1);
 
   async function run(key: string, fn: () => Promise<{ ok: boolean; error?: string }>) {
     setBusy(key);
@@ -41,61 +40,55 @@ export function TablesClient({ tables, slug }: { tables: TableRow[]; slug: strin
 
   return (
     <div className="mt-6 space-y-6">
-      {/* Ekleme */}
+      {/* Ekleme — tek alan: ad + adet */}
       <div className="rounded-2xl border border-border bg-surface p-4">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-fg">Tek masa ekle</label>
-            <div className="flex gap-2">
-              <input
-                value={newLabel}
-                onChange={(e) => setNewLabel(e.target.value)}
-                placeholder="Örn: Bahçe 3"
-                className="flex-1 rounded-lg border border-border bg-bg px-3 py-2 text-sm text-fg outline-none focus:border-green/50"
-              />
-              <button
-                type="button"
-                disabled={!!busy}
-                onClick={() =>
-                  run("add", async () => {
-                    const r = await createTable(newLabel);
-                    if (r.ok) setNewLabel("");
-                    return r;
-                  })
+        <label className="mb-1.5 block text-sm font-medium text-fg">Masa ekle</label>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <input
+            value={newLabel}
+            onChange={(e) => setNewLabel(e.target.value)}
+            placeholder="Masa adı / bölge — örn: ÖN BAHÇE ya da Masa"
+            className="flex-1 rounded-lg border border-border bg-bg px-3 py-2 text-sm text-fg outline-none focus:border-green/50"
+          />
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm text-muted">Adet</span>
+            <input
+              type="number"
+              min={1}
+              max={50}
+              value={count}
+              onChange={(e) => setCount(parseInt(e.target.value, 10) || 1)}
+              className="w-20 rounded-lg border border-border bg-bg px-3 py-2 text-sm text-fg outline-none focus:border-green/50"
+            />
+          </div>
+          <button
+            type="button"
+            disabled={!!busy}
+            onClick={() =>
+              run("add", async () => {
+                const name = newLabel.trim();
+                if (!name) return { ok: false, error: "Masa adı gerekli." };
+                const r =
+                  count > 1
+                    ? await createTablesBulk(name, count)
+                    : await createTable(name);
+                if (r.ok) {
+                  setNewLabel("");
+                  setCount(1);
                 }
-                className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-black transition hover:bg-green-dark disabled:opacity-50"
-              >
-                Ekle
-              </button>
-            </div>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-fg">Toplu ekle</label>
-            <div className="flex gap-2">
-              <input
-                value={bulkPrefix}
-                onChange={(e) => setBulkPrefix(e.target.value)}
-                className="w-28 rounded-lg border border-border bg-bg px-3 py-2 text-sm text-fg outline-none focus:border-green/50"
-              />
-              <input
-                type="number"
-                min={1}
-                max={50}
-                value={bulkCount}
-                onChange={(e) => setBulkCount(parseInt(e.target.value, 10) || 1)}
-                className="w-20 rounded-lg border border-border bg-bg px-3 py-2 text-sm text-fg outline-none focus:border-green/50"
-              />
-              <button
-                type="button"
-                disabled={!!busy}
-                onClick={() => run("bulk", () => createTablesBulk(bulkPrefix, bulkCount))}
-                className="rounded-lg border border-border px-4 py-2 text-sm text-fg transition hover:border-green/50 disabled:opacity-50"
-              >
-                {bulkCount} masa
-              </button>
-            </div>
-          </div>
+                return r;
+              })
+            }
+            className="rounded-lg bg-green px-5 py-2 text-sm font-semibold text-black transition hover:bg-green-dark disabled:opacity-50"
+          >
+            Ekle
+          </button>
         </div>
+        <p className="mt-2 text-xs text-faint">
+          Adet 1&apos;den fazlaysa <strong>“{(newLabel.trim() || "ÖN BAHÇE")} 1”</strong>,{" "}
+          <strong>“{(newLabel.trim() || "ÖN BAHÇE")} 2”</strong>… şeklinde numaralı oluşturulur.
+          Tek masa için adet 1 bırakın.
+        </p>
         {err && <p className="mt-2 text-sm text-orange">{err}</p>}
       </div>
 
