@@ -68,7 +68,9 @@ export async function startVideoGeneration(opts: {
     if (opts.durationSeconds) config.durationSeconds = opts.durationSeconds;
     if (opts.resolution) config.resolution = opts.resolution;
     if (opts.negativePrompt) config.negativePrompt = opts.negativePrompt;
-    if (opts.generateAudio) config.generateAudio = true;
+    // Not: generateAudio yalnızca Vertex/Enterprise modunda destekleniyor;
+    // Developer API'de gönderilmez. Veo 3.1 sesi zaten otomatik üretir (prompt'taki
+    // seslendirme talimatı yeterli).
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any = {
