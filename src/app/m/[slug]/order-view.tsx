@@ -214,9 +214,9 @@ export function OrderView({ ctx }: { ctx: OrderContext }) {
         const st = data.ok ? (data.order.status as OrderStatus) : null;
         if (st && ["served", "cancelled", "rejected"].includes(st)) return; // dur
       } catch {}
-      pollRef.current = setTimeout(tick, 9000);
+      pollRef.current = setTimeout(tick, 7000);
     };
-    pollRef.current = setTimeout(tick, 9000);
+    pollRef.current = setTimeout(tick, 7000);
   }
   useEffect(() => () => {
     if (pollRef.current) clearTimeout(pollRef.current);
@@ -252,6 +252,30 @@ export function OrderView({ ctx }: { ctx: OrderContext }) {
       sheetPollRef.current = null;
     }
   }
+
+  /* Sekmeye/pencereye dönünce anında güncelle (durum otomatik düşsün) */
+  useEffect(() => {
+    const onFocus = () => {
+      if (document.hidden) return;
+      if (view === "tracking" && order) {
+        fetch(`/api/orders/${order.id}`)
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.ok) setOrder(d.order);
+          })
+          .catch(() => {});
+      } else {
+        loadSessionOrders();
+      }
+    };
+    document.addEventListener("visibilitychange", onFocus);
+    window.addEventListener("focus", onFocus);
+    return () => {
+      document.removeEventListener("visibilitychange", onFocus);
+      window.removeEventListener("focus", onFocus);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, order]);
 
   /* ── TAKİP EKRANI ── */
   if (view === "tracking" && order) {

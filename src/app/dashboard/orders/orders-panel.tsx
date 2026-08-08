@@ -116,18 +116,39 @@ export function OrdersPanel({
 
   useEffect(() => {
     const id = setInterval(fetchNow, 5000);
-    return () => clearInterval(id);
+    // Sekmeye/pencereye dönünce anında yenile (arka plan sekme kısıtlamasını aşar)
+    const onFocus = () => {
+      if (!document.hidden) fetchNow();
+    };
+    document.addEventListener("visibilitychange", onFocus);
+    window.addEventListener("focus", onFocus);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onFocus);
+      window.removeEventListener("focus", onFocus);
+    };
   }, [fetchNow]);
 
-  async function act(key: string, fn: () => Promise<{ ok: boolean; error?: string }>) {
+  async function act(
+    key: string,
+    fn: () => Promise<{ ok: boolean; error?: string; data?: unknown }>,
+  ) {
     setBusy(key);
     try {
       const r = await fn();
-      if (!r.ok) alert(r.error || "İşlem başarısız.");
-      await fetchNow();
+      if (!r.ok) {
+        alert(r.error || "İşlem başarısız.");
+        return;
+      }
+      // Sipariş döndüyse anında güncelle (optimistic → tek tıkta yansır)
+      const dto = r.data as OrderDTO | undefined;
+      if (dto && typeof dto === "object" && "id" in dto) {
+        setOrders((prev) => prev.map((o) => (o.id === dto.id ? dto : o)));
+      }
     } finally {
       setBusy("");
     }
+    fetchNow(); // arka planda tam senkron
   }
 
   function changeStatus(id: string, to: OrderStatus) {
