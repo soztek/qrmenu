@@ -32,14 +32,18 @@ function clock(iso: string): string {
   return new Date(iso).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
 }
 
-const FILTERS: { key: string; label: string; match: (s: OrderStatus) => boolean }[] = [
-  { key: "new", label: "Yeni", match: (s) => s === "pending" },
-  { key: "prep", label: "Hazırlanan", match: (s) => s === "accepted" || s === "preparing" },
-  { key: "ready", label: "Hazır", match: (s) => s === "ready" },
-  { key: "served", label: "Teslim", match: (s) => s === "served" },
-  { key: "cancel", label: "İptal/Ret", match: (s) => s === "cancelled" || s === "rejected" },
+const FILTERS: { key: string; label: string; match: (o: OrderDTO) => boolean }[] = [
+  { key: "new", label: "Yeni", match: (o) => o.status === "pending" && o.paymentStatus !== "paid" },
+  { key: "prep", label: "Hazırlanan", match: (o) => (o.status === "accepted" || o.status === "preparing") && o.paymentStatus !== "paid" },
+  { key: "ready", label: "Hazır", match: (o) => o.status === "ready" && o.paymentStatus !== "paid" },
+  { key: "served", label: "Teslim · ödeme bekleyen", match: (o) => o.status === "served" && o.paymentStatus !== "paid" },
+  { key: "closed", label: "Kapatılan (ödendi)", match: (o) => o.paymentStatus === "paid" },
+  { key: "cancel", label: "İptal/Ret", match: (o) => o.status === "cancelled" || o.status === "rejected" },
   { key: "all", label: "Tümü", match: () => true },
 ];
+
+const isToday = (iso: string) =>
+  new Date(iso).toDateString() === new Date().toDateString();
 
 export function OrdersPanel({
   initialOrders,
@@ -162,12 +166,21 @@ export function OrdersPanel({
   }
 
   const activeFilter = FILTERS.find((f) => f.key === filter) ?? FILTERS[0];
-  const shown = orders.filter((o) => activeFilter.match(o.status));
+  const shown = orders.filter((o) => activeFilter.match(o));
   const counts = {
     new: orders.filter((o) => o.status === "pending").length,
     prep: orders.filter((o) => o.status === "accepted" || o.status === "preparing").length,
     ready: orders.filter((o) => o.status === "ready").length,
   };
+
+  // Günlük özet (bugünkü, iptal/ret hariç)
+  const todays = orders.filter(
+    (o) => isToday(o.createdAt) && o.status !== "cancelled" && o.status !== "rejected",
+  );
+  const dailyTotal = todays.reduce((s, o) => s + o.total, 0);
+  const collected = todays
+    .filter((o) => o.paymentStatus === "paid")
+    .reduce((s, o) => s + o.total, 0);
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -356,6 +369,19 @@ export function OrdersPanel({
           })}
         </div>
       )}
+
+      {/* Günlük özet */}
+      <div className="sticky bottom-0 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface/95 p-4 backdrop-blur">
+        <span className="text-sm text-muted">
+          Bugün: <strong className="text-fg">{todays.length}</strong> sipariş
+        </span>
+        <span className="text-sm text-muted">
+          Toplam: <strong className="text-fg">{fmt(dailyTotal)}</strong>
+        </span>
+        <span className="text-sm text-muted">
+          Tahsil edilen: <strong className="text-green">{fmt(collected)}</strong>
+        </span>
+      </div>
     </div>
   );
 }
