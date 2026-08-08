@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/db";
 import { planHasFeature } from "@/lib/plans";
+import { hasActiveAccess } from "@/lib/subscription";
 import { canTransition, reasonRequired, type OrderStatus } from "./types";
 
 /** Kullanıcıya gösterilebilir hata (kod + mesaj). */
@@ -128,7 +129,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderDTO> {
   if (!settings?.qrOrderingEnabled) {
     throw new OrderError("Bu işletme şu an QR ile sipariş almıyor.", "disabled");
   }
-  if (!planHasFeature(business.plan, "orders")) {
+  if (!planHasFeature(business.plan, "orders") || !hasActiveAccess(business)) {
     throw new OrderError("Sipariş özelliği bu işletmede aktif değil.", "plan");
   }
   if (!withinHours(settings.acceptFrom, settings.acceptTo)) {
