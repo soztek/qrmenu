@@ -65,6 +65,8 @@ export function OrderView({ ctx }: { ctx: OrderContext }) {
   const [error, setError] = useState("");
   const [order, setOrder] = useState<TrackOrder | null>(null);
   const [sessionOrders, setSessionOrders] = useState<TrackOrder[] | null>(null);
+  const [ordersSheet, setOrdersSheet] = useState(false);
+  const sheetPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [toast, setToast] = useState("");
   const [calling, setCalling] = useState("");
@@ -228,6 +230,29 @@ export function OrderView({ ctx }: { ctx: OrderContext }) {
     } catch {}
   }
 
+  /* Menüye ilk girişte açık siparişleri çek (rozet için) */
+  useEffect(() => {
+    loadSessionOrders();
+    return () => {
+      if (sheetPollRef.current) clearInterval(sheetPollRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function openOrdersSheet() {
+    setOrdersSheet(true);
+    loadSessionOrders();
+    if (sheetPollRef.current) clearInterval(sheetPollRef.current);
+    sheetPollRef.current = setInterval(loadSessionOrders, 9000);
+  }
+  function closeOrdersSheet() {
+    setOrdersSheet(false);
+    if (sheetPollRef.current) {
+      clearInterval(sheetPollRef.current);
+      sheetPollRef.current = null;
+    }
+  }
+
   /* ── TAKİP EKRANI ── */
   if (view === "tracking" && order) {
     const meta = ORDER_STATUS_META[order.status];
@@ -336,8 +361,16 @@ export function OrderView({ ctx }: { ctx: OrderContext }) {
       {/* Başlık */}
       <div className="sticky top-0 z-20 border-b border-border bg-bg/95 px-4 py-3 backdrop-blur">
         <div className="text-xs text-green">{business.name}</div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <h1 className="text-lg font-bold text-fg">Sipariş — {table.label}</h1>
+          {sessionOrders && sessionOrders.length > 0 && (
+            <button
+              onClick={openOrdersSheet}
+              className="shrink-0 rounded-lg bg-surface-2 px-3 py-1.5 text-sm font-medium text-fg transition hover:bg-surface"
+            >
+              🧾 Siparişlerim ({sessionOrders.length})
+            </button>
+          )}
         </div>
         {/* Kategori sekmeleri */}
         <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
@@ -424,6 +457,68 @@ export function OrderView({ ctx }: { ctx: OrderContext }) {
           </span>
           <span className="font-bold">{fmt(cartTotal)}</span>
         </button>
+      )}
+
+      {/* Siparişlerim (canlı) */}
+      {ordersSheet && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60"
+          onClick={closeOrdersSheet}
+        >
+          <div
+            className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border-t border-border bg-surface p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-fg">Siparişlerim — {table.label}</h2>
+              <button onClick={closeOrdersSheet} className="text-2xl leading-none text-muted">
+                ×
+              </button>
+            </div>
+            {!sessionOrders || sessionOrders.length === 0 ? (
+              <p className="py-8 text-center text-muted">Bu masada henüz sipariş yok.</p>
+            ) : (
+              <>
+                <ul className="space-y-3">
+                  {sessionOrders.map((o) => {
+                    const m = ORDER_STATUS_META[o.status];
+                    return (
+                      <li key={o.id} className="rounded-xl border border-border bg-bg p-3">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono font-bold text-fg">{o.code}</span>
+                          <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${TONE[m.tone]}`}>
+                            {m.label}
+                          </span>
+                        </div>
+                        <ul className="mt-1 text-sm text-muted">
+                          {o.items.map((it, i) => (
+                            <li key={i}>
+                              {it.quantity}× {it.name}
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="mt-1 text-right text-sm font-semibold text-fg">
+                          {fmt(o.total)}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <div className="mt-3 flex justify-between border-t border-border pt-3 font-bold text-fg">
+                  <span>Masa toplamı</span>
+                  <span>{fmt(sessionOrders.reduce((s, o) => s + o.total, 0))}</span>
+                </div>
+              </>
+            )}
+            <p className="mt-2 text-center text-xs text-faint">Durum otomatik güncellenir.</p>
+            <button
+              onClick={closeOrdersSheet}
+              className="mt-3 w-full rounded-xl bg-green py-3 text-sm font-semibold text-black transition hover:bg-green-dark"
+            >
+              Menüye dön
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Seçenek modalı */}
