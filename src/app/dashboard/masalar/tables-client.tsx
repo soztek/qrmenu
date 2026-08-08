@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   createTable,
@@ -25,6 +26,37 @@ export function TablesClient({ tables, slug }: { tables: TableRow[]; slug: strin
   const [err, setErr] = useState("");
   const [newLabel, setNewLabel] = useState("");
   const [count, setCount] = useState(1);
+  const [orderMap, setOrderMap] = useState<
+    Record<string, { open: number; pending: number }>
+  >({});
+
+  /* Canlı: masa başına açık sipariş sayısı (7 sn polling) */
+  useEffect(() => {
+    let alive = true;
+    const OPEN = ["pending", "accepted", "preparing", "ready"];
+    const load = async () => {
+      try {
+        const res = await fetch("/api/business/orders", { cache: "no-store" });
+        const data = await res.json();
+        if (!data.ok || !alive) return;
+        const m: Record<string, { open: number; pending: number }> = {};
+        for (const o of data.orders as { tableId: string | null; status: string }[]) {
+          if (!o.tableId || !OPEN.includes(o.status)) continue;
+          const e = m[o.tableId] ?? { open: 0, pending: 0 };
+          e.open += 1;
+          if (o.status === "pending") e.pending += 1;
+          m[o.tableId] = e;
+        }
+        setOrderMap(m);
+      } catch {}
+    };
+    load();
+    const id = setInterval(load, 7000);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+  }, []);
 
   async function run(key: string, fn: () => Promise<{ ok: boolean; error?: string }>) {
     setBusy(key);
@@ -109,16 +141,38 @@ export function TablesClient({ tables, slug }: { tables: TableRow[]; slug: strin
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
-          {tables.map((t) => (
+          {tables.map((t) => {
+            const oi = orderMap[t.id];
+            return (
             <div
               key={t.id}
               className={`flex gap-3 rounded-xl border bg-surface p-3 ${
-                t.active ? "border-border" : "border-orange/40 opacity-70"
+                oi?.pending
+                  ? "border-green ring-2 ring-green/40"
+                  : oi?.open
+                    ? "border-green/60"
+                    : t.active
+                      ? "border-border"
+                      : "border-orange/40 opacity-70"
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={t.qr} alt="" className="h-24 w-24 shrink-0 rounded-lg bg-white p-1" />
               <div className="min-w-0 flex-1">
+                {oi && oi.open > 0 && (
+                  <Link
+                    href="/dashboard/orders"
+                    className={`mb-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
+                      oi.pending
+                        ? "animate-pulse bg-green text-black"
+                        : "bg-green-soft text-green"
+                    }`}
+                  >
+                    {oi.pending
+                      ? `🔔 Yeni sipariş${oi.open > oi.pending ? ` · ${oi.open} aktif` : ""}`
+                      : `🟢 ${oi.open} aktif sipariş`}
+                  </Link>
+                )}
                 <input
                   defaultValue={t.label}
                   onBlur={(e) => {
@@ -176,7 +230,8 @@ export function TablesClient({ tables, slug }: { tables: TableRow[]; slug: strin
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
