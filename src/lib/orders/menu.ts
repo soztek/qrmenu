@@ -44,6 +44,8 @@ export interface OrderContext {
     askCustomerName: boolean;
     allowNotes: boolean;
     minOrderTotal: number | null;
+    callWaiter: boolean;
+    requestBill: boolean;
   };
   categories: OrderMenuCategory[];
 }
@@ -158,6 +160,8 @@ export async function loadOrderContext(
       askCustomerName: s.askCustomerName,
       allowNotes: s.allowNotes,
       minOrderTotal: s.minOrderTotal != null ? Number(s.minOrderTotal) : null,
+      callWaiter: s.callWaiterEnabled,
+      requestBill: s.requestBillEnabled,
     },
     categories,
   };

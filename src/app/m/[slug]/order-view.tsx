@@ -66,8 +66,59 @@ export function OrderView({ ctx }: { ctx: OrderContext }) {
   const [order, setOrder] = useState<TrackOrder | null>(null);
   const [sessionOrders, setSessionOrders] = useState<TrackOrder[] | null>(null);
 
+  const [toast, setToast] = useState("");
+  const [calling, setCalling] = useState("");
+
   const idemRef = useRef<string>("");
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  async function callService(type: "waiter" | "bill") {
+    setCalling(type);
+    try {
+      const res = await fetch("/api/service-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tableToken: table.token, type }),
+      });
+      const data = await res.json();
+      setToast(
+        res.ok && data.ok
+          ? type === "waiter"
+            ? "🙋 Garson çağrıldı, geliyor!"
+            : "🧾 Hesap talebiniz iletildi!"
+          : data.error || "Talep iletilemedi.",
+      );
+    } catch {
+      setToast("Bağlantı hatası, tekrar deneyin.");
+    } finally {
+      setCalling("");
+      setTimeout(() => setToast(""), 3500);
+    }
+  }
+
+  const serviceBar =
+    settings.callWaiter || settings.requestBill ? (
+      <div className="flex gap-2">
+        {settings.callWaiter && (
+          <button
+            onClick={() => callService("waiter")}
+            disabled={calling === "waiter"}
+            className="flex-1 rounded-lg border border-border bg-surface py-2 text-sm font-medium text-fg transition hover:border-green/50 disabled:opacity-50"
+          >
+            🙋 Garson çağır
+          </button>
+        )}
+        {settings.requestBill && (
+          <button
+            onClick={() => callService("bill")}
+            disabled={calling === "bill"}
+            className="flex-1 rounded-lg border border-border bg-surface py-2 text-sm font-medium text-fg transition hover:border-green/50 disabled:opacity-50"
+          >
+            🧾 Hesap iste
+          </button>
+        )}
+      </div>
+    ) : null;
 
   /* sepeti localStorage ile sakla */
   useEffect(() => {
@@ -182,6 +233,11 @@ export function OrderView({ ctx }: { ctx: OrderContext }) {
     const meta = ORDER_STATUS_META[order.status];
     return (
       <div className="mx-auto min-h-screen w-full max-w-lg bg-bg px-4 py-6">
+        {toast && (
+          <div className="fixed left-1/2 top-4 z-[60] -translate-x-1/2 rounded-full bg-fg px-4 py-2 text-sm font-medium text-bg shadow-lg">
+            {toast}
+          </div>
+        )}
         <div className="rounded-2xl border border-green/40 bg-green-soft/20 p-5 text-center">
           <div className="text-4xl">🎉</div>
           <h1 className="mt-2 text-xl font-bold text-fg">Siparişiniz alındı!</h1>
@@ -233,6 +289,8 @@ export function OrderView({ ctx }: { ctx: OrderContext }) {
           </button>
         </div>
 
+        {serviceBar && <div className="mt-3">{serviceBar}</div>}
+
         {sessionOrders && (
           <div className="mt-4 rounded-2xl border border-border bg-surface p-4">
             <div className="text-sm font-semibold text-fg">Bu masadaki siparişler</div>
@@ -270,6 +328,11 @@ export function OrderView({ ctx }: { ctx: OrderContext }) {
   /* ── MENÜ / SİPARİŞ EKRANI ── */
   return (
     <div className="mx-auto min-h-screen w-full max-w-lg bg-bg pb-24">
+      {toast && (
+        <div className="fixed left-1/2 top-4 z-[60] -translate-x-1/2 rounded-full bg-fg px-4 py-2 text-sm font-medium text-bg shadow-lg">
+          {toast}
+        </div>
+      )}
       {/* Başlık */}
       <div className="sticky top-0 z-20 border-b border-border bg-bg/95 px-4 py-3 backdrop-blur">
         <div className="text-xs text-green">{business.name}</div>
@@ -292,6 +355,7 @@ export function OrderView({ ctx }: { ctx: OrderContext }) {
             </button>
           ))}
         </div>
+        {serviceBar && <div className="mt-2">{serviceBar}</div>}
       </div>
 
       {/* Ürünler */}

@@ -2,7 +2,16 @@ import "server-only";
 import { prisma } from "@/lib/db";
 import { planHasFeature } from "@/lib/plans";
 import { hasActiveAccess } from "@/lib/subscription";
-import { canTransition, reasonRequired, type OrderStatus } from "./types";
+import {
+  canTransition,
+  reasonRequired,
+  OPEN_STATUSES,
+  type OrderStatus,
+} from "./types";
+import type {
+  ServiceRequestType,
+  ServiceRequestStatus,
+} from "@/generated/prisma/enums";
 
 /** Kullanıcıya gösterilebilir hata (kod + mesaj). */
 export class OrderError extends Error {
@@ -24,8 +33,11 @@ export interface CreateOrderInput {
 const ORDER_SELECT = {
   id: true,
   code: true,
+  seq: true,
   status: true,
   paymentStatus: true,
+  sessionId: true,
+  tableId: true,
   tableLabel: true,
   customerName: true,
   note: true,
@@ -57,8 +69,11 @@ function mapOrder(o: any) {
   return {
     id: o.id as string,
     code: o.code as string,
+    seq: o.seq as number,
     status: o.status as OrderStatus,
     paymentStatus: o.paymentStatus as string,
+    sessionId: (o.sessionId ?? null) as string | null,
+    tableId: (o.tableId ?? null) as string | null,
     tableLabel: o.tableLabel as string,
     customerName: (o.customerName ?? null) as string | null,
     note: (o.note ?? null) as string | null,
@@ -417,5 +432,155 @@ export async function transitionOrderStatus(opts: {
     return o;
   });
 
+  return mapOrder(updated);
+}
+
+/* ── İşletme paneli ── */
+
+/** Panel için siparişler: açık olanlar + bugünküler. */
+export async function listBusinessOrders(businessId: string): Promise<OrderDTO[]> {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const orders = await prisma.order.findMany({
+    where: {
+      businessId,
+      OR: [{ status: { in: OPEN_STATUSES } }, { createdAt: { gte: start } }],
+    },
+    orderBy: { createdAt: "desc" },
+    take: 250,
+    select: ORDER_SELECT,
+  });
+  return orders.map(mapOrder);
+}
+
+export interface ServiceRequestDTO {
+  id: string;
+  type: ServiceRequestType;
+  status: ServiceRequestStatus;
+  tableLabel: string | null;
+  note: string | null;
+  createdAt: string;
+}
+
+export async function listServiceRequests(
+  businessId: string,
+): Promise<ServiceRequestDTO[]> {
+  const rows = await prisma.serviceRequest.findMany({
+    where: { businessId, status: { in: ["pending", "acknowledged"] } },
+    orderBy: { createdAt: "asc" },
+    take: 100,
+    select: {
+      id: true,
+      type: true,
+      status: true,
+      tableLabel: true,
+      note: true,
+      createdAt: true,
+    },
+  });
+  return rows.map((r) => ({
+    id: r.id,
+    type: r.type,
+    status: r.status,
+    tableLabel: r.tableLabel,
+    note: r.note,
+    createdAt: r.createdAt.toISOString(),
+  }));
+}
+
+/** Müşteri servis talebi (garson çağır / hesap iste ...). Rate limit + izinler. */
+export async function createServiceRequest(
+  token: string,
+  type: ServiceRequestType,
+  note?: string,
+): Promise<void> {
+  const table = await resolveTableByToken(token);
+  const settings = table.business.orderSettings;
+  if (
+    !settings?.qrOrderingEnabled ||
+    !planHasFeature(table.business.plan, "orders") ||
+    !hasActiveAccess(table.business)
+  ) {
+    throw new OrderError("Bu işletmede servis talebi kapalı.", "disabled");
+  }
+  if (type === "waiter" && !settings.callWaiterEnabled) {
+    throw new OrderError("Garson çağırma kapalı.", "disabled");
+  }
+  if (type === "bill" && !settings.requestBillEnabled) {
+    throw new OrderError("Hesap isteme kapalı.", "disabled");
+  }
+
+  // Rate limit: aynı tür 45 sn içinde açıksa engelle.
+  const recent = await prisma.serviceRequest.findFirst({
+    where: {
+      tableId: table.id,
+      type,
+      status: { in: ["pending", "acknowledged"] },
+      createdAt: { gte: new Date(Date.now() - 45_000) },
+    },
+    select: { id: true },
+  });
+  if (recent) {
+    throw new OrderError("Talebiniz zaten iletildi, birazdan geliyoruz.", "ratelimit");
+  }
+
+  const session = await prisma.tableSession.findFirst({
+    where: { tableId: table.id, status: "active" },
+    select: { id: true },
+  });
+
+  await prisma.serviceRequest.create({
+    data: {
+      businessId: table.business.id,
+      tableId: table.id,
+      tableLabel: table.label,
+      sessionId: session?.id ?? null,
+      type,
+      note: note?.slice(0, 200) || null,
+    },
+  });
+}
+
+export async function updateServiceRequestStatus(
+  businessId: string,
+  id: string,
+  status: Extract<ServiceRequestStatus, "acknowledged" | "completed" | "cancelled">,
+  byUserId?: string,
+): Promise<void> {
+  const res = await prisma.serviceRequest.updateMany({
+    where: { id, businessId },
+    data: { status, handledById: byUserId ?? null },
+  });
+  if (res.count === 0) throw new OrderError("Talep bulunamadı.", "notfound");
+}
+
+/** Masa hesabını kapat — aktif oturum kapanır, eski siparişler yeni müşteriye görünmez. */
+export async function closeTableSession(
+  businessId: string,
+  tableId: string,
+  byUserId?: string,
+): Promise<void> {
+  await prisma.tableSession.updateMany({
+    where: { businessId, tableId, status: { in: ["active", "payment_requested"] } },
+    data: { status: "closed", closedAt: new Date(), closedById: byUserId ?? null },
+  });
+}
+
+export async function updatePaymentStatus(
+  businessId: string,
+  orderId: string,
+  paymentStatus: "unpaid" | "payment_requested" | "paid" | "partially_paid" | "refunded",
+  method?: string,
+): Promise<OrderDTO> {
+  const order = await prisma.order.findFirst({
+    where: { id: orderId, businessId },
+    select: { id: true },
+  });
+  if (!order) throw new OrderError("Sipariş bulunamadı.", "notfound");
+  const updated = await prisma.order.update({
+    where: { id: order.id },
+    data: { paymentStatus, ...(method ? { paymentMethod: method.slice(0, 40) } : {}) },
+    select: ORDER_SELECT,
+  });
   return mapOrder(updated);
 }
