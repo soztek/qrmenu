@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { formatTL } from "@/lib/url";
 
-type Item = { name: string; price: string };
+type Item = { name: string; price: string; photoUrl?: string | null };
 type Category = { name: string; items: Item[] };
+
+const THUMB = 68; // ürün küçük resmi (px)
 
 /* 1920×1080 yerleşim sabitleri */
 const W = 1920;
@@ -18,7 +20,7 @@ const COLS = 2;
 const COLGAP = 70;
 const COLW = (W - 2 * MX - COLGAP * (COLS - 1)) / COLS;
 const CAT_H = 78;
-const ITEM_H = 48;
+const ITEM_H = 92; // fotoğraf sığması için
 
 const BG = "#0b0f14";
 const GREEN = "#22c55e";
@@ -28,7 +30,7 @@ const FADE_MS: number = 500;
 
 type Block =
   | { type: "cat"; text: string }
-  | { type: "item"; name: string; price: string };
+  | { type: "item"; name: string; price: string; photoUrl?: string | null };
 type Slide = Block[][]; // COLS sütun
 
 function buildSlides(categories: Category[]): Slide[] {
@@ -37,7 +39,7 @@ function buildSlides(categories: Category[]): Slide[] {
     if (c.items.length === 0) continue;
     blocks.push({ type: "cat", text: c.name });
     for (const it of c.items)
-      blocks.push({ type: "item", name: it.name, price: it.price });
+      blocks.push({ type: "item", name: it.name, price: it.price, photoUrl: it.photoUrl });
   }
   const slides: Slide[] = [];
   let slide: Slide = Array.from({ length: COLS }, () => []);
@@ -71,6 +73,44 @@ function fit(ctx: CanvasRenderingContext2D, text: string, maxW: number): string 
   let t = text;
   while (t.length > 1 && ctx.measureText(t + "…").width > maxW) t = t.slice(0, -1);
   return t + "…";
+}
+
+/** Blob (http) görselleri aynı-origin proxy üzerinden; yerel /uploads doğrudan. */
+function imgSrc(u: string): string {
+  return u.startsWith("http") ? `/api/img?u=${encodeURIComponent(u)}` : u;
+}
+
+/** Görseli yuvarlak köşeli, kırparak (cover) çizer. */
+function drawRoundedImage(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+) {
+  ctx.save();
+  ctx.beginPath();
+  const rr = (ctx as CanvasRenderingContext2D & { roundRect?: (x: number, y: number, w: number, h: number, r: number) => void });
+  if (typeof rr.roundRect === "function") rr.roundRect(x, y, w, h, r);
+  else ctx.rect(x, y, w, h);
+  ctx.clip();
+  const ar = img.width / img.height;
+  const tr = w / h;
+  let sx = 0,
+    sy = 0,
+    sw = img.width,
+    sh = img.height;
+  if (ar > tr) {
+    sw = img.height * tr;
+    sx = (img.width - sw) / 2;
+  } else {
+    sh = img.width / tr;
+    sy = (img.height - sh) / 2;
+  }
+  ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+  ctx.restore();
 }
 
 function pickMime(): string {
@@ -110,6 +150,39 @@ export function ScreenVideo({
   const total = slides.length * SLIDE_MS;
   const durationSec = Math.round(total / 1000);
 
+  const imagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
+  const [imagesReady, setImagesReady] = useState(false);
+
+  useEffect(() => {
+    const urls = [
+      ...new Set(
+        categories
+          .flatMap((c) => c.items)
+          .map((i) => i.photoUrl)
+          .filter((u): u is string => Boolean(u)),
+      ),
+    ];
+    if (!urls.length) {
+      setImagesReady(true);
+      return;
+    }
+    setImagesReady(false);
+    let done = 0;
+    const map = imagesRef.current;
+    const finish = () => {
+      if (++done >= urls.length) setImagesReady(true);
+    };
+    urls.forEach((u) => {
+      const img = new window.Image();
+      img.onload = () => {
+        map.set(u, img);
+        finish();
+      };
+      img.onerror = finish;
+      img.src = imgSrc(u);
+    });
+  }, [categories]);
+
   const drawSlide = (
     ctx: CanvasRenderingContext2D,
     slide: Slide,
@@ -146,16 +219,26 @@ export function ScreenVideo({
           ctx.stroke();
           y += CAT_H;
         } else {
+          const img = b.photoUrl ? imagesRef.current.get(b.photoUrl) : null;
+          const midY = y + ITEM_H / 2;
+          let textX = x;
+          if (img) {
+            drawRoundedImage(ctx, img, x, y + (ITEM_H - THUMB) / 2, THUMB, THUMB, 12);
+            textX = x + THUMB + 20;
+          }
           const priceStr = formatTL(b.price);
-          ctx.font = "bold 28px Arial";
+          ctx.textBaseline = "middle";
+          ctx.font = "bold 30px Arial";
           ctx.fillStyle = ORANGE;
           ctx.textAlign = "right";
-          ctx.fillText(priceStr, x + COLW, y + 30);
+          ctx.fillText(priceStr, x + COLW, midY);
           const priceW = ctx.measureText(priceStr).width;
-          ctx.font = "500 28px Arial";
+          const maxNameW = COLW - (textX - x) - priceW - 24;
+          ctx.font = "500 30px Arial";
           ctx.fillStyle = "#e5e7eb";
           ctx.textAlign = "left";
-          ctx.fillText(fit(ctx, b.name, COLW - priceW - 30), x, y + 30);
+          ctx.fillText(fit(ctx, b.name, maxNameW), textX, midY);
+          ctx.textBaseline = "alphabetic";
           y += ITEM_H;
         }
       }
@@ -186,7 +269,7 @@ export function ScreenVideo({
     const ctx = canvasRef.current?.getContext("2d");
     if (ctx) drawAt(ctx, 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slides]);
+  }, [slides, imagesReady]);
 
   const animateOnce = (
     ctx: CanvasRenderingContext2D,
@@ -204,7 +287,7 @@ export function ScreenVideo({
 
   const preview = () => {
     const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx || busy || runningRef.current) return;
+    if (!ctx || busy || runningRef.current || !imagesReady) return;
     runningRef.current = true;
     setBusy(true);
     setStatus("Önizleme oynatılıyor…");
@@ -219,7 +302,7 @@ export function ScreenVideo({
   const record = async () => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx || busy || runningRef.current) return;
+    if (!canvas || !ctx || busy || runningRef.current || !imagesReady) return;
     if (typeof MediaRecorder === "undefined" || !canvas.captureStream) {
       setStatus("Tarayıcınız video kaydını desteklemiyor. Google Chrome kullanın.");
       return;
@@ -294,14 +377,14 @@ export function ScreenVideo({
       <div className="flex flex-wrap items-center gap-3">
         <button
           onClick={record}
-          disabled={busy}
+          disabled={busy || !imagesReady}
           className="rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-green-dark disabled:opacity-60"
         >
-          {busy ? "İşleniyor…" : "🎬 Videoyu oluştur ve indir"}
+          {!imagesReady ? "Görseller yükleniyor…" : busy ? "İşleniyor…" : "🎬 Videoyu oluştur ve indir"}
         </button>
         <button
           onClick={preview}
-          disabled={busy}
+          disabled={busy || !imagesReady}
           className="rounded-lg border border-border px-5 py-2.5 text-sm text-fg transition hover:border-green/50 disabled:opacity-60"
         >
           ▶ Önizle

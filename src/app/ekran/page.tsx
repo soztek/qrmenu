@@ -37,7 +37,7 @@ export default async function ScreenMenuPage({
       items: {
         where: { isAvailable: true },
         orderBy: { sortOrder: "asc" },
-        select: { name: true, price: true },
+        select: { name: true, price: true, photoUrl: true },
       },
     },
   });
@@ -46,7 +46,11 @@ export default async function ScreenMenuPage({
     .filter((c) => c.items.length > 0)
     .map((c) => ({
       name: c.name,
-      items: c.items.map((i) => ({ name: i.name, price: i.price.toString() })),
+      items: c.items.map((i) => ({
+        name: i.name,
+        price: i.price.toString(),
+        photoUrl: i.photoUrl,
+      })),
     }));
 
   return (
