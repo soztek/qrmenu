@@ -1,5 +1,6 @@
 "use server";
 
+import { prisma } from "@/lib/db";
 import { requireOrderingBusiness } from "@/lib/orders/guard";
 import {
   transitionOrderStatus,
@@ -64,6 +65,22 @@ export async function handleServiceRequest(
   try {
     const { user, business } = await requireOrderingBusiness();
     await updateServiceRequestStatus(business.id, id, status, user.id);
+    return { ok: true, data: undefined };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+/** Mutfak fişi yazdırma kaydı (yazdırma geçmişi). */
+export async function logPrint(orderId: string): Promise<ActionResult> {
+  try {
+    const { business } = await requireOrderingBusiness();
+    const order = await prisma.order.findFirst({
+      where: { id: orderId, businessId: business.id },
+      select: { id: true },
+    });
+    if (!order) return { ok: false, error: "Sipariş bulunamadı." };
+    await prisma.printJob.create({ data: { orderId: order.id } });
     return { ok: true, data: undefined };
   } catch (e) {
     return fail(e);
