@@ -46,6 +46,26 @@ export default async function QrPrintPage({
     (sp.text ?? "").trim() ||
     "Menümüz artık dijital! QR'ı okutun, menümüzü telefonunuzdan görün.";
 
+  // Deneme sürümünde QR baskısı kısıtlı (admin hariç).
+  if (!isAdmin(user) && business.subscriptionStatus !== "active") {
+    return (
+      <div className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center bg-white p-8 text-center text-black">
+        <div className="text-5xl">🔒</div>
+        <h1 className="mt-4 text-xl font-bold">QR baskısı ücretli pakete özeldir</h1>
+        <p className="mt-2 text-sm text-neutral-600">
+          Deneme sürümünde QR kodu yazdırılamaz. Lütfen üretici ile görüşerek
+          paketinizi yükseltin.
+        </p>
+        <a
+          href="/dashboard/abonelik"
+          className="mt-6 rounded-lg bg-black px-4 py-2 text-sm font-semibold text-white"
+        >
+          Paketi yükselt
+        </a>
+      </div>
+    );
+  }
+
   const mode = sp.mode === "tables" ? "tables" : "single";
   const url = menuUrl(business.slug);
   const qr = await QRCode.toDataURL(url, {

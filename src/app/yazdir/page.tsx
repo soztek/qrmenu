@@ -31,6 +31,34 @@ export default async function PrintMenuPage({
     business = user.business;
   }
 
+  // Deneme sürümünde yazdırılabilir PDF kısıtlı (admin hariç).
+  if (!isAdmin(user) && business.subscriptionStatus !== "active") {
+    return (
+      <div className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center bg-white p-8 text-center text-black">
+        <div className="text-5xl">🔒</div>
+        <h1 className="mt-4 text-xl font-bold">Yazdırılabilir menü ücretli pakete özeldir</h1>
+        <p className="mt-2 text-sm text-neutral-600">
+          Deneme sürümünde menüyü PDF olarak yazdıramazsınız. Lütfen üretici ile
+          görüşerek paketinizi yükseltin.
+        </p>
+        <div className="mt-6 flex gap-3">
+          <Link
+            href="/dashboard/abonelik"
+            className="rounded-lg bg-black px-4 py-2 text-sm font-semibold text-white"
+          >
+            Paketi yükselt
+          </Link>
+          <Link
+            href="/dashboard/menu"
+            className="rounded-lg border border-neutral-300 px-4 py-2 text-sm text-black"
+          >
+            ← Panele dön
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const categories = await prisma.category.findMany({
     where: { businessId: business.id },
     orderBy: { sortOrder: "asc" },
