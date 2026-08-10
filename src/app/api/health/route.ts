@@ -13,5 +13,5 @@ export async function GET() {
   } catch {
     ordersMigration = false;
   }
-  return NextResponse.json({ ok: true, ordersMigration, ts: Date.now() });
+  return NextResponse.json({ ok: true, ordersMigration, version: "reports-v1", ts: Date.now() });
 }
