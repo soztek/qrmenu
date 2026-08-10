@@ -24,6 +24,7 @@ export default async function AdminLayout({
             <nav className="hidden items-center gap-5 text-sm text-muted sm:flex">
               <Link href="/admin" className="transition hover:text-fg">Genel bakış</Link>
               <Link href="/admin/businesses" className="transition hover:text-fg">İşletmeler</Link>
+              <Link href="/admin/odemeler" className="transition hover:text-fg">Ödemeler</Link>
               <Link href="/admin/ai-video" className="transition hover:text-fg">AI Reklam Stüdyosu</Link>
             </nav>
           </div>
@@ -43,6 +44,7 @@ export default async function AdminLayout({
         <div className="flex gap-4 overflow-x-auto border-t border-border px-5 py-2 text-sm text-muted sm:hidden">
           <Link href="/admin" className="whitespace-nowrap transition hover:text-fg">Genel bakış</Link>
           <Link href="/admin/businesses" className="whitespace-nowrap transition hover:text-fg">İşletmeler</Link>
+          <Link href="/admin/odemeler" className="whitespace-nowrap transition hover:text-fg">Ödemeler</Link>
           <Link href="/admin/ai-video" className="whitespace-nowrap transition hover:text-fg">AI Reklam Stüdyosu</Link>
         </div>
       </header>
