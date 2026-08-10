@@ -93,6 +93,17 @@ export function MenuView({
 
   const activeCategory = categories.find((c) => c.id === active) ?? null;
 
+  // Kategori seçilince sekmeyi yatay ortala (sayfayı dikey kaydırmadan)
+  const catBarRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const bar = catBarRef.current;
+    if (!bar) return;
+    const el = bar.querySelector<HTMLElement>('[data-cat-active="true"]');
+    if (!el) return;
+    const target = el.offsetLeft - bar.clientWidth / 2 + el.clientWidth / 2;
+    bar.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
+  }, [active]);
+
   const avg =
     reviews.length > 0
       ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
@@ -263,7 +274,7 @@ export function MenuView({
           className="w-full rounded-xl border border-border bg-surface-2 px-4 py-2.5 text-sm outline-none placeholder:text-faint focus:border-green"
         />
         {!q && (
-          <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+          <div ref={catBarRef} className="mt-2 flex gap-2 overflow-x-auto pb-1">
             <Chip active={active === null} onClick={() => setActive(null)}>
               Tümü
             </Chip>
@@ -440,6 +451,7 @@ function Chip({
   return (
     <button
       onClick={onClick}
+      data-cat-active={active ? "true" : "false"}
       className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition ${
         active ? "bg-green font-medium text-on-primary" : "bg-surface-2 text-muted"
       }`}
