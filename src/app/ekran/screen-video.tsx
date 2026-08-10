@@ -144,7 +144,21 @@ export function ScreenVideo({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [slogan, setSlogan] = useState("");
   const runningRef = useRef(false);
+
+  // Slogan cihazda hatırlansın (işletmeye özel)
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem(`screen_slogan_${slug}`);
+      if (s) setSlogan(s);
+    } catch {}
+  }, [slug]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(`screen_slogan_${slug}`, slogan);
+    } catch {}
+  }, [slogan, slug]);
 
   const slides = useMemo(() => buildSlides(categories), [categories]);
   const total = slides.length * SLIDE_MS;
@@ -194,13 +208,21 @@ export function ScreenVideo({
     ctx.fillRect(0, 0, W, 10);
 
     ctx.textBaseline = "alphabetic";
-    ctx.textAlign = "left";
+    const cx = W / 2;
+    const hasSlogan = slogan.trim().length > 0;
+    ctx.textAlign = "center";
+    if (hasSlogan) {
+      ctx.fillStyle = GREEN;
+      ctx.font = "600 30px Arial";
+      ctx.fillText(fit(ctx, slogan.trim().toUpperCase(), W - 2 * MX), cx, 64);
+    }
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 66px Arial";
-    ctx.fillText(fit(ctx, businessName, W - 2 * MX), MX, 118);
+    ctx.font = "bold 62px Arial";
+    ctx.fillText(fit(ctx, businessName, W - 2 * MX), cx, hasSlogan ? 126 : 114);
     ctx.fillStyle = ORANGE;
-    ctx.font = "600 30px Arial";
-    ctx.fillText("MENÜ", MX, 162);
+    ctx.font = "600 28px Arial";
+    ctx.fillText("MENÜ", cx, hasSlogan ? 164 : 154);
+    ctx.textAlign = "left";
 
     slide.forEach((colBlocks, ci) => {
       const x = MX + ci * (COLW + COLGAP);
@@ -269,7 +291,7 @@ export function ScreenVideo({
     const ctx = canvasRef.current?.getContext("2d");
     if (ctx) drawAt(ctx, 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slides, imagesReady]);
+  }, [slides, imagesReady, slogan]);
 
   const animateOnce = (
     ctx: CanvasRenderingContext2D,
@@ -364,6 +386,19 @@ export function ScreenVideo({
 
   return (
     <div className="mt-6 space-y-4">
+      <div>
+        <label className="mb-1.5 block text-sm font-medium text-fg">
+          Slogan (opsiyonel — işletme adının üstünde çıkar)
+        </label>
+        <input
+          value={slogan}
+          onChange={(e) => setSlogan(e.target.value.slice(0, 60))}
+          maxLength={60}
+          placeholder="Örn: ARDAHAN'IN EN KALİTELİ CAFESİ"
+          className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg outline-none focus:border-green/50"
+        />
+      </div>
+
       <div className="overflow-hidden rounded-2xl border border-border bg-black">
         <canvas
           ref={canvasRef}
