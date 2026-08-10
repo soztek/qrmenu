@@ -115,6 +115,16 @@ export async function deleteBusiness(businessId: string): Promise<void> {
   refresh();
 }
 
+/** Bekleyen/başarısız ödeme kaydını siler (başarılı kayıtlar korunur). */
+export async function deletePayment(id: string): Promise<void> {
+  await assertAdmin();
+  if (!id) return;
+  await prisma.payment.deleteMany({
+    where: { id, status: { in: ["pending", "failed"] } },
+  });
+  revalidatePath("/admin/odemeler");
+}
+
 /** İşletmenin abonelik durumunu değiştirir. */
 export async function setStatus(
   businessId: string,

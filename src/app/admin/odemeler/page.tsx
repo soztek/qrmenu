@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/db";
 import { getPlan } from "@/lib/plans";
+import { DeletePaymentButton } from "./payment-actions";
 
 export const metadata: Metadata = { title: "Ödemeler" };
 
@@ -121,6 +122,7 @@ export default async function AdminPaymentsPage({
                 <th className="px-4 py-3">Durum</th>
                 <th className="px-4 py-3">Sağlayıcı</th>
                 <th className="px-4 py-3">Tarih</th>
+                <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -147,6 +149,9 @@ export default async function AdminPaymentsPage({
                     <td className="px-4 py-3 text-xs uppercase text-faint">{p.provider}</td>
                     <td className="px-4 py-3 text-xs text-muted">
                       {dt(p.paidAt ?? p.createdAt)}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {p.status !== "success" && <DeletePaymentButton id={p.id} />}
                     </td>
                   </tr>
                 );
