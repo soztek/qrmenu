@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db";
 import { paytrConfig } from "@/lib/paytr";
 import { iyzicoConfig } from "@/lib/iyzico";
+import { sendEmail, paymentReceiptEmail, saleNoticeEmail } from "@/lib/email";
+import type { PlanId } from "@/lib/plans";
 
 export type Provider = "paytr" | "iyzico";
 
@@ -25,7 +27,7 @@ export async function grantSubscription(merchantOid: string): Promise<void> {
 
   const biz = await prisma.business.findUnique({
     where: { id: payment.businessId },
-    select: { currentPeriodEnd: true },
+    select: { name: true, currentPeriodEnd: true, owner: { select: { email: true } } },
   });
   const base = Math.max(
     Date.now(),
@@ -47,6 +49,44 @@ export async function grantSubscription(merchantOid: string): Promise<void> {
       },
     }),
   ]);
+
+  // Ödeme onay e-postası (başarısız gönderim ödemeyi etkilemez).
+  await sendPaymentEmails(payment, biz, newEnd).catch((e) =>
+    console.error("Ödeme maili gönderilemedi:", e),
+  );
+}
+
+/** İşletmeye onay + yöneticiye satış bildirimi maili. */
+async function sendPaymentEmails(
+  payment: { plan: PlanId; amount: number; period: string; merchantOid: string },
+  biz: { name: string; owner: { email: string } | null } | null,
+  newEnd: Date,
+): Promise<void> {
+  const email = biz?.owner?.email;
+  if (!biz || !email) return;
+
+  const reference = payment.merchantOid.slice(0, 12).toUpperCase();
+  const receipt = paymentReceiptEmail({
+    businessName: biz.name,
+    plan: payment.plan,
+    amountKurus: payment.amount,
+    period: payment.period,
+    periodEnd: newEnd,
+    reference,
+  });
+  await sendEmail({ to: email, subject: receipt.subject, html: receipt.html });
+
+  // Söztek yöneticisine satış bildirimi (ADMIN_EMAILS ilk adres).
+  const admin = (process.env.ADMIN_EMAILS ?? "").split(",")[0]?.trim();
+  if (admin && admin !== email) {
+    const notice = saleNoticeEmail({
+      businessName: biz.name,
+      plan: payment.plan,
+      amountKurus: payment.amount,
+      ownerEmail: email,
+    });
+    await sendEmail({ to: admin, subject: notice.subject, html: notice.html });
+  }
 }
 
 /** Bekleyen ödemeyi başarısız işaretle. */
