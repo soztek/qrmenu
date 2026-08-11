@@ -12,7 +12,7 @@ import {
 import { uniqueBusinessSlug } from "@/lib/slug";
 import { TRIAL_DAYS } from "@/lib/plans";
 import { isAdminEmail } from "@/lib/admin";
-import { sendEmail, welcomeEmail } from "@/lib/email";
+import { sendEmail, welcomeEmail, newSignupNoticeEmail } from "@/lib/email";
 
 export type AuthState = { error?: string; ok?: boolean };
 
@@ -110,12 +110,25 @@ export async function registerAction(
     });
     userId = user.id;
 
-    // Hoş geldin maili (başarısız gönderim kaydı engellemez).
+    // Hoş geldin maili (işletmeye) + yeni kayıt bildirimi (yöneticiye).
+    // Başarısız gönderim kaydı engellemez.
     try {
-      const { subject, html } = welcomeEmail({ businessName, trialEndsAt });
-      await sendEmail({ to: email, subject, html });
+      const welcome = welcomeEmail({ businessName, trialEndsAt });
+      await sendEmail({ to: email, subject: welcome.subject, html: welcome.html });
+
+      const admin = (process.env.ADMIN_EMAILS ?? "").split(",")[0]?.trim();
+      if (admin && admin !== email) {
+        const notice = newSignupNoticeEmail({
+          businessName,
+          ownerName: name,
+          ownerEmail: email,
+          plan: plan ?? "starter",
+          trialEndsAt,
+        });
+        await sendEmail({ to: admin, subject: notice.subject, html: notice.html });
+      }
     } catch (e) {
-      console.error("Hoş geldin maili gönderilemedi:", e);
+      console.error("Kayıt e-postaları gönderilemedi:", e);
     }
   }
 

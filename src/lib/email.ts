@@ -161,6 +161,38 @@ export function saleNoticeEmail(p: {
 
 const waLink = () => `https://wa.me/${COMPANY.gsmRaw.replace(/\D/g, "")}`;
 
+/** Söztek yöneticisine yeni işletme kaydı bildirimi. */
+export function newSignupNoticeEmail(p: {
+  businessName: string;
+  ownerName: string;
+  ownerEmail: string;
+  plan: PlanId;
+  trialEndsAt: Date;
+}): { subject: string; html: string } {
+  const now = new Intl.DateTimeFormat("tr-TR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Istanbul",
+  }).format(new Date());
+  return {
+    subject: `🆕 Yeni kayıt: ${p.businessName}`,
+    html: `<div style="font-family:Arial,sans-serif;font-size:14px;color:#111827;line-height:1.6">
+      <p><b>${p.businessName}</b> Söztek QR Menü'ye kayıt oldu ve 7 günlük denemeye başladı.</p>
+      <p>
+        Yetkili: <b>${p.ownerName}</b><br/>
+        E-posta: ${p.ownerEmail}<br/>
+        Seçilen paket: <b>${getPlan(p.plan).name}</b><br/>
+        Deneme bitişi: ${trDate(p.trialEndsAt)}<br/>
+        Kayıt zamanı: ${now}
+      </p>
+      <p><a href="${SITE}/admin/businesses" style="color:#16a34a;text-decoration:none;font-weight:600">Admin panelinde gör →</a></p>
+    </div>`,
+  };
+}
+
 /** Yeni kayıt olan işletmeye karşılama + platformda neler yapabileceği. */
 export function welcomeEmail(p: {
   businessName: string;
