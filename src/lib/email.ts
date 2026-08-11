@@ -11,17 +11,19 @@ export function isEmailConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
 }
 
+export type SendResult = { ok: boolean; error?: string; id?: string };
+
 export async function sendEmail(opts: {
   to: string;
   subject: string;
   html: string;
   replyTo?: string;
-}): Promise<boolean> {
+}): Promise<SendResult> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
   if (!apiKey || !from) {
     console.warn("E-posta yapılandırılmamış (RESEND_API_KEY/EMAIL_FROM yok):", opts.subject);
-    return false;
+    return { ok: false, error: "E-posta yapılandırılmamış (RESEND_API_KEY/EMAIL_FROM eksik)." };
   }
   try {
     const res = await fetch("https://api.resend.com/emails", {
@@ -38,14 +40,19 @@ export async function sendEmail(opts: {
         ...(opts.replyTo ? { reply_to: opts.replyTo } : {}),
       }),
     });
+    const body = await res.text().catch(() => "");
     if (!res.ok) {
-      console.error("Resend hatası:", res.status, (await res.text().catch(() => "")).slice(0, 300));
-      return false;
+      console.error("Resend hatası:", res.status, body.slice(0, 300));
+      return { ok: false, error: `Resend ${res.status}: ${body.slice(0, 300)}` };
     }
-    return true;
+    let id: string | undefined;
+    try {
+      id = JSON.parse(body)?.id;
+    } catch {}
+    return { ok: true, id };
   } catch (err) {
     console.error("E-posta gönderilemedi:", err);
-    return false;
+    return { ok: false, error: String(err) };
   }
 }
 
