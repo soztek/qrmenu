@@ -74,6 +74,7 @@ export function paymentReceiptEmail(p: {
     day: "2-digit",
     month: "long",
     year: "numeric",
+    timeZone: "Europe/Istanbul",
   }).format(p.periodEnd);
   const now = new Intl.DateTimeFormat("tr-TR", {
     day: "2-digit",
@@ -81,6 +82,7 @@ export function paymentReceiptEmail(p: {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Europe/Istanbul",
   }).format(new Date());
 
   const subject = `Ödemeniz alındı — ${planName} paketi · ${COMPANY.shortName}`;
