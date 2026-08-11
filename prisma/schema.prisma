@@ -80,10 +80,11 @@ model Business {
   workingHours String? // serbest metin, ör. "Her gün 09:00 - 23:00"
 
   // Abonelik / deneme durumu
-  plan               PlanId             @default(starter)
-  subscriptionStatus SubscriptionStatus @default(trialing)
-  trialEndsAt        DateTime // kayıt + 7 gün
-  currentPeriodEnd   DateTime? // aktif abonelikte dönem sonu
+  plan                 PlanId             @default(starter)
+  subscriptionStatus   SubscriptionStatus @default(trialing)
+  trialEndsAt          DateTime // kayıt + 7 gün
+  currentPeriodEnd     DateTime? // aktif abonelikte dönem sonu
+  trialReminderSentAt  DateTime? // deneme bitiş hatırlatma maili gönderildi mi
 
   categories Category[]
   menuItems  MenuItem[]

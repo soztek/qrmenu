@@ -12,6 +12,7 @@ import {
 import { uniqueBusinessSlug } from "@/lib/slug";
 import { TRIAL_DAYS } from "@/lib/plans";
 import { isAdminEmail } from "@/lib/admin";
+import { sendEmail, welcomeEmail } from "@/lib/email";
 
 export type AuthState = { error?: string; ok?: boolean };
 
@@ -108,6 +109,14 @@ export async function registerAction(
       },
     });
     userId = user.id;
+
+    // Hoş geldin maili (başarısız gönderim kaydı engellemez).
+    try {
+      const { subject, html } = welcomeEmail({ businessName, trialEndsAt });
+      await sendEmail({ to: email, subject, html });
+    } catch (e) {
+      console.error("Hoş geldin maili gönderilemedi:", e);
+    }
   }
 
   await createSession(userId);
