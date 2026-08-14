@@ -227,17 +227,17 @@ function Faq() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
-      <div className="mx-auto max-w-3xl px-5">
+      <div className="mx-auto max-w-5xl px-5">
         <SectionHead
           eyebrow={t.faq.eyebrow}
           title={t.faq.title}
           subtitle={t.faq.subtitle}
         />
-        <div className="mt-10 space-y-3">
+        <div className="mt-10 gap-3 md:columns-2">
           {t.faq.items.map((f, i) => (
             <details
               key={i}
-              className="group rounded-2xl border border-border bg-surface px-5 open:border-green/40"
+              className="group mb-3 break-inside-avoid rounded-2xl border border-border bg-surface px-5 open:border-green/40"
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left font-medium text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green/50">
                 {f.q}
