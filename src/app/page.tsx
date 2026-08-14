@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { PLANS, TRIAL_DAYS, formatPrice, type PlanId } from "@/lib/plans";
 import { COMPANY } from "@/lib/company";
+import { DEMO_MENU_PATH } from "@/lib/seo";
 import { Logo } from "@/components/logo";
 import { VisitTracker } from "@/components/visit-tracker";
 import { PaymentLogos } from "@/components/payment-logos";
@@ -13,6 +14,10 @@ import { SiteNav } from "@/components/site-nav";
 function withDays(s: string) {
   return s.replace("{n}", String(TRIAL_DAYS));
 }
+
+/** WhatsApp kurulum desteği linki. */
+const WHATSAPP_HREF =
+  "https://wa.me/905368497535?text=Merhaba,%20S%C3%B6ztek%20QR%20Men%C3%BC%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum.";
 
 /* ── küçük ikonlar (bağımlılık yok) ───────────────────────────── */
 function Icon({ path, className = "" }: { path: string; className?: string }) {
@@ -113,7 +118,9 @@ function Hero() {
               {t.hero.ctaPrimary}
             </Link>
             <a
-              href="#nasil"
+              href={DEMO_MENU_PATH}
+              target="_blank"
+              rel="noopener noreferrer"
               className="rounded-lg border border-border bg-surface px-6 py-3 text-sm font-semibold text-fg transition hover:border-green/50"
             >
               {t.hero.ctaSecondary}
@@ -420,6 +427,12 @@ function Pricing() {
                   </span>
                   <span className="text-sm text-faint">{t.pricing.perMonth}</span>
                 </div>
+                <p className="mt-1.5 text-xs text-muted">
+                  <span className="font-semibold text-green">{t.pricing.yearBadge}</span>
+                  {" · "}
+                  {formatPrice(plan.priceMonthly * 10)}
+                  {t.pricing.perYear}
+                </p>
                 <Link
                   href={`/kayit?plan=${plan.id}`}
                   className={`mt-6 rounded-lg py-2.5 text-center text-sm font-semibold transition ${
@@ -469,12 +482,22 @@ function FinalCta() {
           <p className="mx-auto mt-4 max-w-lg text-muted">
             {withDays(t.finalCta.subtitle)}
           </p>
-          <Link
-            href="/kayit"
-            className="mt-8 inline-block rounded-lg bg-green px-8 py-3 text-sm font-semibold text-black transition hover:bg-green-dark"
-          >
-            {t.finalCta.cta}
-          </Link>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/kayit"
+              className="rounded-lg bg-green px-8 py-3 text-sm font-semibold text-black transition hover:bg-green-dark"
+            >
+              {t.finalCta.cta}
+            </Link>
+            <a
+              href={WHATSAPP_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-6 py-3 text-sm font-semibold text-fg transition hover:border-green/50"
+            >
+              {t.finalCta.whatsapp}
+            </a>
+          </div>
         </div>
       </div>
     </section>

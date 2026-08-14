@@ -22,6 +22,7 @@ const tr = {
     how: "Nasıl çalışır",
     packages: "Paketler",
     faq: "SSS",
+    demo: "Canlı Demo",
     contact: "İletişim",
     login: "Giriş yap",
     tryFree: "Ücretsiz dene",
@@ -35,7 +36,7 @@ const tr = {
     subtitle:
       "Menünüzü dakikalar içinde oluşturun. Müşterileriniz masadan sipariş versin, siparişler canlı mutfak ekranına düşsün. Fiyatları, ürünleri ve masaları tek panelden yönetin.",
     ctaPrimary: "7 gün ücretsiz dene",
-    ctaSecondary: "Nasıl çalışır?",
+    ctaSecondary: "Canlı menüyü incele",
     check1: "Kurulum gerekmez",
     check2: "Anında güncelleme",
   },
@@ -227,6 +228,8 @@ const tr = {
     subtitle: "Tüm paketler {n} gün ücretsiz. Dilediğiniz zaman iptal edin.",
     popular: "En popüler",
     perMonth: "/ay",
+    perYear: "/yıl",
+    yearBadge: "Yıllıkta 2 ay bedava",
     cta: "{n} gün ücretsiz dene",
   },
   plans: {
@@ -267,6 +270,7 @@ const tr = {
     subtitle:
       "{n} gün boyunca tüm özellikleri ücretsiz deneyin. Kart bilgisi istemiyoruz.",
     cta: "Ücretsiz hesap oluştur",
+    whatsapp: "WhatsApp'tan kurulum desteği",
   },
   footer: {
     brandDesc:
@@ -297,6 +301,7 @@ const en: Dict = {
     how: "How it works",
     packages: "Pricing",
     faq: "FAQ",
+    demo: "Live Demo",
     contact: "Contact",
     login: "Log in",
     tryFree: "Try for free",
@@ -310,7 +315,7 @@ const en: Dict = {
     subtitle:
       "Build your menu in minutes. Guests order from their table, orders land on your live kitchen screen. Manage prices, products and tables from a single panel.",
     ctaPrimary: "Start {n}-day free trial",
-    ctaSecondary: "How it works?",
+    ctaSecondary: "See a live menu",
     check1: "No setup needed",
     check2: "Instant updates",
   },
@@ -502,6 +507,8 @@ const en: Dict = {
     subtitle: "All plans free for {n} days. Cancel anytime.",
     popular: "Most popular",
     perMonth: "/mo",
+    perYear: "/yr",
+    yearBadge: "2 months free yearly",
     cta: "Try {n} days free",
   },
   plans: {
@@ -542,6 +549,7 @@ const en: Dict = {
     subtitle:
       "Try all features free for {n} days. No card details required.",
     cta: "Create a free account",
+    whatsapp: "WhatsApp setup support",
   },
   footer: {
     brandDesc:
@@ -570,6 +578,7 @@ const de: Dict = {
     how: "So funktioniert's",
     packages: "Preise",
     faq: "FAQ",
+    demo: "Live-Demo",
     contact: "Kontakt",
     login: "Anmelden",
     tryFree: "Kostenlos testen",
@@ -583,7 +592,7 @@ const de: Dict = {
     subtitle:
       "Erstellen Sie Ihre Speisekarte in Minuten. Gäste bestellen vom Tisch, Bestellungen erscheinen live auf dem Küchenbildschirm. Preise, Produkte und Tische aus einem Panel verwalten.",
     ctaPrimary: "{n} Tage kostenlos testen",
-    ctaSecondary: "Wie funktioniert's?",
+    ctaSecondary: "Live-Menü ansehen",
     check1: "Keine Installation",
     check2: "Sofortige Updates",
   },
@@ -775,6 +784,8 @@ const de: Dict = {
     subtitle: "Alle Tarife {n} Tage kostenlos. Jederzeit kündbar.",
     popular: "Am beliebtesten",
     perMonth: "/Mon.",
+    perYear: "/Jahr",
+    yearBadge: "Jährlich 2 Monate gratis",
     cta: "{n} Tage kostenlos testen",
   },
   plans: {
@@ -815,6 +826,7 @@ const de: Dict = {
     subtitle:
       "Testen Sie alle Funktionen {n} Tage kostenlos. Keine Kartendaten nötig.",
     cta: "Kostenloses Konto erstellen",
+    whatsapp: "WhatsApp-Einrichtungssupport",
   },
   footer: {
     brandDesc:
@@ -843,6 +855,7 @@ const fr: Dict = {
     how: "Comment ça marche",
     packages: "Tarifs",
     faq: "FAQ",
+    demo: "Démo en direct",
     contact: "Contact",
     login: "Se connecter",
     tryFree: "Essai gratuit",
@@ -856,7 +869,7 @@ const fr: Dict = {
     subtitle:
       "Créez votre menu en quelques minutes. Vos clients commandent depuis leur table, les commandes arrivent sur l'écran cuisine en direct. Gérez prix, produits et tables depuis un seul panneau.",
     ctaPrimary: "Essayer {n} jours gratuits",
-    ctaSecondary: "Comment ça marche ?",
+    ctaSecondary: "Voir un menu en direct",
     check1: "Aucune installation",
     check2: "Mises à jour instantanées",
   },
@@ -1048,6 +1061,8 @@ const fr: Dict = {
     subtitle: "Tous les forfaits gratuits {n} jours. Annulez à tout moment.",
     popular: "Le plus populaire",
     perMonth: "/mois",
+    perYear: "/an",
+    yearBadge: "2 mois offerts en annuel",
     cta: "Essayer {n} jours gratuits",
   },
   plans: {
@@ -1088,6 +1103,7 @@ const fr: Dict = {
     subtitle:
       "Essayez toutes les fonctionnalités gratuitement pendant {n} jours. Aucune carte requise.",
     cta: "Créer un compte gratuit",
+    whatsapp: "Support d'installation WhatsApp",
   },
   footer: {
     brandDesc:

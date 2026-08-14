@@ -6,6 +6,7 @@ import { Logo } from "@/components/logo";
 import { LangSwitcher } from "@/components/lang-switcher";
 import { useLang } from "@/components/lang-provider";
 import { LANGS } from "@/lib/i18n";
+import { DEMO_MENU_PATH } from "@/lib/seo";
 
 /** WhatsApp iletişim linki (değiştirilmedi). */
 const WHATSAPP_HREF =
@@ -133,6 +134,14 @@ export function SiteNav() {
               </a>
             );
           })}
+          <Link
+            href={DEMO_MENU_PATH}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-muted transition-colors duration-200 hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green/50"
+          >
+            {t.nav.demo}
+          </Link>
         </nav>
 
         {/* Sağ: masaüstü aksiyonlar */}
@@ -228,6 +237,15 @@ export function SiteNav() {
                 {navLabel(s.key)}
               </a>
             ))}
+            <Link
+              href={DEMO_MENU_PATH}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="rounded-lg px-3 py-3 text-base font-medium text-muted transition-colors duration-200 hover:bg-surface-2 hover:text-fg"
+            >
+              {t.nav.demo}
+            </Link>
           </div>
 
           <div className="my-3 h-px bg-border/60" />

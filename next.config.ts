@@ -12,6 +12,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // Arama motorunda indekslenmiş eski demo adresi → yayındaki demo menü (kalıcı 301)
+      {
+        source: "/m/deneme-deneme",
+        destination: "/m/aciktim-tantuni-kokorec",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
