@@ -98,7 +98,7 @@ function Hero() {
             "radial-gradient(600px 300px at 20% 0%, rgba(34,197,94,.14), transparent 60%), radial-gradient(500px 300px at 90% 20%, rgba(249,115,22,.12), transparent 60%)",
         }}
       />
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 md:grid-cols-2 md:py-28">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-10 md:grid-cols-2 md:py-16">
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted">
             <span className="h-1.5 w-1.5 rounded-full bg-green" />
