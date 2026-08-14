@@ -104,7 +104,7 @@ export function SiteNav() {
           <div className="transition duration-200 hover:drop-shadow-[0_0_10px_rgba(34,197,94,0.35)]">
             <Logo
               className={`transition-all duration-300 ease-out ${
-                scrolled ? "h-11" : "h-14"
+                scrolled ? "h-9" : "h-10"
               }`}
             />
           </div>
@@ -119,7 +119,7 @@ export function SiteNav() {
                 key={s.id}
                 href={`#${s.id}`}
                 aria-current={isActive ? "true" : undefined}
-                className={`group relative px-3 py-2 text-[15px] font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green/50 rounded-lg ${
+                className={`group relative px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green/50 rounded-lg ${
                   isActive ? "text-fg" : "text-muted hover:text-fg"
                 }`}
               >
@@ -138,7 +138,7 @@ export function SiteNav() {
             href={DEMO_MENU_PATH}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-lg px-3 py-2 text-[15px] font-medium text-muted transition-colors duration-200 hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green/50"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-muted transition-colors duration-200 hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green/50"
           >
             {t.nav.demo}
           </Link>
@@ -153,7 +153,7 @@ export function SiteNav() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={t.nav.whatsapp}
-            className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-[#25D366] to-[#1eaf57] px-3.5 py-2 text-[15px] font-semibold text-white shadow-[0_4px_14px_-4px_rgba(34,197,94,0.5)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_22px_-6px_rgba(34,197,94,0.65)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]/60 motion-reduce:transform-none motion-reduce:transition-none"
+            className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-[#25D366] to-[#1eaf57] px-3.5 py-2 text-sm font-semibold text-white shadow-[0_4px_14px_-4px_rgba(34,197,94,0.5)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_22px_-6px_rgba(34,197,94,0.65)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]/60 motion-reduce:transform-none motion-reduce:transition-none"
           >
             <WhatsappIcon className="h-4 w-4" />
             <span className="hidden lg:inline">{t.nav.whatsapp}</span>
@@ -161,14 +161,14 @@ export function SiteNav() {
 
           <Link
             href="/giris"
-            className="rounded-lg px-2 py-2 text-[15px] font-medium text-muted transition-colors duration-200 hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green/50"
+            className="rounded-lg px-2 py-2 text-sm font-medium text-muted transition-colors duration-200 hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green/50"
           >
             {t.nav.login}
           </Link>
 
           <Link
             href="/kayit"
-            className="rounded-xl bg-gradient-to-b from-green to-green-dark px-4 py-2 text-[15px] font-semibold text-black shadow-[0_4px_16px_-4px_rgba(34,197,94,0.55)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_10px_26px_-6px_rgba(34,197,94,0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green/60 motion-reduce:transform-none motion-reduce:transition-none"
+            className="rounded-xl bg-gradient-to-b from-green to-green-dark px-4 py-2 text-sm font-semibold text-black shadow-[0_4px_16px_-4px_rgba(34,197,94,0.55)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_10px_26px_-6px_rgba(34,197,94,0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green/60 motion-reduce:transform-none motion-reduce:transition-none"
           >
             {t.nav.tryFree}
           </Link>
@@ -259,7 +259,7 @@ export function SiteNav() {
                 onClick={() => setLang(l.code)}
                 aria-label={l.label}
                 aria-pressed={lang === l.code}
-                className={`flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border text-[15px] font-medium transition-colors duration-200 ${
+                className={`flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border text-sm font-medium transition-colors duration-200 ${
                   lang === l.code
                     ? "border-green/60 bg-green-soft/40 text-fg"
                     : "border-border/70 text-muted hover:text-fg"
@@ -277,7 +277,7 @@ export function SiteNav() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setOpen(false)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#25D366] to-[#1eaf57] px-4 py-3 text-[15px] font-semibold text-white shadow-[0_4px_14px_-4px_rgba(34,197,94,0.5)] transition"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#25D366] to-[#1eaf57] px-4 py-3 text-sm font-semibold text-white shadow-[0_4px_14px_-4px_rgba(34,197,94,0.5)] transition"
             >
               <WhatsappIcon className="h-4 w-4" />
               {t.nav.whatsapp}
@@ -285,14 +285,14 @@ export function SiteNav() {
             <Link
               href="/giris"
               onClick={() => setOpen(false)}
-              className="rounded-xl border border-border/70 px-4 py-3 text-center text-[15px] font-medium text-fg transition-colors duration-200 hover:border-green/50"
+              className="rounded-xl border border-border/70 px-4 py-3 text-center text-sm font-medium text-fg transition-colors duration-200 hover:border-green/50"
             >
               {t.nav.login}
             </Link>
             <Link
               href="/kayit"
               onClick={() => setOpen(false)}
-              className="rounded-xl bg-gradient-to-b from-green to-green-dark px-4 py-3 text-center text-[15px] font-semibold text-black shadow-[0_4px_16px_-4px_rgba(34,197,94,0.55)] transition"
+              className="rounded-xl bg-gradient-to-b from-green to-green-dark px-4 py-3 text-center text-sm font-semibold text-black shadow-[0_4px_16px_-4px_rgba(34,197,94,0.55)] transition"
             >
               {t.nav.tryFree}
             </Link>
