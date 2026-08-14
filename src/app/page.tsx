@@ -163,20 +163,31 @@ function PhoneMock() {
 }
 
 /* ── güven şeridi ─────────────────────────────────────────────── */
+const TRUST_META = [
+  { emoji: "🛡️", cls: "border-green/30 bg-green-soft/50 text-green" },
+  { emoji: "🎁", cls: "border-orange/30 bg-orange-soft/50 text-orange" },
+  { emoji: "💳", cls: "border-green/30 bg-green-soft/50 text-green" },
+  { emoji: "🔒", cls: "border-orange/30 bg-orange-soft/50 text-orange" },
+  { emoji: "💬", cls: "border-green/30 bg-green-soft/50 text-green" },
+];
+
 function TrustStrip() {
   const { t } = useLang();
   return (
     <section className="border-y border-border/60 bg-surface/40">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-5">
-        {t.trust.items.map((item) => (
-          <span
-            key={item}
-            className="inline-flex items-center gap-2 text-sm font-medium text-muted"
-          >
-            <Icon path={ICONS.check} className="h-4 w-4 shrink-0 text-green" />
-            {item}
-          </span>
-        ))}
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2.5 px-5 py-5">
+        {t.trust.items.map((item, i) => {
+          const meta = TRUST_META[i % TRUST_META.length];
+          return (
+            <span
+              key={item}
+              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-semibold ${meta.cls}`}
+            >
+              <span aria-hidden className="text-base leading-none">{meta.emoji}</span>
+              {item}
+            </span>
+          );
+        })}
       </div>
     </section>
   );
