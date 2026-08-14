@@ -175,13 +175,13 @@ function TrustStrip() {
   const { t } = useLang();
   return (
     <section className="border-y border-border/60 bg-surface/40">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2.5 px-5 py-5">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 px-4 py-5 md:flex-nowrap">
         {t.trust.items.map((item, i) => {
           const meta = TRUST_META[i % TRUST_META.length];
           return (
             <span
               key={item}
-              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-semibold ${meta.cls}`}
+              className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-[13px] font-semibold lg:text-sm ${meta.cls}`}
             >
               <span aria-hidden className="text-base leading-none">{meta.emoji}</span>
               {item}
