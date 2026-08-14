@@ -6,7 +6,17 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/dashboard", "/admin", "/api/", "/giris", "/kayit", "/ekran", "/yazdir"],
+      disallow: [
+        "/dashboard",
+        "/admin",
+        "/api/",
+        "/giris",
+        "/kayit",
+        "/ekran",
+        "/yazdir",
+        "/qr-yazdir",
+        "/mutfak-fis",
+      ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
     host: SITE_URL,
