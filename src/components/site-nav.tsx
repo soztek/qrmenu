@@ -16,6 +16,7 @@ const SECTIONS = [
   { id: "ozellikler", key: "features" },
   { id: "nasil", key: "how" },
   { id: "paketler", key: "packages" },
+  { id: "sss", key: "faq" },
   { id: "iletisim", key: "contact" },
 ] as const;
 

@@ -66,11 +66,14 @@ export default function Home() {
       <SiteNav />
       <main className="flex-1">
         <Hero />
+        <TrustStrip />
         <PhotoMarquee />
+        <Problems />
         <Features />
         <HowItWorks />
         <Compliance />
         <Pricing />
+        <Faq />
         <FinalCta />
       </main>
       <Footer />
@@ -149,6 +152,98 @@ function PhoneMock() {
         </div>
       </div>
     </div>
+  );
+}
+
+/* ── güven şeridi ─────────────────────────────────────────────── */
+function TrustStrip() {
+  const { t } = useLang();
+  return (
+    <section className="border-y border-border/60 bg-surface/40">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-5">
+        {t.trust.items.map((item) => (
+          <span
+            key={item}
+            className="inline-flex items-center gap-2 text-sm font-medium text-muted"
+          >
+            <Icon path={ICONS.check} className="h-4 w-4 shrink-0 text-green" />
+            {item}
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── problem / çözüm ──────────────────────────────────────────── */
+function Problems() {
+  const { t } = useLang();
+  return (
+    <section className="border-t border-border/60 py-20">
+      <div className="mx-auto max-w-6xl px-5">
+        <SectionHead eyebrow={t.problems.eyebrow} title={t.problems.title} subtitle="" />
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {t.problems.items.map((p, i) => (
+            <div key={i} className="rounded-2xl border border-border bg-surface p-6">
+              <p className="flex items-center gap-2 text-sm font-semibold text-orange">
+                <span aria-hidden>✕</span>
+                {p.problem}
+              </p>
+              <div className="my-3 h-px bg-border/60" />
+              <p className="flex items-start gap-2 text-sm text-fg">
+                <Icon path={ICONS.check} className="mt-0.5 h-4 w-4 shrink-0 text-green" />
+                <span className="text-muted">{p.solution}</span>
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── SSS ──────────────────────────────────────────────────────── */
+function Faq() {
+  const { t } = useLang();
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: t.faq.items.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+  return (
+    <section id="sss" className="border-t border-border/60 bg-surface/40 py-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <div className="mx-auto max-w-3xl px-5">
+        <SectionHead
+          eyebrow={t.faq.eyebrow}
+          title={t.faq.title}
+          subtitle={t.faq.subtitle}
+        />
+        <div className="mt-10 space-y-3">
+          {t.faq.items.map((f, i) => (
+            <details
+              key={i}
+              className="group rounded-2xl border border-border bg-surface px-5 open:border-green/40"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left font-medium text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green/50">
+                {f.q}
+                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-border text-muted transition group-open:rotate-45">
+                  +
+                </span>
+              </summary>
+              <p className="pb-5 text-sm leading-relaxed text-muted">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 

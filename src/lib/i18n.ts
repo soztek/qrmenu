@@ -21,6 +21,7 @@ const tr = {
     features: "Özellikler",
     how: "Nasıl çalışır",
     packages: "Paketler",
+    faq: "SSS",
     contact: "İletişim",
     login: "Giriş yap",
     tryFree: "Ücretsiz dene",
@@ -28,12 +29,12 @@ const tr = {
   },
   hero: {
     badge: "{n} gün ücretsiz — kart gerekmez",
-    titleBefore: "İşletmeniz için ",
-    titleHighlight: "dijital QR menü",
-    titleAfter: " dakikalar içinde",
+    titleBefore: "QR menüden siparişe, ",
+    titleHighlight: "mutfaktan masaya",
+    titleAfter: " tek panel",
     subtitle:
-      "Menünüzü oluşturun, ürünlerinize fotoğraf ekleyin, QR kodunuzu masaya koyun. Müşteriniz telefonundan menüyü görsün, dilerseniz sipariş versin.",
-    ctaPrimary: "Hemen ücretsiz başla",
+      "Menünüzü dakikalar içinde oluşturun. Müşterileriniz masadan sipariş versin, siparişler canlı mutfak ekranına düşsün. Fiyatları, ürünleri ve masaları tek panelden yönetin.",
+    ctaPrimary: "7 gün ücretsiz dene",
     ctaSecondary: "Nasıl çalışır?",
     check1: "Kurulum gerekmez",
     check2: "Anında güncelleme",
@@ -51,6 +52,88 @@ const tr = {
   marquee: {
     eyebrow: "Menü Galerisi",
     title: "İşletmelerin Menülerinden Bazı Görüntüler",
+  },
+  trust: {
+    items: [
+      "Söztek Bilgisayar güvencesi",
+      "7 gün ücretsiz deneme",
+      "Kredi kartı gerekmez",
+      "iyzico ile güvenli ödeme",
+      "WhatsApp kurulum desteği",
+    ],
+  },
+  problems: {
+    eyebrow: "Neden Söztek QR Menü?",
+    title: "İşletmenizin günlük dertlerine pratik çözümler",
+    items: [
+      {
+        problem: "Sürekli menü bastırmak",
+        solution: "Fiyat ve ürünleri tek panelden anında güncelleyin; baskı masrafı yok.",
+      },
+      {
+        problem: "Garson beklenen masalar",
+        solution: "Müşteriniz QR'dan kendi masasından sipariş versin, bekleme azalsın.",
+      },
+      {
+        problem: "Karışan siparişler",
+        solution: "Sipariş doğrudan canlı mutfak paneline düşsün, hangi masa belli olsun.",
+      },
+      {
+        problem: "Yabancı misafirler",
+        solution: "Menünüzü farklı dillerde sunun, herkes rahatça sipariş versin.",
+      },
+    ],
+  },
+  faq: {
+    eyebrow: "SSS",
+    title: "Sık sorulan sorular",
+    subtitle: "Aklınıza takılanların çoğu burada. Kalanı için WhatsApp'tan yazın.",
+    items: [
+      {
+        q: "QR menü nedir?",
+        a: "Masaya koyduğunuz bir QR kodu müşterinizin telefonuyla okutup menünüzü anında açmasıdır. Uygulama indirmeye gerek yoktur.",
+      },
+      {
+        q: "Kurulum için teknik bilgi gerekir mi?",
+        a: "Hayır. Hesabınızı açın, kategori ve ürünlerinizi ekleyin, QR kodunuzu indirin. Takıldığınız yerde WhatsApp'tan yardımcı oluyoruz.",
+      },
+      {
+        q: "Kredi kartı vermeden deneyebilir miyim?",
+        a: "Evet. 7 günlük ücretsiz deneme için kart bilgisi istemiyoruz.",
+      },
+      {
+        q: "Fiyat değişiklikleri anında görünür mü?",
+        a: "Evet. Panelden yaptığınız güncelleme menüde anında yayına girer; yeniden baskı gerekmez.",
+      },
+      {
+        q: "Müşteri masadan sipariş verebilir mi?",
+        a: "Pro ve üzeri paketlerde evet. Müşteri masadaki QR'dan sipariş verir, sipariş canlı mutfak ekranına düşer.",
+      },
+      {
+        q: "Her masa için ayrı QR kod oluşturabilir miyim?",
+        a: "Evet. Masaya özel QR ile hangi siparişin hangi masadan geldiğini görürsünüz (masa yönetimi Premium pakette).",
+      },
+      {
+        q: "Menü farklı dillerde kullanılabilir mi?",
+        a: "Evet, çoklu dil desteği ile menünüzü birden fazla dilde sunabilirsiniz.",
+      },
+      {
+        q: "Alerjen ve kalori bilgisi eklenebilir mi?",
+        a: "Evet. 14 alerjen, kalori/besin değerleri, et türü ve hassas içerik alanları mevcuttur.",
+      },
+      {
+        q: "Fiziksel (basılı) menü de oluşturabilir miyim?",
+        a: "Evet. Menünüzü tek tıkla yazdırılabilir PDF olarak alıp talep eden müşteriye sunabilirsiniz.",
+      },
+      {
+        q: "Üyeliğimi nasıl iptal edebilirim?",
+        a: "Dilediğiniz zaman iptal edebilirsiniz; ödeme yaptığınız dönem sonuna kadar erişiminiz sürer.",
+      },
+      {
+        q: "Destek nasıl veriliyor?",
+        a: "Kurumsal firma altyapımızla WhatsApp ve telefon üzerinden destek veriyoruz.",
+      },
+    ],
   },
   features: {
     eyebrow: "Özellikler",
@@ -213,6 +296,7 @@ const en: Dict = {
     features: "Features",
     how: "How it works",
     packages: "Pricing",
+    faq: "FAQ",
     contact: "Contact",
     login: "Log in",
     tryFree: "Try for free",
@@ -220,12 +304,12 @@ const en: Dict = {
   },
   hero: {
     badge: "{n}-day free trial — no card required",
-    titleBefore: "Your business's ",
-    titleHighlight: "digital QR menu",
-    titleAfter: " in minutes",
+    titleBefore: "From QR menu to order, ",
+    titleHighlight: "kitchen to table",
+    titleAfter: " — one panel",
     subtitle:
-      "Create your menu, add photos to your products, place your QR code on the table. Your guests view the menu on their phones and can even order.",
-    ctaPrimary: "Start free now",
+      "Build your menu in minutes. Guests order from their table, orders land on your live kitchen screen. Manage prices, products and tables from a single panel.",
+    ctaPrimary: "Start {n}-day free trial",
     ctaSecondary: "How it works?",
     check1: "No setup needed",
     check2: "Instant updates",
@@ -243,6 +327,88 @@ const en: Dict = {
   marquee: {
     eyebrow: "Menu Gallery",
     title: "A glimpse of our clients' menus",
+  },
+  trust: {
+    items: [
+      "Backed by Söztek Bilgisayar",
+      "7-day free trial",
+      "No credit card required",
+      "Secure payment via iyzico",
+      "WhatsApp setup support",
+    ],
+  },
+  problems: {
+    eyebrow: "Why Söztek QR Menu?",
+    title: "Practical answers to your daily headaches",
+    items: [
+      {
+        problem: "Reprinting menus over and over",
+        solution: "Update prices and items instantly from one panel — no printing costs.",
+      },
+      {
+        problem: "Tables waiting for a waiter",
+        solution: "Guests order via QR right from their table, cutting the wait.",
+      },
+      {
+        problem: "Mixed-up orders",
+        solution: "Orders land straight on the live kitchen panel, with the table clearly shown.",
+      },
+      {
+        problem: "Foreign guests",
+        solution: "Offer your menu in multiple languages so everyone can order with ease.",
+      },
+    ],
+  },
+  faq: {
+    eyebrow: "FAQ",
+    title: "Frequently asked questions",
+    subtitle: "Most answers are here. For the rest, message us on WhatsApp.",
+    items: [
+      {
+        q: "What is a QR menu?",
+        a: "A QR code you place on the table that guests scan with their phone to open your menu instantly. No app to install.",
+      },
+      {
+        q: "Do I need technical skills to set it up?",
+        a: "No. Open your account, add categories and products, download your QR code. We help via WhatsApp if you get stuck.",
+      },
+      {
+        q: "Can I try without a credit card?",
+        a: "Yes. We don't ask for card details for the 7-day free trial.",
+      },
+      {
+        q: "Do price changes appear instantly?",
+        a: "Yes. Updates you make in the panel go live on the menu immediately — no reprinting.",
+      },
+      {
+        q: "Can guests order from the table?",
+        a: "On Pro and above, yes. Guests order from the table QR and the order lands on the live kitchen screen.",
+      },
+      {
+        q: "Can I create a separate QR for each table?",
+        a: "Yes. Per-table QR shows which order came from which table (table management is in Premium).",
+      },
+      {
+        q: "Can the menu be used in different languages?",
+        a: "Yes, multi-language support lets you offer your menu in several languages.",
+      },
+      {
+        q: "Can I add allergen and calorie info?",
+        a: "Yes. 14 allergens, calories/nutrition, meat type and sensitive-content fields are available.",
+      },
+      {
+        q: "Can I also create a printed menu?",
+        a: "Yes. Get your menu as a one-click printable PDF to present on request.",
+      },
+      {
+        q: "How do I cancel my subscription?",
+        a: "You can cancel anytime; your access continues until the end of your paid period.",
+      },
+      {
+        q: "How is support provided?",
+        a: "With our corporate infrastructure, we support you via WhatsApp and phone.",
+      },
+    ],
   },
   features: {
     eyebrow: "Features",
@@ -403,6 +569,7 @@ const de: Dict = {
     features: "Funktionen",
     how: "So funktioniert's",
     packages: "Preise",
+    faq: "FAQ",
     contact: "Kontakt",
     login: "Anmelden",
     tryFree: "Kostenlos testen",
@@ -410,12 +577,12 @@ const de: Dict = {
   },
   hero: {
     badge: "{n} Tage kostenlos — keine Karte nötig",
-    titleBefore: "Ihre ",
-    titleHighlight: "digitale QR-Speisekarte",
-    titleAfter: " in Minuten",
+    titleBefore: "Vom QR-Menü zur Bestellung, ",
+    titleHighlight: "von der Küche zum Tisch",
+    titleAfter: " — ein Panel",
     subtitle:
-      "Erstellen Sie Ihre Speisekarte, fügen Sie Fotos hinzu und legen Sie Ihren QR-Code auf den Tisch. Ihre Gäste sehen die Karte auf dem Handy und können sogar bestellen.",
-    ctaPrimary: "Jetzt kostenlos starten",
+      "Erstellen Sie Ihre Speisekarte in Minuten. Gäste bestellen vom Tisch, Bestellungen erscheinen live auf dem Küchenbildschirm. Preise, Produkte und Tische aus einem Panel verwalten.",
+    ctaPrimary: "{n} Tage kostenlos testen",
     ctaSecondary: "Wie funktioniert's?",
     check1: "Keine Installation",
     check2: "Sofortige Updates",
@@ -433,6 +600,88 @@ const de: Dict = {
   marquee: {
     eyebrow: "Menü-Galerie",
     title: "Einblicke in die Menüs unserer Kunden",
+  },
+  trust: {
+    items: [
+      "Abgesichert durch Söztek Bilgisayar",
+      "7 Tage kostenlos testen",
+      "Keine Kreditkarte nötig",
+      "Sichere Zahlung mit iyzico",
+      "WhatsApp-Einrichtungssupport",
+    ],
+  },
+  problems: {
+    eyebrow: "Warum Söztek QR Menü?",
+    title: "Praktische Lösungen für Ihren Alltag",
+    items: [
+      {
+        problem: "Ständiges Nachdrucken der Karte",
+        solution: "Preise und Produkte sofort aus einem Panel aktualisieren — keine Druckkosten.",
+      },
+      {
+        problem: "Tische warten auf Bedienung",
+        solution: "Gäste bestellen per QR direkt am Tisch, die Wartezeit sinkt.",
+      },
+      {
+        problem: "Verwechselte Bestellungen",
+        solution: "Bestellungen erscheinen direkt im Live-Küchenpanel, mit klarer Tischangabe.",
+      },
+      {
+        problem: "Ausländische Gäste",
+        solution: "Bieten Sie Ihre Karte mehrsprachig an, damit alle bequem bestellen.",
+      },
+    ],
+  },
+  faq: {
+    eyebrow: "FAQ",
+    title: "Häufig gestellte Fragen",
+    subtitle: "Die meisten Antworten stehen hier. Für den Rest schreiben Sie uns per WhatsApp.",
+    items: [
+      {
+        q: "Was ist ein QR-Menü?",
+        a: "Ein QR-Code auf dem Tisch, den Gäste mit dem Handy scannen, um Ihre Karte sofort zu öffnen. Keine App-Installation nötig.",
+      },
+      {
+        q: "Benötige ich technische Kenntnisse zur Einrichtung?",
+        a: "Nein. Konto eröffnen, Kategorien und Produkte hinzufügen, QR-Code herunterladen. Bei Fragen helfen wir per WhatsApp.",
+      },
+      {
+        q: "Kann ich ohne Kreditkarte testen?",
+        a: "Ja. Für die 7-tägige Testphase fragen wir keine Kartendaten ab.",
+      },
+      {
+        q: "Werden Preisänderungen sofort sichtbar?",
+        a: "Ja. Updates im Panel gehen sofort live — kein Nachdruck.",
+      },
+      {
+        q: "Können Gäste vom Tisch bestellen?",
+        a: "Ab Pro ja. Gäste bestellen über den Tisch-QR, die Bestellung erscheint auf dem Live-Küchenbildschirm.",
+      },
+      {
+        q: "Kann ich pro Tisch einen eigenen QR-Code erstellen?",
+        a: "Ja. Der Tisch-QR zeigt, von welchem Tisch die Bestellung kam (Tischverwaltung in Premium).",
+      },
+      {
+        q: "Kann die Karte mehrsprachig genutzt werden?",
+        a: "Ja, mit Mehrsprachigkeit bieten Sie Ihre Karte in mehreren Sprachen an.",
+      },
+      {
+        q: "Kann ich Allergen- und Kalorienangaben hinzufügen?",
+        a: "Ja. 14 Allergene, Kalorien/Nährwerte, Fleischart und Felder für sensible Inhalte sind verfügbar.",
+      },
+      {
+        q: "Kann ich auch eine gedruckte Karte erstellen?",
+        a: "Ja. Holen Sie Ihre Karte als druckbares PDF auf einen Klick, um sie auf Wunsch vorzulegen.",
+      },
+      {
+        q: "Wie kündige ich mein Abo?",
+        a: "Jederzeit kündbar; Ihr Zugang bleibt bis zum Ende des bezahlten Zeitraums bestehen.",
+      },
+      {
+        q: "Wie wird der Support geleistet?",
+        a: "Mit unserer Firmeninfrastruktur unterstützen wir Sie per WhatsApp und Telefon.",
+      },
+    ],
   },
   features: {
     eyebrow: "Funktionen",
@@ -593,6 +842,7 @@ const fr: Dict = {
     features: "Fonctionnalités",
     how: "Comment ça marche",
     packages: "Tarifs",
+    faq: "FAQ",
     contact: "Contact",
     login: "Se connecter",
     tryFree: "Essai gratuit",
@@ -600,12 +850,12 @@ const fr: Dict = {
   },
   hero: {
     badge: "{n} jours gratuits — sans carte",
-    titleBefore: "Votre ",
-    titleHighlight: "menu QR numérique",
-    titleAfter: " en quelques minutes",
+    titleBefore: "Du menu QR à la commande, ",
+    titleHighlight: "de la cuisine à la table",
+    titleAfter: " — un seul panneau",
     subtitle:
-      "Créez votre menu, ajoutez des photos à vos produits et posez votre QR code sur la table. Vos clients consultent le menu sur leur téléphone et peuvent même commander.",
-    ctaPrimary: "Commencer gratuitement",
+      "Créez votre menu en quelques minutes. Vos clients commandent depuis leur table, les commandes arrivent sur l'écran cuisine en direct. Gérez prix, produits et tables depuis un seul panneau.",
+    ctaPrimary: "Essayer {n} jours gratuits",
     ctaSecondary: "Comment ça marche ?",
     check1: "Aucune installation",
     check2: "Mises à jour instantanées",
@@ -623,6 +873,88 @@ const fr: Dict = {
   marquee: {
     eyebrow: "Galerie du menu",
     title: "Aperçu des menus de nos clients",
+  },
+  trust: {
+    items: [
+      "Garanti par Söztek Bilgisayar",
+      "Essai gratuit de 7 jours",
+      "Sans carte bancaire",
+      "Paiement sécurisé via iyzico",
+      "Support d'installation WhatsApp",
+    ],
+  },
+  problems: {
+    eyebrow: "Pourquoi Söztek QR Menu ?",
+    title: "Des réponses concrètes à vos soucis quotidiens",
+    items: [
+      {
+        problem: "Réimprimer le menu sans cesse",
+        solution: "Mettez à jour prix et produits instantanément depuis un panneau — sans frais d'impression.",
+      },
+      {
+        problem: "Tables qui attendent un serveur",
+        solution: "Les clients commandent par QR depuis leur table, l'attente diminue.",
+      },
+      {
+        problem: "Commandes mélangées",
+        solution: "Les commandes arrivent directement sur l'écran cuisine, avec la table clairement indiquée.",
+      },
+      {
+        problem: "Clients étrangers",
+        solution: "Proposez votre menu en plusieurs langues pour que chacun commande facilement.",
+      },
+    ],
+  },
+  faq: {
+    eyebrow: "FAQ",
+    title: "Questions fréquentes",
+    subtitle: "La plupart des réponses sont ici. Pour le reste, écrivez-nous sur WhatsApp.",
+    items: [
+      {
+        q: "Qu'est-ce qu'un menu QR ?",
+        a: "Un QR code posé sur la table que les clients scannent avec leur téléphone pour ouvrir votre menu instantanément. Aucune application à installer.",
+      },
+      {
+        q: "Faut-il des compétences techniques pour l'installer ?",
+        a: "Non. Ouvrez votre compte, ajoutez catégories et produits, téléchargez votre QR code. Nous aidons via WhatsApp en cas de blocage.",
+      },
+      {
+        q: "Puis-je essayer sans carte bancaire ?",
+        a: "Oui. Nous ne demandons pas de carte pour l'essai gratuit de 7 jours.",
+      },
+      {
+        q: "Les changements de prix sont-ils visibles immédiatement ?",
+        a: "Oui. Les mises à jour dans le panneau sont publiées immédiatement — sans réimpression.",
+      },
+      {
+        q: "Les clients peuvent-ils commander depuis la table ?",
+        a: "À partir de Pro, oui. Les clients commandent depuis le QR de table et la commande arrive sur l'écran cuisine en direct.",
+      },
+      {
+        q: "Puis-je créer un QR distinct par table ?",
+        a: "Oui. Le QR par table indique de quelle table vient la commande (gestion des tables en Premium).",
+      },
+      {
+        q: "Le menu peut-il être en plusieurs langues ?",
+        a: "Oui, le support multilingue vous permet de proposer votre menu en plusieurs langues.",
+      },
+      {
+        q: "Puis-je ajouter les allergènes et calories ?",
+        a: "Oui. 14 allergènes, calories/nutrition, type de viande et champs de contenu sensible sont disponibles.",
+      },
+      {
+        q: "Puis-je aussi créer un menu imprimé ?",
+        a: "Oui. Obtenez votre menu en PDF imprimable en un clic, à présenter sur demande.",
+      },
+      {
+        q: "Comment annuler mon abonnement ?",
+        a: "Annulable à tout moment ; votre accès continue jusqu'à la fin de la période payée.",
+      },
+      {
+        q: "Comment le support est-il assuré ?",
+        a: "Avec notre infrastructure d'entreprise, nous vous accompagnons par WhatsApp et téléphone.",
+      },
+    ],
   },
   features: {
     eyebrow: "Fonctionnalités",
