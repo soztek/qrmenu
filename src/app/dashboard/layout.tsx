@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { getCurrentUser } from "@/lib/auth";
 import { isAdmin } from "@/lib/admin";
 import { logoutAction } from "@/lib/actions/auth";
@@ -126,6 +127,15 @@ export default async function DashboardLayout({
   const business = user.business;
   const plan = getPlan(business.plan);
   const active = hasActiveAccess(business);
+
+  // Erişimi biten işletme (deneme dolmuş / abonelik bitmiş) yalnızca abonelik
+  // sayfalarını görebilir; diğer her şey ödeme ekranına yönlendirilir.
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const onBilling = pathname.startsWith("/dashboard/abonelik");
+  // pathname boşsa (proxy header'ı yoksa) döngüye girmemek için yönlendirme yapma.
+  if (!active && pathname && !onBilling) {
+    redirect("/dashboard/abonelik");
+  }
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
