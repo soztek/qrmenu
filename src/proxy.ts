@@ -22,10 +22,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Layout'un mevcut yolu bilmesi için (abonelik kapısı sonsuz döngüye girmesin).
-  const headers = new Headers(request.headers);
-  headers.set("x-pathname", pathname);
-  return NextResponse.next({ request: { headers } });
+  return NextResponse.next();
 }
 
 export const config = {
