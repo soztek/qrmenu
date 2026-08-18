@@ -68,6 +68,7 @@ model Business {
   logoUrl     String?
   coverUrl    String? // menü üstündeki kapak görseli
   menuTheme   String  @default("dark") // herkese açık menü renk teması
+  menuPaused  Boolean @default(false) // admin QR'ı durdurunca müşteri bakım ekranı görür
 
   // İletişim / bilgi (menüdeki bilgi panelinde gösterilir)
   phone        String?

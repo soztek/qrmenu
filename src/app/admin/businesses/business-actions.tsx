@@ -6,6 +6,7 @@ import {
   extendAccess,
   setPlan,
   setStatus,
+  setMenuPaused,
   resetUserPassword,
   deleteBusiness,
 } from "@/lib/actions/admin";
@@ -27,12 +28,14 @@ export function BusinessActions({
   plan,
   status,
   ownerId,
+  menuPaused,
 }: {
   businessId: string;
   businessName: string;
   plan: PlanId;
   status: string;
   ownerId: string | null;
+  menuPaused: boolean;
 }) {
   const [pending, startTransition] = useTransition();
   const router = useRouter();
@@ -104,6 +107,29 @@ export function BusinessActions({
           </option>
         ))}
       </select>
+
+      {/* QR durdur / aç */}
+      <button
+        onClick={() => {
+          if (
+            !menuPaused &&
+            !confirm(
+              `"${businessName}" için QR menü DURDURULSUN mu?\n\nMüşteriler QR okuttuğunda menü yerine "güncelleme devam ediyor, siparişinizi manuel veriniz" ekranını görecek.`,
+            )
+          )
+            return;
+          run(() => setMenuPaused(businessId, !menuPaused));
+        }}
+        disabled={pending}
+        className={`rounded-md border px-2 py-1 text-xs font-medium transition ${
+          menuPaused
+            ? "border-orange/60 bg-orange/10 text-orange hover:bg-orange hover:text-black"
+            : "border-border text-muted hover:border-orange hover:text-orange"
+        }`}
+        title={menuPaused ? "QR durduruldu — açmak için tıkla" : "QR menüyü durdur"}
+      >
+        {menuPaused ? "QR durduruldu ⏸" : "QR durdur"}
+      </button>
 
       {/* Şifre sıfırla */}
       {ownerId && (

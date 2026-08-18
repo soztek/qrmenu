@@ -125,6 +125,22 @@ export async function deletePayment(id: string): Promise<void> {
   revalidatePath("/admin/odemeler");
 }
 
+/**
+ * İşletmenin QR menüsünü durdurur/açar. Durdurulunca müşteri QR okuttuğunda
+ * menü yerine "güncelleme devam ediyor" bakım ekranı görür.
+ */
+export async function setMenuPaused(
+  businessId: string,
+  paused: boolean,
+): Promise<void> {
+  await assertAdmin();
+  await prisma.business.update({
+    where: { id: businessId },
+    data: { menuPaused: paused },
+  });
+  refresh();
+}
+
 /** İşletmenin abonelik durumunu değiştirir. */
 export async function setStatus(
   businessId: string,

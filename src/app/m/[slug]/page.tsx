@@ -102,6 +102,38 @@ export async function generateMetadata({
   };
 }
 
+/** Admin QR'ı durdurduğunda müşteriye gösterilen bakım ekranı. */
+function PausedScreen({ name, logoUrl }: { name: string; logoUrl: string | null }) {
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center bg-bg px-6 text-center">
+      <div className="w-full max-w-sm rounded-3xl border border-border bg-surface p-8">
+        {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={logoUrl}
+            alt={name}
+            className="mx-auto h-16 w-16 rounded-2xl object-cover"
+          />
+        ) : (
+          <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-green-soft text-2xl">
+            🍽️
+          </div>
+        )}
+        <h1 className="mt-5 text-lg font-bold text-fg">{name}</h1>
+        <div className="mt-4 text-4xl">🛠️</div>
+        <h2 className="mt-3 text-xl font-extrabold text-fg">
+          Güncellemelerimiz devam ediyor
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted">
+          Menümüz kısa süreliğine güncelleniyor. Lütfen siparişinizi
+          personelimize <b>manuel</b> olarak iletiniz. Anlayışınız için teşekkür ederiz.
+        </p>
+        <p className="mt-6 text-xs text-faint">Söztek QR Menü</p>
+      </div>
+    </main>
+  );
+}
+
 export default async function PublicMenuPage({
   params,
   searchParams,
@@ -111,6 +143,16 @@ export default async function PublicMenuPage({
 }) {
   const { slug } = await params;
   const { t } = await searchParams;
+
+  // Admin QR'ı durdurmuşsa: menü/sipariş yerine bakım ekranı göster.
+  const gate = await prisma.business.findUnique({
+    where: { slug },
+    select: { menuPaused: true, name: true, logoUrl: true },
+  });
+  if (!gate) notFound();
+  if (gate.menuPaused) {
+    return <PausedScreen name={gate.name} logoUrl={gate.logoUrl} />;
+  }
 
   // Masa QR token'ı geçerli + sipariş açıksa → sipariş görünümü
   if (t) {
