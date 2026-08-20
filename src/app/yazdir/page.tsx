@@ -145,7 +145,7 @@ export default async function PrintMenuPage({
                   {c.items.map((item) => (
                     <div
                       key={item.id}
-                      className="flex break-inside-avoid items-start gap-3"
+                      className="flex break-inside-avoid items-center gap-3"
                     >
                       {item.photoUrl && (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -156,14 +156,8 @@ export default async function PrintMenuPage({
                         />
                       )}
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-medium text-neutral-900">
-                            {item.name}
-                          </span>
-                          <span className="flex-1 border-b border-dotted border-neutral-300" />
-                          <span className="font-semibold text-neutral-900">
-                            {formatTL(item.price.toString())}
-                          </span>
+                        <div className="font-medium text-neutral-900">
+                          {item.name}
                         </div>
                         {item.description && (
                           <p className="mt-0.5 text-sm text-neutral-500">
@@ -195,6 +189,9 @@ export default async function PrintMenuPage({
                           );
                         })()}
                       </div>
+                      <span className="shrink-0 self-center whitespace-nowrap pl-2 font-semibold text-neutral-900">
+                        {formatTL(item.price.toString())}
+                      </span>
                     </div>
                   ))}
                 </div>
