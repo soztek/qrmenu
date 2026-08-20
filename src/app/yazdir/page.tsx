@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { isAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/db";
 import { formatTL, menuUrl } from "@/lib/url";
+import { allergen, meatLabel } from "@/lib/compliance";
 import { PrintButton, LockedPrintButton } from "./print-button";
 
 export const metadata: Metadata = { title: "Yazdırılabilir menü" };
@@ -169,6 +170,30 @@ export default async function PrintMenuPage({
                             {item.description}
                           </p>
                         )}
+                        {(() => {
+                          const meta: string[] = [];
+                          if (item.calories != null)
+                            meta.push(`${item.calories} kcal`);
+                          const meat = meatLabel(item.meatType);
+                          if (meat) meta.push(meat);
+                          if (item.containsAlcohol) meta.push("Alkol içerir");
+                          if (item.containsPork) meta.push("Domuz eti içerir");
+                          const alg = (item.allergens ?? [])
+                            .map((k) => allergen(k)?.label ?? null)
+                            .filter((v): v is string => Boolean(v));
+                          if (meta.length === 0 && alg.length === 0) return null;
+                          return (
+                            <div className="mt-1 space-y-0.5 text-[11px] leading-snug text-neutral-500">
+                              {meta.length > 0 && <p>{meta.join(" · ")}</p>}
+                              {alg.length > 0 && (
+                                <p>
+                                  <span className="font-medium">Alerjen:</span>{" "}
+                                  {alg.join(", ")}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   ))}
