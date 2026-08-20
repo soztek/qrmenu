@@ -183,11 +183,11 @@ export default async function PrintMenuPage({
                             .filter((v): v is string => Boolean(v));
                           if (meta.length === 0 && alg.length === 0) return null;
                           return (
-                            <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+                            <p className="mt-1 text-[11px] font-semibold leading-snug text-neutral-500">
                               {meta.length > 0 && <span>{meta.join(" · ")}</span>}
                               {alg.length > 0 && (
                                 <span className={meta.length > 0 ? "ml-6" : undefined}>
-                                  <span className="font-medium">Alerjen:</span>{" "}
+                                  <span className="font-bold">Alerjen:</span>{" "}
                                   {alg.join(", ")}
                                 </span>
                               )}
