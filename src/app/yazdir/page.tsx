@@ -15,13 +15,14 @@ export const dynamic = "force-dynamic";
 export default async function PrintMenuPage({
   searchParams,
 }: {
-  searchParams: Promise<{ b?: string }>;
+  searchParams: Promise<{ b?: string; cat?: string }>;
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/giris");
 
   // Admin ?b=<işletmeId> ile herhangi bir işletmenin menüsünü görebilir.
-  const { b } = await searchParams;
+  // ?cat=<kategoriId> verilirse yalnızca o kategori yazdırılır.
+  const { b, cat } = await searchParams;
   let business;
   const viewingOther = Boolean(b) && isAdmin(user);
   if (viewingOther) {
@@ -45,7 +46,10 @@ export default async function PrintMenuPage({
       },
     },
   });
-  const filled = categories.filter((c) => c.items.length > 0);
+  const allFilled = categories.filter((c) => c.items.length > 0);
+  // ?cat= verilmişse yalnızca o kategori; yoksa tüm menü.
+  const selectedCat = cat ? allFilled.find((c) => c.id === cat) : null;
+  const filled = cat ? allFilled.filter((c) => c.id === cat) : allFilled;
 
   // Besin değeri / alerjen girilmiş mi? (dipnot yalnızca girilmişse gösterilir)
   const hasNutrition = filled.some((c) =>
@@ -135,6 +139,11 @@ export default async function PrintMenuPage({
             />
           )}
           <h1 className="text-3xl font-extrabold tracking-tight">{business.name}</h1>
+          {selectedCat && (
+            <p className="mt-1 text-sm font-semibold uppercase tracking-wide text-neutral-700">
+              {selectedCat.name}
+            </p>
+          )}
           {business.description && (
             <p className="mt-1 text-sm text-neutral-500">{business.description}</p>
           )}

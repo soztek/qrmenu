@@ -8,6 +8,7 @@ import {
   type ClientCategory,
 } from "./menu-client";
 import { ImportMenu } from "./import-menu";
+import { CategoryPdfSelect } from "./category-pdf";
 
 export const metadata: Metadata = { title: "Menü" };
 
@@ -70,6 +71,9 @@ export default async function MenuPage() {
           >
             Yazdırılabilir PDF
           </Link>
+          <CategoryPdfSelect
+            categories={data.map((c) => ({ id: c.id, name: c.name }))}
+          />
           <Link
             href="/ekran"
             target="_blank"
