@@ -47,6 +47,19 @@ export default async function PrintMenuPage({
   });
   const filled = categories.filter((c) => c.items.length > 0);
 
+  // Besin değeri / alerjen girilmiş mi? (dipnot yalnızca girilmişse gösterilir)
+  const hasNutrition = filled.some((c) =>
+    c.items.some(
+      (i) =>
+        i.calories != null ||
+        i.protein != null ||
+        i.fat != null ||
+        i.carbs != null ||
+        (i.allergens?.length ?? 0) > 0 ||
+        Boolean(i.meatType),
+    ),
+  );
+
   // Görsel başlık için ürün fotoğrafları.
   const photos = filled
     .flatMap((c) => c.items)
@@ -217,6 +230,15 @@ export default async function PrintMenuPage({
           </p>
           <p className="text-xs text-neutral-400">{url}</p>
         </div>
+
+        {hasNutrition && (
+          <p className="mt-6 break-inside-avoid border-t border-neutral-200 pt-4 text-center text-[10px] leading-relaxed text-neutral-500">
+            Belirtilen kalori ve besin değerleri <b>1 (bir) porsiyon</b> için olup
+            yaklaşık değerlerdir; hazırlama ve porsiyona göre değişebilir. Alerjen
+            bilgisi üründe bulunabilecek maddeleri belirtir. Ciddi alerjiniz varsa
+            lütfen personelimize danışın.
+          </p>
+        )}
 
         <footer className="mt-6 text-center text-[11px] text-neutral-400">
           {business.name} · Söztek QR Menü ile hazırlandı
