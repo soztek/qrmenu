@@ -174,6 +174,11 @@ export default async function PrintMenuPage({
                           const meta: string[] = [];
                           if (item.calories != null)
                             meta.push(`${item.calories} kcal`);
+                          if (item.protein != null)
+                            meta.push(`Protein ${item.protein}g`);
+                          if (item.fat != null) meta.push(`Yağ ${item.fat}g`);
+                          if (item.carbs != null)
+                            meta.push(`Karb ${item.carbs}g`);
                           const meat = meatLabel(item.meatType);
                           if (meat) meta.push(meat);
                           if (item.containsAlcohol) meta.push("Alkol içerir");
