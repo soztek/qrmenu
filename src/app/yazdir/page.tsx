@@ -192,7 +192,7 @@ export default async function PrintMenuPage({
                           <span className="text-[14px] font-bold uppercase text-neutral-900">
                             {item.name}
                           </span>
-                          <span className="flex-1 border-b-2 border-dotted border-neutral-500" />
+                          <span className="flex-1 border-b border-dotted border-neutral-400" />
                           <span className="whitespace-nowrap text-[14px] font-extrabold text-neutral-900">
                             {formatTL(item.price.toString())}
                           </span>
