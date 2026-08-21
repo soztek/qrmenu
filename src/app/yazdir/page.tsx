@@ -171,32 +171,32 @@ export default async function PrintMenuPage({
                 <h2 className="mb-4 break-after-avoid text-center text-2xl font-extrabold uppercase tracking-wide text-neutral-900">
                   {c.name}
                 </h2>
-                <div className="space-y-2.5">
+                <div className="gap-x-8 [column-fill:balance] sm:columns-2 print:columns-2">
                   {c.items.map((item) => (
                     <div
                       key={item.id}
-                      className="flex break-inside-avoid items-start gap-3"
+                      className="mb-3 flex break-inside-avoid items-start gap-2.5"
                     >
                       {item.photoUrl && (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={item.photoUrl}
                           alt=""
-                          className="h-14 w-14 shrink-0 rounded-md object-cover"
+                          className="h-11 w-11 shrink-0 rounded-md object-cover"
                         />
                       )}
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-medium uppercase text-neutral-900">
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="text-[14px] font-bold uppercase text-neutral-900">
                             {item.name}
                           </span>
-                          <span className="flex-1 border-b border-dotted border-neutral-300" />
-                          <span className="font-semibold text-neutral-900">
+                          <span className="flex-1 border-b border-dotted border-neutral-400" />
+                          <span className="whitespace-nowrap text-[14px] font-extrabold text-neutral-900">
                             {formatTL(item.price.toString())}
                           </span>
                         </div>
                         {item.description && (
-                          <p className="mt-0.5 text-sm text-neutral-500">
+                          <p className="mt-0.5 text-[11px] text-neutral-500">
                             {item.description}
                           </p>
                         )}
@@ -218,10 +218,10 @@ export default async function PrintMenuPage({
                             .filter((v): v is string => Boolean(v));
                           if (meta.length === 0 && alg.length === 0) return null;
                           return (
-                            <p className="mt-1 text-[11px] font-semibold leading-snug text-neutral-500">
+                            <p className="mt-0.5 text-[10px] font-semibold leading-snug text-neutral-600">
                               {meta.length > 0 && <span>{meta.join(" · ")}</span>}
                               {alg.length > 0 && (
-                                <span className={meta.length > 0 ? "ml-6" : undefined}>
+                                <span className={meta.length > 0 ? "ml-3" : undefined}>
                                   <span className="font-bold">Alerjen:</span>{" "}
                                   {alg.join(", ")}
                                 </span>
