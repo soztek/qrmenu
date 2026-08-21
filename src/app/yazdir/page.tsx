@@ -245,7 +245,6 @@ export default async function PrintMenuPage({
           <p className="mt-2 text-sm font-semibold text-neutral-800">
             📱 Fotoğraflı dijital menü için okutun
           </p>
-          <p className="text-xs text-neutral-400">{url}</p>
         </div>
 
         {hasNutrition && (
