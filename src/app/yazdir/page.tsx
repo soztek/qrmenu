@@ -151,10 +151,12 @@ export default async function PrintMenuPage({
               {business.name}
             </h1>
             {business.description && (
-              <p className="mt-1 text-sm text-neutral-500">{business.description}</p>
+              <p className="mt-1 text-sm font-semibold text-neutral-700">
+                {business.description}
+              </p>
             )}
             {(business.phone || business.address) && (
-              <p className="mt-2 text-xs text-neutral-500">
+              <p className="mt-2 text-xs font-semibold text-neutral-700">
                 {[business.phone, business.address].filter(Boolean).join(" · ")}
               </p>
             )}
