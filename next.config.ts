@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
       // Arama motorunda indekslenmiş eski demo adresi → yayındaki demo menü (kalıcı 301)
       {
         source: "/m/deneme-deneme",
-        destination: "/m/aciktim-tantuni-kokorec",
+        destination: "/m/karadenizgurme",
         permanent: true,
       },
     ];
