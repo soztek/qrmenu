@@ -114,25 +114,27 @@ export default async function PrintMenuPage({
         {/* Görsel başlık: kapak varsa kapak, yoksa ürün fotoğraflarından kolaj */}
         {/* Başlık — telefon menüsüyle aynı: kapak olduğu gibi + üstüne binen köşeli logo, sola yaslı */}
         <header className="mb-8">
-          {business.coverUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={business.coverUrl}
-              alt=""
-              className="block h-auto w-full rounded-xl bg-neutral-100"
-            />
-          ) : photos.length >= 2 ? (
-            <div className="grid grid-cols-4 gap-1 overflow-hidden rounded-xl">
-              {photos.slice(0, 4).map((p, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={i} src={p} alt="" className="h-24 w-full object-cover" />
-              ))}
-            </div>
-          ) : null}
+          {/* Kapak görseli yalnızca tüm menü çıktısında; kategori PDF'inde kaldırıldı (logo kalır). */}
+          {!cat &&
+            (business.coverUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={business.coverUrl}
+                alt=""
+                className="block h-auto w-full rounded-xl bg-neutral-100"
+              />
+            ) : photos.length >= 2 ? (
+              <div className="grid grid-cols-4 gap-1 overflow-hidden rounded-xl">
+                {photos.slice(0, 4).map((p, i) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img key={i} src={p} alt="" className="h-24 w-full object-cover" />
+                ))}
+              </div>
+            ) : null)}
 
           <div
             className={
-              business.coverUrl || photos.length >= 2
+              !cat && (business.coverUrl || photos.length >= 2)
                 ? "relative -mt-10 px-1 text-center"
                 : "pt-1 text-center"
             }
