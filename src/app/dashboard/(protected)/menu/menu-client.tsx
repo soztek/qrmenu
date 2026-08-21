@@ -5,6 +5,7 @@ import {
   createCategory,
   renameCategory,
   deleteCategory,
+  moveCategory,
   createItem,
   updateItem,
   deleteItem,
@@ -82,7 +83,15 @@ export function AddCategoryForm() {
 }
 
 /* ── Kategori kartı ───────────────────────────────────────────── */
-export function CategoryCard({ category }: { category: ClientCategory }) {
+export function CategoryCard({
+  category,
+  isFirst,
+  isLast,
+}: {
+  category: ClientCategory;
+  isFirst: boolean;
+  isLast: boolean;
+}) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(category.name);
   const [adding, setAdding] = useState(false);
@@ -131,6 +140,27 @@ export function CategoryCard({ category }: { category: ClientCategory }) {
               </span>
             </h3>
             <div className="flex items-center gap-3 text-sm">
+              {/* Sıra: müşteride görünme sırasını belirler */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => startTransition(() => moveCategory(category.id, "up"))}
+                  disabled={isFirst || pending}
+                  title="Yukarı taşı"
+                  aria-label="Yukarı taşı"
+                  className="grid h-7 w-7 place-items-center rounded-md border border-border text-muted transition hover:border-green hover:text-green disabled:opacity-30 disabled:hover:border-border disabled:hover:text-muted"
+                >
+                  ↑
+                </button>
+                <button
+                  onClick={() => startTransition(() => moveCategory(category.id, "down"))}
+                  disabled={isLast || pending}
+                  title="Aşağı taşı"
+                  aria-label="Aşağı taşı"
+                  className="grid h-7 w-7 place-items-center rounded-md border border-border text-muted transition hover:border-green hover:text-green disabled:opacity-30 disabled:hover:border-border disabled:hover:text-muted"
+                >
+                  ↓
+                </button>
+              </div>
               <button
                 onClick={() => setEditing(true)}
                 className="text-muted hover:text-fg"

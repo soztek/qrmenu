@@ -107,7 +107,14 @@ export default async function MenuPage() {
             Henüz kategori yok. Yukarıdan ilk kategorini ekleyerek başla.
           </div>
         ) : (
-          data.map((c) => <CategoryCard key={c.id} category={c} />)
+          data.map((c, i) => (
+            <CategoryCard
+              key={c.id}
+              category={c}
+              isFirst={i === 0}
+              isLast={i === data.length - 1}
+            />
+          ))
         )}
       </div>
     </div>

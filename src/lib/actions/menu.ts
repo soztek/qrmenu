@@ -242,6 +242,37 @@ export async function setCategoryImage(
   refresh();
 }
 
+/**
+ * Kategoriyi yukarı/aşağı taşır (müşteride görünme sırasını belirler).
+ * Komşu kategoriyle yer değiştirir ve tüm sıraları yeniden numaralar.
+ */
+export async function moveCategory(
+  id: string,
+  dir: "up" | "down",
+): Promise<void> {
+  const user = await getCurrentUser();
+  if (!user?.business) return;
+  const businessId = user.business.id;
+
+  const cats = await prisma.category.findMany({
+    where: { businessId },
+    orderBy: { sortOrder: "asc" },
+    select: { id: true },
+  });
+  const idx = cats.findIndex((c) => c.id === id);
+  if (idx === -1) return;
+  const target = dir === "up" ? idx - 1 : idx + 1;
+  if (target < 0 || target >= cats.length) return;
+
+  [cats[idx], cats[target]] = [cats[target], cats[idx]];
+  await prisma.$transaction(
+    cats.map((c, i) =>
+      prisma.category.update({ where: { id: c.id }, data: { sortOrder: i } }),
+    ),
+  );
+  refresh(user.business.slug);
+}
+
 export async function deleteCategory(id: string): Promise<void> {
   const businessId = await requireBusinessId();
   // Kategoriye bağlı ürün fotoğraflarını temizle.

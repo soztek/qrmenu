@@ -114,11 +114,14 @@ export default async function PrintMenuPage({
       >
         {/* Görsel başlık: kapak varsa kapak, yoksa ürün fotoğraflarından kolaj */}
         {business.coverUrl ? (
-          <div className="mb-6 overflow-hidden rounded-xl bg-neutral-100">
-            {/* Yazdırmada object-fit güvenilir değil; banner 3:1 kırpıldığı için
-                doğal boyut (tam genişlik) tam 3:1 verir ve taşmaz. */}
+          <div className="mb-6 aspect-[12/5] overflow-hidden rounded-xl bg-neutral-100">
+            {/* Banner 12:5 (yatay) oranında; taşan kısım kırpılır. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={business.coverUrl} alt="" className="block h-auto w-full" />
+            <img
+              src={business.coverUrl}
+              alt=""
+              className="h-full w-full object-cover"
+            />
           </div>
         ) : photos.length >= 2 ? (
           <div className="mb-6 grid grid-cols-4 gap-1 overflow-hidden rounded-xl">
