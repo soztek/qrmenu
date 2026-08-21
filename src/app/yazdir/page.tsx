@@ -257,9 +257,6 @@ export default async function PrintMenuPage({
           </p>
         )}
 
-        <footer className="mt-6 text-center text-[11px] text-neutral-400">
-          {business.name} · Söztek QR Menü ile hazırlandı
-        </footer>
       </div>
     </div>
   );
