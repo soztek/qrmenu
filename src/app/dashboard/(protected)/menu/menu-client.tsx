@@ -96,6 +96,7 @@ export function CategoryCard({
   const [name, setName] = useState(category.name);
   const [adding, setAdding] = useState(false);
   const [bulk, setBulk] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [pending, startTransition] = useTransition();
 
   return (
@@ -133,12 +134,27 @@ export function CategoryCard({
           </div>
         ) : (
           <>
-            <h3 className="font-semibold">
-              {category.name}{" "}
-              <span className="text-sm font-normal text-faint">
-                ({category.items.length})
+            <button
+              type="button"
+              onClick={() => setCollapsed((v) => !v)}
+              aria-expanded={!collapsed}
+              title={collapsed ? "Ürünleri aç" : "Ürünleri topla"}
+              className="flex min-w-0 flex-1 items-center gap-2 text-left"
+            >
+              <span
+                className={`shrink-0 text-faint transition-transform ${
+                  collapsed ? "" : "rotate-90"
+                }`}
+              >
+                ▸
               </span>
-            </h3>
+              <h3 className="min-w-0 truncate font-semibold">
+                {category.name}{" "}
+                <span className="text-sm font-normal text-faint">
+                  ({category.items.length})
+                </span>
+              </h3>
+            </button>
             <div className="flex items-center gap-3 text-sm">
               {/* Sıra: müşteride görünme sırasını belirler */}
               <div className="flex items-center gap-1">
@@ -187,6 +203,8 @@ export function CategoryCard({
         )}
       </header>
 
+      {!collapsed && (
+        <>
       {/* Kategori kapağı (menüde kart görseli) */}
       <div className="border-b border-border px-4 py-3">
         <PhotoUpload
@@ -233,6 +251,8 @@ export function CategoryCard({
           </div>
         )}
       </div>
+        </>
+      )}
     </section>
   );
 }
