@@ -113,48 +113,52 @@ export default async function PrintMenuPage({
         }`}
       >
         {/* Görsel başlık: kapak varsa kapak, yoksa ürün fotoğraflarından kolaj */}
-        {business.coverUrl ? (
-          <div className="mb-6 aspect-[12/5] overflow-hidden rounded-xl bg-neutral-100">
-            {/* Banner 12:5 (yatay) oranında; taşan kısım kırpılır. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+        {/* Başlık — telefon menüsüyle aynı: kapak olduğu gibi + üstüne binen köşeli logo, sola yaslı */}
+        <header className="mb-8">
+          {business.coverUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={business.coverUrl}
               alt=""
-              className="h-full w-full object-cover"
+              className="block h-auto w-full rounded-xl bg-neutral-100"
             />
-          </div>
-        ) : photos.length >= 2 ? (
-          <div className="mb-6 grid grid-cols-4 gap-1 overflow-hidden rounded-xl">
-            {photos.slice(0, 4).map((p, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img key={i} src={p} alt="" className="h-24 w-full object-cover" />
-            ))}
-          </div>
-        ) : null}
+          ) : photos.length >= 2 ? (
+            <div className="grid grid-cols-4 gap-1 overflow-hidden rounded-xl">
+              {photos.slice(0, 4).map((p, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={i} src={p} alt="" className="h-24 w-full object-cover" />
+              ))}
+            </div>
+          ) : null}
 
-        <header className="border-b-2 border-neutral-900 pb-5 text-center">
-          {business.logoUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={business.logoUrl}
-              alt=""
-              className="mx-auto mb-3 h-16 w-16 rounded-full object-cover"
-            />
-          )}
-          <h1 className="text-3xl font-extrabold tracking-tight">{business.name}</h1>
-          {selectedCat && (
-            <p className="mt-1 text-sm font-semibold uppercase tracking-wide text-neutral-700">
-              {selectedCat.name}
-            </p>
-          )}
-          {business.description && (
-            <p className="mt-1 text-sm text-neutral-500">{business.description}</p>
-          )}
-          {(business.phone || business.address) && (
-            <p className="mt-2 text-xs text-neutral-500">
-              {[business.phone, business.address].filter(Boolean).join(" · ")}
-            </p>
-          )}
+          <div
+            className={
+              business.coverUrl || photos.length >= 2
+                ? "relative -mt-10 px-1"
+                : "pt-1"
+            }
+          >
+            {business.logoUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={business.logoUrl}
+                alt=""
+                className="h-20 w-20 rounded-2xl border-4 border-white bg-white object-cover shadow-sm"
+              />
+            )}
+            <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-neutral-900">
+              {business.name}
+            </h1>
+            {business.description && (
+              <p className="mt-1 text-sm text-neutral-500">{business.description}</p>
+            )}
+            {(business.phone || business.address) && (
+              <p className="mt-2 text-xs text-neutral-500">
+                {[business.phone, business.address].filter(Boolean).join(" · ")}
+              </p>
+            )}
+          </div>
+          <div className="mt-5 border-b-2 border-neutral-900" />
         </header>
 
         {filled.length === 0 ? (
@@ -163,7 +167,11 @@ export default async function PrintMenuPage({
           <div className="mt-8 space-y-8">
             {filled.map((c) => (
               <section key={c.id}>
-                <h2 className="mb-3 break-after-avoid text-lg font-bold uppercase tracking-wide text-neutral-800">
+                <h2
+                  className={`mb-3 break-after-avoid text-lg font-bold uppercase tracking-wide text-neutral-800 ${
+                    selectedCat ? "text-center" : ""
+                  }`}
+                >
                   {c.name}
                 </h2>
                 <div className="space-y-2.5">
