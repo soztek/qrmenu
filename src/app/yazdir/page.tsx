@@ -48,7 +48,6 @@ export default async function PrintMenuPage({
   });
   const allFilled = categories.filter((c) => c.items.length > 0);
   // ?cat= verilmişse yalnızca o kategori; yoksa tüm menü.
-  const selectedCat = cat ? allFilled.find((c) => c.id === cat) : null;
   const filled = cat ? allFilled.filter((c) => c.id === cat) : allFilled;
 
   // Besin değeri / alerjen girilmiş mi? (dipnot yalnızca girilmişse gösterilir)
@@ -167,11 +166,7 @@ export default async function PrintMenuPage({
           <div className="mt-8 space-y-8">
             {filled.map((c) => (
               <section key={c.id}>
-                <h2
-                  className={`mb-3 break-after-avoid text-lg font-bold uppercase tracking-wide text-neutral-800 ${
-                    selectedCat ? "text-center" : ""
-                  }`}
-                >
+                <h2 className="mb-4 break-after-avoid text-center text-2xl font-extrabold uppercase tracking-wide text-neutral-900">
                   {c.name}
                 </h2>
                 <div className="space-y-2.5">
