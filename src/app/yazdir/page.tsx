@@ -134,8 +134,8 @@ export default async function PrintMenuPage({
           <div
             className={
               business.coverUrl || photos.length >= 2
-                ? "relative -mt-10 px-1"
-                : "pt-1"
+                ? "relative -mt-10 px-1 text-center"
+                : "pt-1 text-center"
             }
           >
             {business.logoUrl && (
@@ -143,7 +143,7 @@ export default async function PrintMenuPage({
               <img
                 src={business.logoUrl}
                 alt=""
-                className="h-20 w-20 rounded-2xl border-4 border-white bg-white object-cover shadow-sm"
+                className="mx-auto h-20 w-20 rounded-2xl border-4 border-white bg-white object-cover shadow-sm"
               />
             )}
             <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-neutral-900">
