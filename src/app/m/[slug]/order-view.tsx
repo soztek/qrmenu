@@ -431,7 +431,7 @@ export function OrderView({ ctx }: { ctx: OrderContext }) {
               />
             )}
             <div className="min-w-0 flex-1">
-              <div className="font-semibold text-fg">{item.name}</div>
+              <div className="font-semibold uppercase text-fg">{item.name}</div>
               {item.description && (
                 <p className="mt-0.5 line-clamp-2 text-xs text-muted">{item.description}</p>
               )}
@@ -653,7 +653,7 @@ function ItemModal({
       >
         <div className="mb-2 flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-fg">{item.name}</h2>
+            <h2 className="text-lg font-bold uppercase text-fg">{item.name}</h2>
             {item.description && <p className="mt-0.5 text-sm text-muted">{item.description}</p>}
           </div>
           <button onClick={onClose} className="text-2xl leading-none text-muted">

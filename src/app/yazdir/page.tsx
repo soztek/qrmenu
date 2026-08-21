@@ -182,7 +182,7 @@ export default async function PrintMenuPage({
                       )}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-baseline gap-2">
-                          <span className="font-medium text-neutral-900">
+                          <span className="font-medium uppercase text-neutral-900">
                             {item.name}
                           </span>
                           <span className="flex-1 border-b border-dotted border-neutral-300" />

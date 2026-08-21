@@ -514,7 +514,7 @@ function ProductList({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
-              <h3 className="min-w-0 flex-1 font-semibold [overflow-wrap:anywhere]">
+              <h3 className="min-w-0 flex-1 font-semibold uppercase [overflow-wrap:anywhere]">
                 {item.name}
               </h3>
               <span className="shrink-0 font-bold text-orange">
@@ -585,7 +585,7 @@ function ProductList({
             )}
 
             <div className="p-4">
-              <h2 className="text-xl font-extrabold [overflow-wrap:anywhere]">
+              <h2 className="text-xl font-extrabold uppercase [overflow-wrap:anywhere]">
                 {detail.name}
               </h2>
               {detail.categoryName && (
