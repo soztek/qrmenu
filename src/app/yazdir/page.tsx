@@ -147,7 +147,7 @@ export default async function PrintMenuPage({
                 className="mx-auto h-20 w-20 rounded-2xl border-4 border-white bg-white object-cover shadow-sm"
               />
             )}
-            <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-neutral-900">
+            <h1 className="mt-3 text-4xl font-extrabold tracking-tight text-neutral-900">
               {business.name}
             </h1>
             {business.description && (
