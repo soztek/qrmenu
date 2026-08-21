@@ -113,7 +113,7 @@ export default async function PrintMenuPage({
       >
         {/* Görsel başlık: kapak varsa kapak, yoksa ürün fotoğraflarından kolaj */}
         {/* Başlık — telefon menüsüyle aynı: kapak olduğu gibi + üstüne binen köşeli logo, sola yaslı */}
-        <header className="mb-8">
+        <header className="mb-5">
           {/* Kapak görseli yalnızca tüm menü çıktısında; kategori PDF'inde kaldırıldı (logo kalır). */}
           {!cat &&
             (business.coverUrl ? (
