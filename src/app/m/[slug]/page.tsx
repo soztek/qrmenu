@@ -5,7 +5,7 @@ import { MenuView } from "./menu-view";
 import { OrderView } from "./order-view";
 import { loadOrderContext } from "@/lib/orders/menu";
 import { VisitTracker } from "@/components/visit-tracker";
-import { SITE_URL, SITE_NAME, abs } from "@/lib/seo";
+import { abs } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
