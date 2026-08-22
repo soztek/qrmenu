@@ -386,10 +386,11 @@ export function MenuView({
         </div>
       </section>
 
-      <footer className="mt-10 px-5 text-center text-xs text-faint">
-        <a href="/" className="hover:text-fg">
-          Söztek QR Menü ile hazırlandı
-        </a>
+      <footer className="mt-10 px-5 text-center">
+        <p className="text-base font-bold text-fg">{business.name}</p>
+        <p className="mt-1 text-sm text-muted">
+          Memnuniyetiniz bizim için değerli 💚
+        </p>
       </footer>
 
       {/* Sabit WhatsApp butonu */}
