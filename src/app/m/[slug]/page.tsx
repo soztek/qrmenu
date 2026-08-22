@@ -80,9 +80,10 @@ export async function generateMetadata({
     `${business.name} dijital menüsü — kategoriler, ürünler ve güncel fiyatlar. Söztek QR Menü ile hazırlanmıştır.`;
   const img = business.coverUrl || business.logoUrl || undefined;
   const path = `/m/${slug}`;
-  const title = `${business.name} — Menü`;
+  // Müşteri menüsünde başlık YALNIZCA işletme adı (kök şablondaki "· Söztek QR Menü" eki eklenmez).
+  const title = business.name;
   return {
-    title,
+    title: { absolute: title },
     description: desc.slice(0, 160),
     alternates: { canonical: path },
     openGraph: {
@@ -90,7 +91,7 @@ export async function generateMetadata({
       url: abs(path),
       title,
       description: desc.slice(0, 160),
-      siteName: SITE_NAME,
+      siteName: business.name,
       images: img ? [{ url: img }] : undefined,
     },
     twitter: {
