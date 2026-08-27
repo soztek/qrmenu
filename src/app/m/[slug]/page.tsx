@@ -17,8 +17,12 @@ export const dynamic = "force-dynamic";
 async function resolveSlug(rawSlug: string): Promise<string | null> {
   const tenantHost = (await headers()).get("x-tenant-host");
   if (!tenantHost) return rawSlug;
-  const biz = await prisma.business.findUnique({
-    where: { customDomain: tenantHost },
+  // www'lu ve www'suz her iki varyantı dene (ziyaretçi/kayıt farkı önemli olmasın).
+  const candidates = tenantHost.startsWith("www.")
+    ? [tenantHost, tenantHost.slice(4)]
+    : [tenantHost, `www.${tenantHost}`];
+  const biz = await prisma.business.findFirst({
+    where: { customDomain: { in: candidates } },
     select: { slug: true },
   });
   return biz?.slug ?? null;
