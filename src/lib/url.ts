@@ -9,6 +9,27 @@ export function menuUrl(slug: string): string {
   return `${appUrl()}/m/${slug}`;
 }
 
+/**
+ * İşletmenin menü adresi — özel alan adı (customDomain) varsa onu, yoksa
+ * platform adresini döner. QR kodları ve dış bağlantılar bunu kullanır.
+ */
+export function businessMenuUrl(b: {
+  slug: string;
+  customDomain?: string | null;
+}): string {
+  return b.customDomain ? `https://${b.customDomain}` : menuUrl(b.slug);
+}
+
+/** İşletmenin belirli bir masa için sipariş adresi (özel domain varsa onu kullanır). */
+export function businessTableUrl(
+  b: { slug: string; customDomain?: string | null },
+  token: string,
+): string {
+  return b.customDomain
+    ? `https://${b.customDomain}/?t=${token}`
+    : `${menuUrl(b.slug)}?t=${token}`;
+}
+
 /** Türk telefon numarasından wa.me linki üretir (0536… -> https://wa.me/90536…). */
 export function waLink(raw: string): string {
   let d = raw.replace(/\D/g, "");

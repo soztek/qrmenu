@@ -87,7 +87,7 @@ export default async function AdminBusinesses() {
                   <div className="text-xs text-faint">/m/{b.slug}</div>
                   <div className="mt-1.5 flex flex-wrap gap-2 text-xs">
                     <a
-                      href={`/m/${b.slug}`}
+                      href={b.customDomain ? `https://${b.customDomain}` : `/m/${b.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-green hover:underline"

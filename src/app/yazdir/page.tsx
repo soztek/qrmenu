@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 import { getCurrentUser } from "@/lib/auth";
 import { isAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/db";
-import { formatTL, menuUrl } from "@/lib/url";
+import { formatTL, businessMenuUrl } from "@/lib/url";
 import { allergen, meatLabel } from "@/lib/compliance";
 import { PrintButton, LockedPrintButton } from "./print-button";
 
@@ -69,7 +69,7 @@ export default async function PrintMenuPage({
     .map((i) => i.photoUrl)
     .filter((p): p is string => Boolean(p));
 
-  const url = menuUrl(business.slug);
+  const url = businessMenuUrl(business);
   const qr = await QRCode.toDataURL(url, {
     width: 300,
     margin: 1,

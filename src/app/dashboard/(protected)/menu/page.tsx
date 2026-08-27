@@ -9,6 +9,7 @@ import {
 } from "./menu-client";
 import { ImportMenu } from "./import-menu";
 import { CategoryPdfSelect } from "./category-pdf";
+import { businessMenuUrl } from "@/lib/url";
 
 export const metadata: Metadata = { title: "Menü" };
 
@@ -58,7 +59,7 @@ export default async function MenuPage() {
         </div>
         <div className="flex gap-2">
           <Link
-            href={`/m/${business.slug}`}
+            href={businessMenuUrl(business)}
             target="_blank"
             className="rounded-lg border border-border px-4 py-2 text-sm text-fg transition hover:border-green/50"
           >

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import QRCode from "qrcode";
 import { requireOrderingBusiness } from "@/lib/orders/guard";
 import { prisma } from "@/lib/db";
-import { menuUrl } from "@/lib/url";
+import { businessTableUrl } from "@/lib/url";
 import { TablesClient } from "./tables-client";
 
 export const metadata: Metadata = { title: "Masalar" };
@@ -16,10 +16,9 @@ export default async function TablesPage() {
     select: { id: true, label: true, qrToken: true, active: true },
   });
 
-  const base = menuUrl(business.slug);
   const withQr = await Promise.all(
     tables.map(async (t) => {
-      const orderUrl = `${base}?t=${t.qrToken}`;
+      const orderUrl = businessTableUrl(business, t.qrToken);
       const qr = await QRCode.toDataURL(orderUrl, {
         width: 240,
         margin: 1,

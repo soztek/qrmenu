@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import QRCode from "qrcode";
 import { getCurrentUser } from "@/lib/auth";
-import { menuUrl } from "@/lib/url";
+import { businessMenuUrl } from "@/lib/url";
 import { QrDownload, CopyLink, LockedQrActions } from "./qr-actions";
 import { QrPrintForm } from "./qr-print-form";
 
@@ -13,7 +13,7 @@ export default async function QrPage() {
   const user = await getCurrentUser();
   if (!user?.business) return null;
 
-  const url = menuUrl(user.business.slug);
+  const url = businessMenuUrl(user.business);
   const paid = user.business.subscriptionStatus === "active";
   const filename = `${user.business.slug}-qr.png`;
 
@@ -52,7 +52,7 @@ export default async function QrPage() {
         <div>
           <div className="text-xs uppercase tracking-wide text-faint">Menü adresin</div>
           <Link
-            href={`/m/${user.business.slug}`}
+            href={url}
             target="_blank"
             className="mt-1 block break-all font-mono text-sm text-green hover:underline"
           >

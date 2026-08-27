@@ -4,7 +4,7 @@ import QRCode from "qrcode";
 import { getCurrentUser } from "@/lib/auth";
 import { isAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/db";
-import { menuUrl } from "@/lib/url";
+import { businessMenuUrl, businessTableUrl } from "@/lib/url";
 import { PrintButton } from "./print-button";
 
 export const metadata: Metadata = { title: "QR yazdır" };
@@ -67,7 +67,7 @@ export default async function QrPrintPage({
   }
 
   const mode = sp.mode === "tables" ? "tables" : "single";
-  const url = menuUrl(business.slug);
+  const url = businessMenuUrl(business);
   const qr = await QRCode.toDataURL(url, {
     width: 700,
     margin: 1,
@@ -85,7 +85,7 @@ export default async function QrPrintPage({
       select: { label: true, qrToken: true },
     });
     for (const t of tables) {
-      const q = await QRCode.toDataURL(`${url}?t=${t.qrToken}`, {
+      const q = await QRCode.toDataURL(businessTableUrl(business, t.qrToken), {
         width: 700,
         margin: 1,
         color: { dark: "#000000", light: "#ffffff" },
