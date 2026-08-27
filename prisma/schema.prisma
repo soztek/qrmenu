@@ -67,8 +67,9 @@ model Business {
   description String?
   logoUrl     String?
   coverUrl    String? // menü üstündeki kapak görseli
-  menuTheme   String  @default("dark") // herkese açık menü renk teması
-  menuPaused  Boolean @default(false) // admin QR'ı durdurunca müşteri bakım ekranı görür
+  menuTheme    String  @default("dark") // herkese açık menü renk teması
+  menuPaused   Boolean @default(false) // admin QR'ı durdurunca müşteri bakım ekranı görür
+  customDomain String? @unique // işletmenin kendi alan adı (ör. www.karadenizgurme.com.tr)
 
   // İletişim / bilgi (menüdeki bilgi panelinde gösterilir)
   phone        String?

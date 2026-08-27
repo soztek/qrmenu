@@ -141,6 +141,28 @@ export async function setMenuPaused(
   refresh();
 }
 
+/**
+ * İşletmenin özel alan adını (kendi domaini) ayarlar/temizler.
+ * DNS + Vercel domain ayarı ayrıca yapılmalı; bu yalnızca eşlemeyi kaydeder.
+ */
+export async function setCustomDomain(
+  businessId: string,
+  domain: string | null,
+): Promise<void> {
+  await assertAdmin();
+  const clean =
+    (domain ?? "")
+      .trim()
+      .toLowerCase()
+      .replace(/^https?:\/\//, "")
+      .replace(/\/.*$/, "") || null;
+  await prisma.business.update({
+    where: { id: businessId },
+    data: { customDomain: clean },
+  });
+  refresh();
+}
+
 /** İşletmenin abonelik durumunu değiştirir. */
 export async function setStatus(
   businessId: string,

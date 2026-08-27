@@ -7,6 +7,7 @@ import {
   setPlan,
   setStatus,
   setMenuPaused,
+  setCustomDomain,
   resetUserPassword,
   deleteBusiness,
 } from "@/lib/actions/admin";
@@ -29,6 +30,7 @@ export function BusinessActions({
   status,
   ownerId,
   menuPaused,
+  customDomain,
 }: {
   businessId: string;
   businessName: string;
@@ -36,6 +38,7 @@ export function BusinessActions({
   status: string;
   ownerId: string | null;
   menuPaused: boolean;
+  customDomain: string | null;
 }) {
   const [pending, startTransition] = useTransition();
   const router = useRouter();
@@ -129,6 +132,27 @@ export function BusinessActions({
         title={menuPaused ? "QR durduruldu — açmak için tıkla" : "QR menüyü durdur"}
       >
         {menuPaused ? "QR durduruldu ⏸" : "QR durdur"}
+      </button>
+
+      {/* Özel alan adı (kendi domaini) */}
+      <button
+        onClick={() => {
+          const v = prompt(
+            `"${businessName}" için özel alan adı (ör. www.karadenizgurme.com.tr).\n\nBoş bırakıp kaydederseniz kaldırılır.\nDNS + Vercel domain ayarı ayrıca yapılmalıdır.`,
+            customDomain ?? "",
+          );
+          if (v === null) return;
+          run(() => setCustomDomain(businessId, v.trim() || null));
+        }}
+        disabled={pending}
+        title={customDomain ? `Domain: ${customDomain}` : "Özel alan adı ekle"}
+        className={`rounded-md border px-2 py-1 text-xs transition ${
+          customDomain
+            ? "border-green/50 bg-green/10 text-green hover:border-green"
+            : "border-border text-muted hover:border-green hover:text-green"
+        }`}
+      >
+        {customDomain ? "🌐 Domain ✓" : "Domain"}
       </button>
 
       {/* Şifre sıfırla */}

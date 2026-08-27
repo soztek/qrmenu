@@ -44,6 +44,7 @@ export default async function AdminBusinesses() {
       trialEndsAt: true,
       currentPeriodEnd: true,
       menuPaused: true,
+      customDomain: true,
       createdAt: true,
       owner: { select: { id: true, email: true, name: true } },
       _count: { select: { categories: true, menuItems: true } },
@@ -144,6 +145,7 @@ export default async function AdminBusinesses() {
                     status={b.subscriptionStatus}
                     ownerId={b.owner?.id ?? null}
                     menuPaused={b.menuPaused}
+                    customDomain={b.customDomain}
                   />
                 </td>
               </tr>

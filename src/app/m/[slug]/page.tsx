@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { MenuView } from "./menu-view";
@@ -8,6 +9,20 @@ import { VisitTracker } from "@/components/visit-tracker";
 import { abs } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Özel alan adından gelindiyse (proxy `x-tenant-host` ekler), gerçek slug'ı
+ * `customDomain` üzerinden çözer. Normal /m/<slug> isteğinde slug aynen döner.
+ */
+async function resolveSlug(rawSlug: string): Promise<string | null> {
+  const tenantHost = (await headers()).get("x-tenant-host");
+  if (!tenantHost) return rawSlug;
+  const biz = await prisma.business.findUnique({
+    where: { customDomain: tenantHost },
+    select: { slug: true },
+  });
+  return biz?.slug ?? null;
+}
 
 async function getMenu(slug: string) {
   return prisma.business.findUnique({
@@ -69,7 +84,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const slug = await resolveSlug((await params).slug);
+  if (!slug) return { title: "Menü" };
   const business = await prisma.business.findUnique({
     where: { slug },
     select: { name: true, description: true, logoUrl: true, coverUrl: true },
@@ -142,7 +158,8 @@ export default async function PublicMenuPage({
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ t?: string }>;
 }) {
-  const { slug } = await params;
+  const slug = await resolveSlug((await params).slug);
+  if (!slug) notFound();
   const { t } = await searchParams;
 
   // Admin QR'ı durdurmuşsa: menü/sipariş yerine bakım ekranı göster.
