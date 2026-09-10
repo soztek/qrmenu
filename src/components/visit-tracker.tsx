@@ -19,7 +19,8 @@ export function VisitTracker({
       const key = `vt:${kind}:${slug ?? ""}:${new Date().toDateString()}`;
       if (sessionStorage.getItem(key)) return;
       sessionStorage.setItem(key, "1");
-      const body = JSON.stringify(slug ? { kind, slug } : { kind });
+      const path = window.location.pathname;
+      const body = JSON.stringify(slug ? { kind, slug, path } : { kind, path });
       if (navigator.sendBeacon) {
         navigator.sendBeacon("/api/track", body);
       } else {

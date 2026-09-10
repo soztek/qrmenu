@@ -38,6 +38,17 @@ export async function recordVisit(kind: VisitKind): Promise<void> {
   });
 }
 
+/** Tekil ziyaret kaydı (admin ziyaretçi paneli için): IP + yol + tarayıcı. */
+export async function recordPageHit(
+  ip: string,
+  path: string,
+  ua: string | null,
+): Promise<void> {
+  await prisma.visit.create({
+    data: { ip: ip.slice(0, 100), path: path.slice(0, 300), ua: ua?.slice(0, 500) ?? null },
+  });
+}
+
 /** Bir işletmenin menüsü için bugünün ziyaret sayacını +1 artırır. */
 export async function recordMenuVisit(slug: string): Promise<void> {
   const biz = await prisma.business.findUnique({

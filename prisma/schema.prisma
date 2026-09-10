@@ -227,6 +227,19 @@ model MenuVisit {
   @@index([businessId])
 }
 
+/// Tekil ziyaret kaydı (admin ziyaretçi paneli için): IP, yol, zaman.
+model Visit {
+  id        String   @id @default(cuid())
+  ip        String
+  path      String
+  ua        String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([ip])
+  @@index([path])
+}
+
 /// Masa — masaya özel QR için güvenli qrToken (tahmin edilemez, yenilenebilir).
 model RestaurantTable {
   id         String   @id @default(cuid())
