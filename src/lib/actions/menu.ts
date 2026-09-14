@@ -34,7 +34,7 @@ function parseItemLine(
     const description =
       cells.length >= 3 ? cells.slice(1, -1).join(" ").trim() || null : null;
     return {
-      name: name.slice(0, 80),
+      name: name.slice(0, 150),
       description: description ? description.slice(0, 300) : null,
       price,
     };
@@ -46,7 +46,7 @@ function parseItemLine(
     const price = parsePrice(m[2]);
     const name = m[1].trim();
     if (price !== null && name) {
-      return { name: name.slice(0, 80), description: null, price };
+      return { name: name.slice(0, 150), description: null, price };
     }
   }
   return null;
@@ -126,7 +126,7 @@ export async function importMenuRows(rows: ImportRow[]): Promise<ImportResult> {
   const clean = (Array.isArray(rows) ? rows : [])
     .map((r) => ({
       category: String(r?.category ?? "").trim().slice(0, 60) || "Diğer",
-      name: String(r?.name ?? "").trim().slice(0, 80),
+      name: String(r?.name ?? "").trim().slice(0, 150),
       description: r?.description
         ? String(r.description).trim().slice(0, 300) || null
         : null,
@@ -315,7 +315,7 @@ function parseCompliance(formData: FormData) {
 
 const itemSchema = z.object({
   categoryId: z.string().min(1),
-  name: z.string().trim().min(1, "Ürün adı gerekli").max(80),
+  name: z.string().trim().min(1, "Ürün adı gerekli").max(150),
   description: z.string().trim().max(300).optional(),
   price: z.coerce
     .number({ message: "Geçerli bir fiyat girin" })
