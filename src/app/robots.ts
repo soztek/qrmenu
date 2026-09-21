@@ -12,6 +12,8 @@ export default function robots(): MetadataRoute.Robots {
         "/api/",
         "/giris",
         "/kayit",
+        "/sifremi-unuttum",
+        "/sifre-sifirla",
         "/ekran",
         "/yazdir",
         "/qr-yazdir",

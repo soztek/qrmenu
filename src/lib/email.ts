@@ -161,6 +161,27 @@ export function saleNoticeEmail(p: {
 
 const waLink = () => `https://wa.me/${COMPANY.gsmRaw.replace(/\D/g, "")}`;
 
+/** Şifre sıfırlama e-postası (kayıtlı kullanıcıya link). */
+export function passwordResetEmail(p: {
+  name?: string | null;
+  resetUrl: string;
+}): { subject: string; html: string } {
+  const html = emailLayout(`
+    <h1 style="margin:0 0 6px;font-size:20px;color:#111827">Şifre sıfırlama</h1>
+    <p style="margin:0 0 16px;color:#4b5563;font-size:14px;line-height:1.6">
+      Merhaba${p.name ? " <b>" + p.name + "</b>" : ""}, hesabınız için şifre sıfırlama
+      talebi aldık. Yeni şifrenizi belirlemek için aşağıdaki butona tıklayın.
+      Bu bağlantı <b>1 saat</b> geçerlidir ve yalnızca bir kez kullanılabilir.
+    </p>
+    <div style="margin:6px 0 16px">${button(p.resetUrl, "Şifremi sıfırla")}</div>
+    <p style="margin:0 0 4px;color:#6b7280;font-size:12px">Buton çalışmazsa bu adresi tarayıcınıza yapıştırın:</p>
+    <p style="margin:0 0 16px;word-break:break-all;font-size:12px"><a href="${p.resetUrl}" style="color:#16a34a">${p.resetUrl}</a></p>
+    <p style="margin:0;color:#9ca3af;font-size:12px">
+      Bu talebi siz yapmadıysanız bu e-postayı yok sayabilirsiniz; şifreniz değişmez.
+    </p>`);
+  return { subject: `Şifre sıfırlama — ${COMPANY.shortName}`, html };
+}
+
 /** Söztek yöneticisine yeni işletme kaydı bildirimi. */
 export function newSignupNoticeEmail(p: {
   businessName: string;

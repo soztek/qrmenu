@@ -40,8 +40,22 @@ model User {
   role         Role      @default(owner)
   business     Business?
   sessions     Session[]
+  passwordResets PasswordResetToken[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+}
+
+/// Şifre sıfırlama tokenı — ham token e-postayla gider, DB'de yalnızca hash tutulur.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
 
 /// Oturum — httpOnly cookie'deki token bu satıra karşılık gelir.

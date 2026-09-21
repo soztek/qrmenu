@@ -1,15 +1,26 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState } from "react";
-import { loginAction, type AuthState } from "@/lib/actions/auth";
+import { requestPasswordResetAction, type AuthState } from "@/lib/actions/auth";
 import { Field, FormError } from "@/components/form";
 
-export function LoginForm() {
+export function ForgotForm() {
   const [state, action, pending] = useActionState<AuthState, FormData>(
-    loginAction,
+    requestPasswordResetAction,
     {},
   );
+
+  if (state.ok) {
+    return (
+      <div className="rounded-xl border border-green/40 bg-green-soft/40 p-4 text-sm text-fg">
+        <p className="font-semibold">Bağlantı gönderildi ✅</p>
+        <p className="mt-1 text-muted">
+          Bu e-posta kayıtlıysa, şifre sıfırlama bağlantısını gönderdik. Gelen
+          kutunuzu (ve spam klasörünü) kontrol edin. Bağlantı 1 saat geçerlidir.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <form action={action} className="space-y-4">
@@ -21,32 +32,13 @@ export function LoginForm() {
         placeholder="ornek@isletme.com"
         required
       />
-      <Field
-        label="Şifre"
-        name="password"
-        type="password"
-        autoComplete="current-password"
-        placeholder="Şifreniz"
-        required
-      />
-
-      <div className="text-right">
-        <Link
-          href="/sifremi-unuttum"
-          className="text-sm text-muted transition hover:text-green"
-        >
-          Şifremi unuttum?
-        </Link>
-      </div>
-
       <FormError message={state.error} />
-
       <button
         type="submit"
         disabled={pending}
         className="w-full rounded-lg bg-green py-2.5 text-sm font-semibold text-black transition hover:bg-green-dark disabled:opacity-60"
       >
-        {pending ? "Giriş yapılıyor…" : "Giriş yap"}
+        {pending ? "Gönderiliyor…" : "Sıfırlama bağlantısı gönder"}
       </button>
     </form>
   );

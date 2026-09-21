@@ -1,5 +1,6 @@
 "use server";
 
+import crypto from "crypto";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -12,9 +13,17 @@ import {
 import { uniqueBusinessSlug } from "@/lib/slug";
 import { TRIAL_DAYS } from "@/lib/plans";
 import { isAdminEmail } from "@/lib/admin";
-import { sendEmail, welcomeEmail, newSignupNoticeEmail } from "@/lib/email";
+import {
+  sendEmail,
+  welcomeEmail,
+  newSignupNoticeEmail,
+  passwordResetEmail,
+} from "@/lib/email";
+import { SITE_URL } from "@/lib/seo";
 
 export type AuthState = { error?: string; ok?: boolean };
+
+const sha256 = (s: string) => crypto.createHash("sha256").update(s).digest("hex");
 
 const changeSchema = z.object({
   current: z.string().min(1, "Mevcut şifreyi girin"),
@@ -160,4 +169,85 @@ export async function loginAction(
 export async function logoutAction(): Promise<void> {
   await destroySession();
   redirect("/");
+}
+
+/* ── Şifre sıfırlama ──────────────────────────────────────────── */
+
+/**
+ * "Şifremi unuttum": kayıtlı e-postaya sıfırlama linki gönderir.
+ * Güvenlik için e-postanın kayıtlı olup olmadığını ele vermez (her zaman ok döner).
+ */
+export async function requestPasswordResetAction(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (!email || !email.includes("@")) {
+    return { error: "Geçerli bir e-posta girin" };
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (user) {
+    // Önceki kullanılmamış tokenları temizle, yenisini oluştur.
+    await prisma.passwordResetToken.deleteMany({
+      where: { userId: user.id, usedAt: null },
+    });
+    const raw = crypto.randomBytes(32).toString("hex");
+    await prisma.passwordResetToken.create({
+      data: {
+        tokenHash: sha256(raw),
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 saat
+      },
+    });
+    const resetUrl = `${SITE_URL}/sifre-sifirla?token=${raw}`;
+    try {
+      const { subject, html } = passwordResetEmail({ name: user.name, resetUrl });
+      await sendEmail({ to: user.email, subject, html });
+    } catch (e) {
+      console.error("Şifre sıfırlama maili gönderilemedi:", e);
+    }
+  }
+  // Her durumda aynı sonuç (e-posta varlığını sızdırma).
+  return { ok: true };
+}
+
+/** Token + yeni şifre ile şifreyi değiştirir. */
+export async function resetPasswordAction(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const token = String(formData.get("token") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  if (password.length < 6) {
+    return { error: "Yeni şifre en az 6 karakter olmalı" };
+  }
+  if (!token) {
+    return { error: "Geçersiz bağlantı" };
+  }
+
+  const record = await prisma.passwordResetToken.findUnique({
+    where: { tokenHash: sha256(token) },
+  });
+  if (!record || record.usedAt || record.expiresAt < new Date()) {
+    return {
+      error:
+        "Bağlantı geçersiz veya süresi dolmuş. Lütfen yeni bir sıfırlama talebi oluşturun.",
+    };
+  }
+
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: record.userId },
+      data: { passwordHash: await hashPassword(password) },
+    }),
+    prisma.passwordResetToken.update({
+      where: { id: record.id },
+      data: { usedAt: new Date() },
+    }),
+    // Güvenlik: mevcut oturumları kapat.
+    prisma.session.deleteMany({ where: { userId: record.userId } }),
+  ]);
+
+  return { ok: true };
 }
