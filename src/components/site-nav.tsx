@@ -84,8 +84,8 @@ export function SiteNav() {
       <div
         className={`absolute inset-0 -z-10 border-b transition-all duration-300 ease-out ${
           scrolled
-            ? "border-border/70 bg-[#080b0f]/85 shadow-[0_10px_30px_-14px_rgba(0,0,0,0.7)] backdrop-blur-xl"
-            : "border-white/5 bg-gradient-to-b from-[#0d1117]/70 to-[#080b0f]/30 backdrop-blur-md"
+            ? "border-border bg-surface/85 shadow-[0_10px_30px_-14px_rgba(15,23,42,0.15)] backdrop-blur-xl"
+            : "border-transparent bg-surface/55 backdrop-blur-md"
         }`}
       >
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -215,7 +215,7 @@ export function SiteNav() {
       />
       <div
         id="mobile-menu"
-        className={`absolute inset-x-0 top-full origin-top overflow-hidden border-b border-border/70 bg-[#080b0f]/95 backdrop-blur-xl transition-[opacity,transform] duration-300 ease-out md:hidden ${
+        className={`absolute inset-x-0 top-full origin-top overflow-hidden border-b border-border bg-surface/95 backdrop-blur-xl transition-[opacity,transform] duration-300 ease-out md:hidden ${
           open
             ? "visible translate-y-0 opacity-100"
             : "invisible -translate-y-2 opacity-0"
