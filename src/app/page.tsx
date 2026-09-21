@@ -91,48 +91,63 @@ function Hero() {
   const { t } = useLang();
   return (
     <section className="relative overflow-hidden">
-      <div
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(600px 300px at 20% 0%, rgba(34,197,94,.14), transparent 60%), radial-gradient(500px 300px at 90% 20%, rgba(249,115,22,.12), transparent 60%)",
-        }}
-      />
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 pt-3 pb-12 md:grid-cols-2 md:pt-4 md:pb-16">
-        <div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted">
-            <span className="h-1.5 w-1.5 rounded-full bg-green" />
+      {/* Arka plan katmanları: gradyan + ince ızgara + yumuşak ışık kürleri */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(900px 500px at 12% -8%, rgba(34,197,94,.16), transparent 60%), radial-gradient(760px 420px at 96% 8%, rgba(249,115,22,.09), transparent 60%)",
+          }}
+        />
+        <div className="hero-grid absolute inset-0" />
+        <div className="hero-blob absolute -left-24 top-8 h-72 w-72 rounded-full bg-green/20 blur-[70px]" />
+        <div className="hero-blob hero-blob-2 absolute -right-16 top-28 h-72 w-72 rounded-full bg-orange/15 blur-[70px]" />
+      </div>
+
+      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 pt-8 pb-14 md:grid-cols-2 md:pt-12 md:pb-20">
+        <div className="max-w-xl">
+          <span className="inline-flex items-center gap-2 rounded-full border border-green/25 bg-green-soft/40 px-3.5 py-1.5 text-xs font-medium text-green">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-green" />
+            </span>
             {withDays(t.hero.badge)}
           </span>
-          <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
+          <h1 className="mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
             {t.hero.titleBefore}
             <span className="brand-gradient-text">{t.hero.titleHighlight}</span>
             {t.hero.titleAfter}
           </h1>
-          <p className="mt-5 max-w-md text-lg text-muted">{t.hero.subtitle}</p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          <p className="mt-6 max-w-md text-lg leading-relaxed text-muted">
+            {t.hero.subtitle}
+          </p>
+          <div className="mt-9 flex flex-wrap items-center gap-3">
             <Link
               href="/kayit"
-              className="rounded-lg bg-green px-6 py-3 text-sm font-semibold text-black transition hover:bg-green-dark"
+              className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-green to-green-dark px-7 py-3.5 text-sm font-semibold text-black shadow-[0_10px_30px_-8px_rgba(34,197,94,0.5)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_44px_-10px_rgba(34,197,94,0.66)] motion-reduce:transform-none"
             >
               {t.hero.ctaPrimary}
+              <span className="transition-transform duration-200 group-hover:translate-x-0.5">
+                →
+              </span>
             </Link>
             <a
               href={DEMO_MENU_PATH}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-border bg-surface px-6 py-3 text-sm font-semibold text-fg transition hover:border-green/50"
+              className="rounded-xl border border-border bg-surface/60 px-7 py-3.5 text-sm font-semibold text-fg backdrop-blur transition hover:border-green/50 hover:bg-surface"
             >
               {t.hero.ctaSecondary}
             </a>
           </div>
-          <div className="mt-8 flex items-center gap-6 text-xs text-faint">
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted">
             <span className="inline-flex items-center gap-1.5">
-              <Icon path={ICONS.check} className="h-4 w-4 text-green" />{" "}
+              <Icon path={ICONS.check} className="h-4 w-4 text-green" />
               {t.hero.check1}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <Icon path={ICONS.check} className="h-4 w-4 text-green" />{" "}
+              <Icon path={ICONS.check} className="h-4 w-4 text-green" />
               {t.hero.check2}
             </span>
           </div>
@@ -144,12 +159,16 @@ function Hero() {
   );
 }
 
-/* Telefon içinde gerçek Söztek QR Menü ekran görüntüsü */
+/* Gerçekçi telefon çerçevesi içinde gerçek Söztek QR Menü ekran görüntüsü */
 function PhoneMock() {
   return (
-    <div className="relative mx-auto w-full max-w-xs">
-      <div className="brand-glow rounded-[2.2rem] border border-border bg-surface p-3">
-        <div className="overflow-hidden rounded-[1.7rem] bg-bg">
+    <div className="relative mx-auto w-full max-w-[300px]">
+      {/* arka ışık */}
+      <div className="absolute -inset-10 -z-10 rounded-full bg-green/15 blur-3xl" />
+      <div className="hero-phone relative mx-auto w-[280px] rounded-[2.6rem] border border-white/10 bg-[#0c0c0f] p-2.5 shadow-[0_40px_90px_-24px_rgba(0,0,0,0.85)]">
+        {/* çentik */}
+        <div className="absolute left-1/2 top-3 z-10 h-5 w-24 -translate-x-1/2 rounded-b-2xl bg-black/90" />
+        <div className="overflow-hidden rounded-[2.05rem] bg-bg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/landing/menu-preview.jpeg"
