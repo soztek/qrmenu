@@ -636,7 +636,9 @@ function Footer() {
           <p>
             © {new Date().getFullYear()} {COMPANY.shortName}. {t.footer.rights}
           </p>
-          <p className="italic">“{COMPANY.slogan}”</p>
+          <p className="text-sm font-semibold italic text-fg">
+            “{COMPANY.slogan}”
+          </p>
         </div>
       </div>
     </footer>
