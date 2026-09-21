@@ -5,11 +5,11 @@
    Siyah zemin + yeşil (ana aksiyon) + turuncu (vurgu / CTA)
 ---------------------------------------------------------------- */
 @theme {
-  /* Zemin & yüzeyler */
-  --color-bg: #0a0a0b;
-  --color-surface: #121214;
-  --color-surface-2: #1a1a1e;
-  --color-border: #26262c;
+  /* Zemin & yüzeyler — lacivert/slate koyu tema */
+  --color-bg: #0b1220;
+  --color-surface: #121b2e;
+  --color-surface-2: #1b2740;
+  --color-border: #2a3651;
 
   /* Metin */
   --color-fg: #f5f5f4;
