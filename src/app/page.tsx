@@ -107,7 +107,7 @@ function Hero() {
 
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 pt-8 pb-14 md:grid-cols-2 md:pt-12 md:pb-20">
         <div className="max-w-xl">
-          <span className="inline-flex items-center gap-2 rounded-full border border-green/25 bg-green-soft/40 px-3.5 py-1.5 text-xs font-medium text-green">
+          <span className="inline-flex items-center gap-2 rounded-full border border-green/30 bg-green/10 px-3.5 py-1.5 text-xs font-semibold text-green-dark">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-green" />
@@ -336,7 +336,7 @@ function Features() {
               key={i}
               className="group rounded-2xl border border-border bg-surface p-6 transition hover:border-green/50"
             >
-              <span className="grid h-11 w-11 place-items-center rounded-xl bg-green-soft text-green transition group-hover:bg-green group-hover:text-black">
+              <span className="grid h-11 w-11 place-items-center rounded-xl bg-green/10 text-green-dark transition group-hover:bg-green group-hover:text-black">
                 <Icon path={FEATURE_ICONS[i]} className="h-5 w-5" />
               </span>
               <h3 className="mt-4 font-semibold">{f.title}</h3>
