@@ -636,7 +636,13 @@ function Footer() {
           <p>
             © {new Date().getFullYear()} {COMPANY.shortName}. {t.footer.rights}
           </p>
-          <p className="text-sm font-semibold italic text-fg">
+          <p
+            className="text-lg text-fg"
+            style={{
+              fontFamily:
+                '"Monotype Corsiva", "Segoe Script", "Brush Script MT", cursive',
+            }}
+          >
             “{COMPANY.slogan}”
           </p>
         </div>
