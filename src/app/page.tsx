@@ -182,13 +182,9 @@ function PhoneMock() {
 }
 
 /* ── güven şeridi ─────────────────────────────────────────────── */
-const TRUST_META = [
-  { emoji: "🛡️", cls: "border-green/30 bg-green/10 text-green-dark" },
-  { emoji: "🎁", cls: "border-orange/30 bg-orange/10 text-orange-dark" },
-  { emoji: "💳", cls: "border-green/30 bg-green/10 text-green-dark" },
-  { emoji: "🔒", cls: "border-orange/30 bg-orange/10 text-orange-dark" },
-  { emoji: "💬", cls: "border-green/30 bg-green/10 text-green-dark" },
-];
+const TRUST_EMOJI = ["🛡️", "🎁", "💳", "🔒", "💬"];
+/** Her maddede baştan kaç kelime turuncu olsun (kalanı beyaz). */
+const TRUST_ORANGE_LEAD = [2, 3, 2, 1, 1];
 
 function TrustStrip() {
   const { t } = useLang();
@@ -196,14 +192,19 @@ function TrustStrip() {
     <section className="border-y border-border/60 bg-surface-2/40">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2.5 px-4 py-6 md:flex-nowrap">
         {t.trust.items.map((item, i) => {
-          const meta = TRUST_META[i % TRUST_META.length];
+          const emoji = TRUST_EMOJI[i % TRUST_EMOJI.length];
+          const words = item.split(" ");
+          const lead = TRUST_ORANGE_LEAD[i] ?? 1;
+          const orange = words.slice(0, lead).join(" ");
+          const white = words.slice(lead).join(" ");
           return (
             <span
               key={item}
-              className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-[13px] font-semibold shadow-sm lg:text-sm ${meta.cls}`}
+              className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-white/10 bg-[#0a0a0b] px-4 py-2 text-[13px] font-semibold shadow-md lg:text-sm"
             >
-              <span aria-hidden className="text-base leading-none">{meta.emoji}</span>
-              {item}
+              <span aria-hidden className="text-base leading-none">{emoji}</span>
+              <span className="text-orange">{orange}</span>
+              {white && <span className="text-white"> {white}</span>}
             </span>
           );
         })}
