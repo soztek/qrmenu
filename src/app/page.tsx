@@ -67,21 +67,24 @@ const COMPLIANCE_ICONS = ["🔥", "⚠️", "🥩", "🚫", "₺", "🖨️"];
 export default function Home() {
   return (
     <LangProvider>
-      <VisitTracker kind="landing" />
-      <SiteNav />
-      <main className="flex-1">
-        <Hero />
-        <TrustStrip />
-        <PhotoMarquee />
-        <Problems />
-        <Features />
-        <HowItWorks />
-        <Compliance />
-        <Pricing />
-        <Faq />
-        <FinalCta />
-      </main>
-      <Footer />
+      {/* Açık tema yalnızca ana sayfaya hapsedildi (panel/menüler koyu kalır) */}
+      <div className="landing-light flex min-h-screen flex-col bg-bg text-fg">
+        <VisitTracker kind="landing" />
+        <SiteNav />
+        <main className="flex-1">
+          <Hero />
+          <TrustStrip />
+          <PhotoMarquee />
+          <Problems />
+          <Features />
+          <HowItWorks />
+          <Compliance />
+          <Pricing />
+          <Faq />
+          <FinalCta />
+        </main>
+        <Footer />
+      </div>
     </LangProvider>
   );
 }
